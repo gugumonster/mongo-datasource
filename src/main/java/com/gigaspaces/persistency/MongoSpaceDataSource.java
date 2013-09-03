@@ -23,7 +23,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 	@Override
 	public DataIterator<SpaceTypeDescriptor> initialMetadataLoad() {
 		try {
-			inspector.inspectDB("mydb");
+			inspector.inspectDB(mongoClientPool);
 
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
