@@ -53,6 +53,7 @@ public class DefaultMongoToPojoMapper implements Mappper<DBObject, Object> {
 		return pojo;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void mapFixedProperties(DBObject bson, Object pojo) {
 
 		for (String key : bson.keySet()) {
@@ -66,7 +67,15 @@ public class DefaultMongoToPojoMapper implements Mappper<DBObject, Object> {
 
 			Setter setter = getSetter(sp.getName());
 
-			setter.invokeSetter(pojo, bson.get(key));
+			Object arg0 = bson.get(key);
+
+			if (sp.getType().isEnum()) {
+				DBObject obj = (DBObject) arg0;
+				String value = (String) obj.get(obj.keySet().iterator().next());
+				arg0 = Enum.valueOf((Class<Enum>) sp.getType(), value);
+			}
+
+			setter.invokeSetter(pojo, arg0);
 		}
 	}
 

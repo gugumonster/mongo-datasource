@@ -1,8 +1,8 @@
-package com.gigaspaces.persistency.metadata;
-
-public interface PropertyMetadata {
-
-	String getName();
-
-	void setName(String name);
-}
+//package com.gigaspaces.persistency.metadata;
+//
+//public interface PropertyMetadata {
+//
+//	String getName();
+//
+//	void setName(String name);
+//}
