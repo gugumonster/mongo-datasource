@@ -16,12 +16,19 @@ import com.gigaspaces.datasource.SpaceDataSource;
 import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
+import com.gigaspaces.persistency.datasource.MongoDataIterator;
 import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
+import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+/**
+ * @author Shadi Massalha
+ * 
+ */
 public class MongoSpaceDataSource extends SpaceDataSource {
 
 	private MongoClientPool mongoClientPool;
@@ -76,19 +83,25 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public Object getById(DataSourceIdQuery idQuery) {
-		// TODO Auto-generated method stub
-		return super.getById(idQuery);
+
+		DBObject q = new BasicDBObject("_id",idQuery.getId());
+		
+		DB db = mongoClientPool.checkOut();
+		
+		DBCollection c = db.getCollection(idQuery.getTypeDescriptor().getTypeSimpleName());
+		
+		DBCursor cursor = c.find(q);
+		
+		return new MongoDataIterator(cursor, idQuery.getTypeDescriptor());
 	}
 
 	@Override
 	public DataIterator<Object> getDataIterator(DataSourceQuery query) {
-		// TODO Auto-generated method stub
-		return super.getDataIterator(query);
+		return new MongoSqlQueryDataIterator(mongoClientPool, query);
 	}
 
 	@Override
 	public DataIterator<Object> getDataIteratorByIds(DataSourceIdsQuery arg0) {
-		// TODO Auto-generated method stub
 		return super.getDataIteratorByIds(arg0);
 	}
 
@@ -108,12 +121,10 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public boolean supportsInheritance() {
-		// TODO Auto-generated method stub
-		return super.supportsInheritance();
+		return false;
 	}
 
 	public void close() {
-		// TODO Auto-generated method stub
-
+		mongoClientPool.close();
 	}
 }

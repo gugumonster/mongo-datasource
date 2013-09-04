@@ -17,6 +17,7 @@ public class SQL2MongoBaseVisitorV1<T> extends AbstractParseTreeVisitor<T>
 	private int and = -1;
 	private int or = -1;
 	private int operator = 0;
+	private int parameters = 0;
 
 	private StringBuilder query;
 	private StringBuilder orderBy;
@@ -100,19 +101,22 @@ public class SQL2MongoBaseVisitorV1<T> extends AbstractParseTreeVisitor<T>
 			or = ctx.and().size();
 			query.append("{$or : [");
 		}
-		
+
 		T r = visitChildren(ctx);
 
 		if (or == 0 || and == 0) {
 			query.append("]}");
 		}
-		
+
 		return r;
 	}
 
 	public T visitValue(SQL2MongoParser.ValueContext ctx) {
 
-		query.append(ctx.getText());
+		if ("?".equals(ctx.getText())) {
+			query.append("\"?\"");
+		} else
+			query.append(ctx.getText());
 
 		if (operator > 0) {
 			operator--;
@@ -138,9 +142,9 @@ public class SQL2MongoBaseVisitorV1<T> extends AbstractParseTreeVisitor<T>
 
 		T r = visitChildren(ctx);
 
-//		if (or == 0) {
-//			query.append("]}");
-//		}
+		// if (or == 0) {
+		// query.append("]}");
+		// }
 
 		return r;
 	}

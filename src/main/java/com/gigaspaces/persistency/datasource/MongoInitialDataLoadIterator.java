@@ -1,14 +1,8 @@
 package com.gigaspaces.persistency.datasource;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 
-import org.springframework.util.ReflectionUtils;
-
 import com.gigaspaces.datasource.DataIterator;
-import com.gigaspaces.metadata.SpacePropertyDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.MongoClientPool;
 import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
@@ -23,17 +17,17 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 	private int index;
 	private SpaceTypeDescriptor spaceTypeDescriptor;
 	private DefaultMongoToPojoMapper pojoMapper;
-	
+
 	public MongoInitialDataLoadIterator(LinkedList<SpaceTypeDescriptor> type,
 			MongoClientPool mongoClientPool) throws ClassNotFoundException {
 		this.mongoClientPool = mongoClientPool;
-		this.types = type;				
+		this.types = type;
 		this.currenCursor = nextDataIterator();
-		
+
 	}
 
 	public synchronized boolean hasNext() {
-		
+
 		while (currenCursor != null && !currenCursor.hasNext()) {
 			try {
 				currenCursor = nextDataIterator();
@@ -49,7 +43,7 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 		DBObject obj = currenCursor.next();
 
 		Object pojo = pojoMapper.maps(obj);
-				
+
 		return pojo;
 	}
 
@@ -59,7 +53,8 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 	}
 
 	public synchronized void close() {
-		currenCursor.close();
+		if (currenCursor != null)
+			currenCursor.close();
 	}
 
 	private DBCursor nextDataIterator() throws ClassNotFoundException {

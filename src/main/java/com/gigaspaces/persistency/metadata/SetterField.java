@@ -16,10 +16,19 @@ public class SetterField implements Setter {
 		this.field = field;
 	}
 
-	public final void invokeSetter(Object target, Object arg0) {
+	public final synchronized void invokeSetter(Object target, Object arg0) {
 
-		ReflectionUtils.setField(field, target, arg0);
+		boolean access = field.isAccessible();
+		try {
+			field.setAccessible(true);
+			ReflectionUtils.setField(field, target, arg0);
+		} finally {
+			field.setAccessible(access);
+		}
+	}
 
+	public synchronized Class<?> getType() {
+		return field.getType();
 	}
 
 }

@@ -12,30 +12,30 @@ public class DefaultSetterFactory {
 	public Setter create(Class<?> clazz,
 			SpacePropertyDescriptor spacePropertyDescriptor) {
 
-		Method method = getSetterMethod(clazz, spacePropertyDescriptor);
+		return create(clazz, spacePropertyDescriptor.getName());
+	}
+
+	private Method getSetterMethod(Class<?> clazz, String key) {
+
+		String setterName = "set" + key.substring(0, 1).toUpperCase()
+				+ key.substring(1);
+
+		Method method = ReflectionUtils.findMethod(clazz, setterName);
+
+		return method;
+	}
+
+	public Setter create(Class<?> clazz, String key) {
+
+		Method method = getSetterMethod(clazz, key);
 
 		if (method == null) {
-			Field field = ReflectionUtils.findField(clazz,
-					spacePropertyDescriptor.getName(),
-					spacePropertyDescriptor.getType());
-
+			Field field = ReflectionUtils.findField(clazz, key);
+			
 			return new SetterField(field);
 		}
 
 		return new SetterMehtod(method);
-	}
 
-	private Method getSetterMethod(Class<?> clazz,
-			SpacePropertyDescriptor spacePropertyDescriptor) {
-
-		String propertyId = spacePropertyDescriptor.getName();
-
-		String setterName = "set" + propertyId.substring(0, 1).toUpperCase()
-				+ propertyId.substring(1);
-
-		Method method = ReflectionUtils.findMethod(clazz, setterName,
-				spacePropertyDescriptor.getType());
-
-		return method;
 	}
 }

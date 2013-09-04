@@ -2,18 +2,11 @@ package com.gigaspaces.persistency;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 
-import org.bson.BSON;
-
-import com.gigaspaces.internal.client.utils.SerializationUtil;
 import com.gigaspaces.internal.io.IOUtils;
-import com.gigaspaces.internal.io.MarshObject;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
-import com.gigaspaces.metadata.StorageType;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
@@ -26,6 +19,10 @@ import com.mongodb.DBCollection;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
+/**
+ * @author Shadi Massalha
+ *
+ */
 public class MongoSpaceSynchronizationEndpoint extends
 		SpaceSynchronizationEndpoint {
 

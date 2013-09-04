@@ -1,18 +1,22 @@
 package com.gigaspaces.persistency;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xalan.xsltc.compiler.sym;
 
 import com.gigaspaces.document.SpaceDocument;
+import com.gigaspaces.metadata.SpaceTypeDescriptor;
+import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
+import com.gigaspaces.persistency.metadata.Mapper;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 
@@ -27,7 +31,9 @@ public class MongoClientPool {
 	private MongoClient client;
 	private String dbName;
 	private final Object batchSynchLock = new Object();
-	
+	private static final Map<SpaceTypeDescriptor, Mapper<SpaceDocument, DBObject>> _mappingCache = new HashMap<SpaceTypeDescriptor, Mapper<SpaceDocument, DBObject>>();
+	private static final Object synch = new Object();
+
 	public MongoClientPool(ServerAddress host, String db) {
 		this.client = new MongoClient(host);
 		this.dbName = db;
@@ -53,12 +59,16 @@ public class MongoClientPool {
 					continue;
 
 				SpaceDocument spaceDoc = dataSyncOperation.getDataAsDocument();
+				SpaceTypeDescriptor spaceTypeDescriptor = dataSyncOperation
+						.getTypeDescriptor();
 
-				DBCollection col = db.getCollection(dataSyncOperation
-						.getTypeDescriptor().getTypeSimpleName());
+				Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor);
 
-				BasicDBObject obj = convert(spaceDoc.getProperties());
-				
+				DBObject obj = mapper.maps(spaceDoc);
+
+				DBCollection col = db.getCollection(spaceTypeDescriptor
+						.getTypeSimpleName());
+
 				switch (dataSyncOperation.getDataSyncOperationType()) {
 				case WRITE:
 				case UPDATE:
@@ -80,28 +90,23 @@ public class MongoClientPool {
 		}
 	}
 
-	private BasicDBObject convert(Map<String, Object> properties) {
+	protected Mapper<SpaceDocument, DBObject> getMapper(
+			SpaceTypeDescriptor spaceTypeDescriptor) {
+		Mapper<SpaceDocument, DBObject> mapper = null;
 
-		Map<String, Object> map2 = new LinkedHashMap<String, Object>();
+		synchronized (synch) {
+			mapper = _mappingCache.get(spaceTypeDescriptor);
 
-		for (Entry<String, Object> entry : properties.entrySet()) {
+			if (mapper == null) {
+				mapper = new DefaultPojoToMongoMapper(spaceTypeDescriptor);
 
-			if (entry.getValue().getClass().isEnum()) {
-				map2.put(entry.getKey(), new BasicDBObject(entry.getValue()
-						.getClass().getSimpleName(), entry.getValue()
-						.toString()));
-			} else if (entry.getValue() instanceof SpaceDocument) {
-				Map<String, Object> m = ((SpaceDocument) entry.getValue())
-						.getProperties();
-
-				map2.put(entry.getKey(), convert(m));
-			} else {
-				map2.put(entry.getKey(), entry.getValue());
+				_mappingCache.put(spaceTypeDescriptor, mapper);
 			}
 		}
 
-		return new BasicDBObject(map2);
+		return mapper;
 	}
+
 	public void close() {
 		// TODO Auto-generated method stub
 
