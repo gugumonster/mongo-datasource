@@ -17,7 +17,7 @@ public class MongoDataIterator implements DataIterator<Object> {
 			throw new NullPointerException("mongo cursor can not be null");
 
 		if (spaceTypeDescriptor == null)
-			throw new NullPointerException(
+			throw new IllegalArgumentException(
 					"spaceTypeDescriptor can not be null");
 
 		this.cursor = cursor;
