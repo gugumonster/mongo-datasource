@@ -33,7 +33,7 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 				query.getTypeDescriptor());
 	}
 
-	public synchronized boolean hasNext() {
+	public boolean hasNext() {
 		if (cursor == null) {
 			init();
 		}
@@ -41,7 +41,7 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 		return cursor.hasNext();
 	}
 
-	public synchronized Object next() {
+	public Object next() {
 
 		Object result = pojoMapper.maps(cursor.next());
 
@@ -60,12 +60,12 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	}
 
-	public synchronized void remove() {
+	public void remove() {
 		if (cursor != null)
 			cursor.remove();
 	}
 
-	public synchronized void close() {
+	public void close() {
 		if (cursor != null)
 			cursor.close();
 

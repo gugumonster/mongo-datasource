@@ -11,33 +11,34 @@ public class MongoDataIterator implements DataIterator<Object> {
 	private DBCursor cursor;
 	private DefaultMongoToPojoMapper mapper;
 
-	public MongoDataIterator(DBCursor cursor,SpaceTypeDescriptor spaceTypeDescriptor) {
+	public MongoDataIterator(DBCursor cursor,
+			SpaceTypeDescriptor spaceTypeDescriptor) {
 		if (cursor == null)
 			throw new NullPointerException("mongo cursor can not be null");
 
 		if (spaceTypeDescriptor == null)
-			throw new NullPointerException("spaceTypeDescriptor can not be null");
-		
+			throw new NullPointerException(
+					"spaceTypeDescriptor can not be null");
+
 		this.cursor = cursor;
 		this.mapper = new DefaultMongoToPojoMapper(spaceTypeDescriptor);
-		
 	}
 
-	public synchronized boolean hasNext() {
+	public boolean hasNext() {
 		return cursor.hasNext();
 	}
 
-	public synchronized Object next() {
-		DBObject bson= cursor.next();
-		
+	public Object next() {
+		DBObject bson = cursor.next();
+
 		return mapper.maps(bson);
 	}
 
-	public synchronized void remove() {
+	public void remove() {
 		cursor.remove();
 	}
 
-	public synchronized void close() {
+	public void close() {
 		cursor.close();
 	}
 

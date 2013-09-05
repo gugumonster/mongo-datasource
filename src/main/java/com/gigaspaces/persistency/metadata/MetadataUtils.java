@@ -5,6 +5,10 @@ import java.util.Map;
 
 import com.mongodb.DBObject;
 
+/**
+ * @author Shadi Massalha
+ *
+ */
 public class MetadataUtils {
 
 	private static final Map<String, Map<String, Setter>> cacheType = new HashMap<String, Map<String, Setter>>();

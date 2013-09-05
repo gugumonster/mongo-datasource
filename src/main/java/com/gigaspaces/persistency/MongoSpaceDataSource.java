@@ -16,9 +16,9 @@ import com.gigaspaces.datasource.SpaceDataSource;
 import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
-import com.gigaspaces.persistency.datasource.MongoDataIterator;
 import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
 import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
+import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -84,15 +84,19 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 	@Override
 	public Object getById(DataSourceIdQuery idQuery) {
 
-		DBObject q = new BasicDBObject("_id",idQuery.getId());
-		
+		DBObject q = new BasicDBObject("_id", idQuery.getId());
+
 		DB db = mongoClientPool.checkOut();
-		
-		DBCollection c = db.getCollection(idQuery.getTypeDescriptor().getTypeSimpleName());
-		
-		DBCursor cursor = c.find(q);
-		
-		return new MongoDataIterator(cursor, idQuery.getTypeDescriptor());
+
+		DBCollection c = db.getCollection(idQuery.getTypeDescriptor()
+				.getTypeSimpleName());
+
+		DBObject cursor = c.findOne(q);
+
+		DefaultMongoToPojoMapper mapper = new DefaultMongoToPojoMapper(
+				idQuery.getTypeDescriptor());
+
+		return mapper.maps(cursor);
 	}
 
 	@Override
@@ -107,16 +111,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public DataIterator<Object> initialDataLoad() {
-		DataIterator<Object> iterator = super.initialDataLoad();
-
-		try {
-			iterator = new MongoInitialDataLoadIterator(types, mongoClientPool);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return iterator;
+		return new MongoInitialDataLoadIterator(types, mongoClientPool);
 	}
 
 	@Override

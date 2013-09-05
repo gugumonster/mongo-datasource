@@ -9,5 +9,9 @@ package com.gigaspaces.persistency.metadata;
  */
 public interface Mapper<F, T> {
 
+	/**
+	 * @param bson
+	 * @return
+	 */
 	T maps(F bson);
 }
