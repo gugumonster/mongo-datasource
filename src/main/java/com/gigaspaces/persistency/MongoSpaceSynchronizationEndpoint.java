@@ -4,9 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
+import com.gigaspaces.persistency.metadata.IndexBuilder;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
@@ -21,23 +25,30 @@ import com.mongodb.WriteResult;
 
 /**
  * @author Shadi Massalha
- *
+ * 
  */
 public class MongoSpaceSynchronizationEndpoint extends
 		SpaceSynchronizationEndpoint {
 
-	private MongoClientPool mongoClientPool;
+	private static final Log logger = LogFactory
+			.getLog(MongoSpaceSynchronizationEndpoint.class);
 
-	public MongoSpaceSynchronizationEndpoint(MongoClientPool mongoClientPool) {
-		this.mongoClientPool = mongoClientPool;
+	private MongoClientPool pool;
+	private IndexBuilder indexBuilder;
+
+	public MongoSpaceSynchronizationEndpoint(MongoClientPool pool) {
+		this.pool = pool;
+		this.indexBuilder = new IndexBuilder(pool);
 	}
 
 	@Override
 	public void onIntroduceType(IntroduceTypeData introduceTypeData) {
 
+		logger.trace("onIntroduceType(" + introduceTypeData + ")");
+
 		SpaceTypeDescriptor t = introduceTypeData.getTypeDescriptor();
 
-		DB db = mongoClientPool.checkOut();
+		DB db = pool.checkOut();
 
 		DBCollection m = db.getCollection("metadata");
 
@@ -57,19 +68,24 @@ public class MongoSpaceSynchronizationEndpoint extends
 
 			obj.append("value", bos.toByteArray());
 
+			WriteResult wr = m.save(obj, WriteConcern.SAFE);
+
+			logger.trace(wr);
+			
+			
+			indexBuilder.ensureIndexes(introduceTypeData.getTypeDescriptor());
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e);
 		}
 
-		WriteResult wr = m.save(obj, WriteConcern.SAFE);
-
-		System.err.println(wr);
 	}
 
 	@Override
 	public void onAddIndex(AddIndexData addIndexData) {
-		super.onAddIndex(addIndexData);
+
+		indexBuilder.ensureIndexes(addIndexData);
+		// super.onAddIndex(addIndexData);
 	}
 
 	@Override
@@ -88,10 +104,16 @@ public class MongoSpaceSynchronizationEndpoint extends
 	}
 
 	public void close() {
-		mongoClientPool.close();
+
+		logger.trace("MongoSpaceSynchronizationEndpoint.close()");
+
+		pool.close();
 	}
 
 	private void doSynchronization(DataSyncOperation dataSyncOperations[]) {
-		mongoClientPool.performBatch(dataSyncOperations);
+
+		logger.trace("MongoSpaceSynchronizationEndpoint.doSynchronization()");
+
+		pool.performBatch(dataSyncOperations);
 	}
 }
