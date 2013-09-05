@@ -20,6 +20,7 @@ import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
 import com.gigaspaces.persistency.datasource.DefaultMongoDataIterator;
+
 import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
 import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
 import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
@@ -122,24 +123,22 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 		QueryBuilder q = QueryBuilder.start();
 
-		
 		for (Object id : arg0.getIds()) {
 
 			q.or(new BasicDBObject("_id", id));
 		}
-		
+
 		DBObject q1 = q.get();
-		
 
 		DB db = pool.checkOut();
 
 		DBCollection c = db.getCollection(arg0.getTypeDescriptor()
 				.getTypeSimpleName());
-		
-		
+
 		DBCursor cursor = c.find(q1);
-		
+
 		return new DefaultMongoDataIterator(cursor, arg0.getTypeDescriptor());
+
 	}
 
 	@Override
