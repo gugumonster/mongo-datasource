@@ -19,6 +19,7 @@ import com.gigaspaces.datasource.SpaceDataSource;
 import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
+import com.gigaspaces.persistency.datasource.DefaultMongoDataIterator;
 import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
 import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
 import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
@@ -28,6 +29,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.QueryBuilder;
 
 /**
  * @author Shadi Massalha
@@ -117,9 +119,27 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public DataIterator<Object> getDataIteratorByIds(DataSourceIdsQuery arg0) {
+
+		QueryBuilder q = QueryBuilder.start();
+
+		
+		for (Object id : arg0.getIds()) {
+
+			q.or(new BasicDBObject("_id", id));
+		}
+		
+		DBObject q1 = q.get();
+		
+
+		DB db = pool.checkOut();
+
+		DBCollection c = db.getCollection(arg0.getTypeDescriptor()
+				.getTypeSimpleName());
 		
 		
-		return super.getDataIteratorByIds(arg0);
+		DBCursor cursor = c.find(q1);
+		
+		return new DefaultMongoDataIterator(cursor, arg0.getTypeDescriptor());
 	}
 
 	@Override

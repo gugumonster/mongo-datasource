@@ -6,12 +6,12 @@ import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-public class MongoDataIterator implements DataIterator<Object> {
+public class DefaultMongoDataIterator implements DataIterator<Object> {
 
 	private DBCursor cursor;
 	private DefaultMongoToPojoMapper mapper;
 
-	public MongoDataIterator(DBCursor cursor,
+	public DefaultMongoDataIterator(DBCursor cursor,
 			SpaceTypeDescriptor spaceTypeDescriptor) {
 		if (cursor == null)
 			throw new NullPointerException("mongo cursor can not be null");
