@@ -7,7 +7,6 @@ import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpacePropertyDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 
 /**
  * @author Shadi Massalha
@@ -33,7 +32,8 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 
 		if (!spaceTypeDescriptor.supportsDynamicProperties())
 			try {
-				this.clazz = Class.forName(this.spaceTypeDescriptor.getTypeName());
+				this.clazz = Class.forName(this.spaceTypeDescriptor
+						.getTypeName());
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

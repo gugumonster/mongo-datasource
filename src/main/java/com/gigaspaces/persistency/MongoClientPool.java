@@ -12,6 +12,7 @@ import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
 import com.gigaspaces.persistency.metadata.Mapper;
+
 import com.gigaspaces.sync.DataSyncOperation;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -31,6 +32,7 @@ public class MongoClientPool {
 	private MongoClient client;
 	private String dbName;
 	private final Object batchSynchLock = new Object();
+
 	private static final Map<SpaceTypeDescriptor, Mapper<SpaceDocument, DBObject>> _mappingCache = new HashMap<SpaceTypeDescriptor, Mapper<SpaceDocument, DBObject>>();
 	private static final Object synch = new Object();
 
@@ -92,6 +94,7 @@ public class MongoClientPool {
 
 	protected Mapper<SpaceDocument, DBObject> getMapper(
 			SpaceTypeDescriptor spaceTypeDescriptor) {
+
 		Mapper<SpaceDocument, DBObject> mapper = null;
 
 		synchronized (synch) {
@@ -102,6 +105,7 @@ public class MongoClientPool {
 
 				_mappingCache.put(spaceTypeDescriptor, mapper);
 			}
+
 		}
 
 		return mapper;
