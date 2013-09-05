@@ -19,8 +19,7 @@ public class MongoDataIterator implements DataIterator<Object> {
 			throw new NullPointerException("spaceTypeDescriptor can not be null");
 		
 		this.cursor = cursor;
-		this.mapper = new DefaultMongoToPojoMapper(spaceTypeDescriptor);
-		
+		this.mapper = new DefaultMongoToPojoMapper(spaceTypeDescriptor);		
 	}
 
 	public synchronized boolean hasNext() {

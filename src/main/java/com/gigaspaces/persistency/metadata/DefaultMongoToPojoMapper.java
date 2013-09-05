@@ -42,6 +42,9 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 
 	public synchronized Object maps(DBObject bson) {
 
+		if (bson == null)
+			return null;
+
 		if (this.spaceTypeDescriptor.supportsDynamicProperties())
 			return mapDocument(bson);
 

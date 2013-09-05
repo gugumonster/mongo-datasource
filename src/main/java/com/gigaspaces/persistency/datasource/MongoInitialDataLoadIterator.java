@@ -19,7 +19,7 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 	private DefaultMongoToPojoMapper pojoMapper;
 
 	public MongoInitialDataLoadIterator(LinkedList<SpaceTypeDescriptor> type,
-			MongoClientPool mongoClientPool) throws ClassNotFoundException {
+			MongoClientPool mongoClientPool) {
 		this.mongoClientPool = mongoClientPool;
 		this.types = type;
 		this.currenCursor = nextDataIterator();
@@ -29,12 +29,7 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 	public synchronized boolean hasNext() {
 
 		while (currenCursor != null && !currenCursor.hasNext()) {
-			try {
-				currenCursor = nextDataIterator();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			currenCursor = nextDataIterator();
 		}
 		return currenCursor != null;
 	}
@@ -57,7 +52,7 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 			currenCursor.close();
 	}
 
-	private DBCursor nextDataIterator() throws ClassNotFoundException {
+	private DBCursor nextDataIterator() {
 
 		if (types.size() <= index)
 			return null;
