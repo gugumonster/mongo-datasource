@@ -16,8 +16,7 @@ public class SQL2MongoBaseVisitorV1<T> extends AbstractParseTreeVisitor<T>
 	private int expr = 0;
 	private int and = -1;
 	private int or = -1;
-	private int operator = 0;
-	private int parameters = 0;
+	private int operator = 0;	
 
 	private StringBuilder query;
 	private StringBuilder orderBy;

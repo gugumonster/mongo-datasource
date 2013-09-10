@@ -1,9 +1,7 @@
 package com.gigaspaces.persistency;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,9 +10,7 @@ import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
 import com.gigaspaces.persistency.metadata.Mapper;
-
 import com.gigaspaces.sync.DataSyncOperation;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -49,6 +45,8 @@ public class MongoClientPool {
 
 	public void performBatch(DataSyncOperation[] dataSyncOperations) {
 
+		logger.trace("MongoClientPool.performBatch()");
+
 		final DB db = checkOut();
 
 		synchronized (batchSynchLock) {
@@ -79,13 +77,13 @@ public class MongoClientPool {
 					break;
 				case REMOVE:
 					col.remove(obj);
-					break;
-				default: {
+					break;				
+				default:
 					throw new IllegalStateException(
 							"Unsupported data sync operation type: "
 									+ dataSyncOperation
 											.getDataSyncOperationType());
-				}
+
 				}
 
 			}
@@ -111,8 +109,7 @@ public class MongoClientPool {
 		return mapper;
 	}
 
-	public void close() {
-		// TODO Auto-generated method stub
-
+	public synchronized void close() {
+		client.close();
 	}
 }
