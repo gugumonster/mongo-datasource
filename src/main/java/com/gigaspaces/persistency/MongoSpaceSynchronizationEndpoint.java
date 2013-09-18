@@ -30,8 +30,8 @@ import com.mongodb.WriteResult;
 public class MongoSpaceSynchronizationEndpoint extends
 		SpaceSynchronizationEndpoint {
 
-	private static final Log logger = LogFactory
-			.getLog(MongoSpaceSynchronizationEndpoint.class);
+//	private static final Log logger = LogFactory
+//			.getLog(MongoSpaceSynchronizationEndpoint.class);
 
 	private MongoClientPool pool;
 	private IndexBuilder indexBuilder;
@@ -44,7 +44,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 	@Override
 	public void onIntroduceType(IntroduceTypeData introduceTypeData) {
 
-		logger.trace("onIntroduceType(" + introduceTypeData + ")");
+		//logger.trace("onIntroduceType(" + introduceTypeData + ")");
 
 		SpaceTypeDescriptor t = introduceTypeData.getTypeDescriptor();
 
@@ -70,13 +70,13 @@ public class MongoSpaceSynchronizationEndpoint extends
 
 			WriteResult wr = m.save(obj, WriteConcern.SAFE);
 
-			logger.trace(wr);
+			//logger.trace(wr);
 			
 			
 			indexBuilder.ensureIndexes(introduceTypeData.getTypeDescriptor());
 			
 		} catch (IOException e) {
-			logger.error(e);
+			//logger.error(e);
 		}
 
 	}
@@ -105,14 +105,14 @@ public class MongoSpaceSynchronizationEndpoint extends
 
 	public void close() {
 
-		logger.trace("MongoSpaceSynchronizationEndpoint.close()");
+		//logger.trace("MongoSpaceSynchronizationEndpoint.close()");
 
 		pool.close();
 	}
 
 	private void doSynchronization(DataSyncOperation dataSyncOperations[]) {
 
-		logger.trace("MongoSpaceSynchronizationEndpoint.doSynchronization()");
+		//logger.trace("MongoSpaceSynchronizationEndpoint.doSynchronization()");
 
 		pool.performBatch(dataSyncOperations);
 	}

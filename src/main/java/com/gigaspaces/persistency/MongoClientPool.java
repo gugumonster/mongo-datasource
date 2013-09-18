@@ -3,9 +3,6 @@ package com.gigaspaces.persistency;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
@@ -23,7 +20,7 @@ import com.mongodb.ServerAddress;
  */
 public class MongoClientPool {
 
-	private static final Log logger = LogFactory.getLog(MongoClientPool.class);
+	//private static final Log logger = LogFactory.getLog(MongoClientPool.class);
 
 	private MongoClient client;
 	private String dbName;
@@ -40,12 +37,11 @@ public class MongoClientPool {
 	public synchronized DB checkOut() {
 		DB db = client.getDB(dbName);
 		return db;
-
 	}
 
 	public void performBatch(DataSyncOperation[] dataSyncOperations) {
 
-		logger.trace("MongoClientPool.performBatch()");
+		//logger.trace("MongoClientPool.performBatch()");
 
 		final DB db = checkOut();
 

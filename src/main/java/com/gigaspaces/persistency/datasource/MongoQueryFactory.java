@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.TokenStream;
 import com.gigaspaces.datasource.DataSourceQuery;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitorV1;
+import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitorV3;
 import com.gigaspaces.persistency.parser.SQL2MongoLexer;
 import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
@@ -51,18 +52,16 @@ public class MongoQueryFactory {
 
 		if (qResult.containsField(typeDescriptor.getIdPropertyName())) {
 
-			Object value= qResult.get(typeDescriptor.getIdPropertyName());
-			
+			Object value = qResult.get(typeDescriptor.getIdPropertyName());
+
 			qResult.put("_id", value);
-			
+
 			qResult.removeField(typeDescriptor.getIdPropertyName());
 		}
 
 	}
 
 	private static StringBuilder parse(String sql) {
-		StringBuilder sb = new StringBuilder();
-
 		ANTLRInputStream charstream = new ANTLRInputStream(sql);
 
 		SQL2MongoLexer lexer = new SQL2MongoLexer(charstream);
@@ -71,9 +70,11 @@ public class MongoQueryFactory {
 
 		SQL2MongoParser parser = new SQL2MongoParser(tokenStream);
 
-		parser.parse().accept(new SQL2MongoBaseVisitorV1<ParseContext>(sb));
+		SQL2MongoBaseVisitorV3<ParseContext> visitor = new SQL2MongoBaseVisitorV3<ParseContext>();
 
-		return sb;
+		parser.parse().accept(visitor);
+
+		return new StringBuilder(visitor.getQuery().toString());
 	}
 
 	public static DBObject bind(StringBuilder sb, Object[] parameters) {

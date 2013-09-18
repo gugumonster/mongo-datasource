@@ -6,11 +6,6 @@ grammar SQL2Mongo;
 @parser::header { package org.sql2mongo.parse; }
 @lexer::header { package org.sql2mongo.parse; }
 
-@members {
-	StringBuilder sb= new StringBuilder();
-	int open=0;
-}
-
 parse
   :  expression EOF!
   ;
@@ -28,17 +23,15 @@ not: 'NOT'^ atom
 atom: ID (op^ value)*
 	| '('! expression ')'!;
 
-op: '>' | '>=' | '<' | '<=' | '=' | '<>';
+op: '>' | '>=' | '<' | '<=' | '=' | '!=' | 'like' | 'rlike' | 'is';
 
-orderBy: 'ORDER BY' ID+;
-groupBy: 'GROUP BY' ID+;
-
-value:(INT|BOOL|PRAM) ;
-
+value: (NULL|INT|BOOL|FLOAT|STRING|PRAM);
 
 INT: ('0'..'9')+;
+FLOAT:INT'.'INT;
 BOOL : ('true'|'false');
-STRING: '\'.*\'';
+STRING: '\''.*?'\'';
+NULL: 'NOT'?' '+'null';
 PRAM:'?';
 
 ID : NAME ('.' NAME)*;

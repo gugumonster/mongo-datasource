@@ -38,8 +38,8 @@ import com.mongodb.QueryBuilder;
  */
 public class MongoSpaceDataSource extends SpaceDataSource {
 
-	private static final Log logger = LogFactory
-			.getLog(MongoSpaceDataSource.class);
+//	private static final Log logger = LogFactory
+//			.getLog(MongoSpaceDataSource.class);
 
 	private MongoClientPool pool;
 	private LinkedList<SpaceTypeDescriptor> types;
@@ -53,7 +53,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 	@Override
 	public DataIterator<SpaceTypeDescriptor> initialMetadataLoad() {
 
-		logger.trace("MongoSpaceDataSource.initialMetadataLoad()");
+		//logger.trace("MongoSpaceDataSource.initialMetadataLoad()");
 
 		DB db = pool.checkOut();
 
@@ -84,10 +84,10 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 				indexBuilder.ensureIndexes(spaceTypeDescriptor);
 
 			} catch (ClassNotFoundException e) {
-				logger.error(e);
+				//logger.error(e);
 				e.printStackTrace();
 			} catch (IOException e) {
-				logger.error(e);
+				//logger.error(e);
 				e.printStackTrace();
 			}
 		}

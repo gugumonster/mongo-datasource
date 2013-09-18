@@ -19,8 +19,6 @@ public class SQL2MongoBaseVisitorV1<T> extends AbstractParseTreeVisitor<T>
 	private int operator = 0;	
 
 	private StringBuilder query;
-	private StringBuilder orderBy;
-	private StringBuilder groupBy;
 
 	public SQL2MongoBaseVisitorV1(StringBuilder sb) {
 		map.put(">", "$gt");
@@ -29,17 +27,6 @@ public class SQL2MongoBaseVisitorV1<T> extends AbstractParseTreeVisitor<T>
 		map.put("<=", "$lte");
 		map.put("<>", "$ne");
 		this.query = sb;
-	}
-
-	public SQL2MongoBaseVisitorV1(StringBuilder query, StringBuilder orderBy) {
-		this(query);
-		this.orderBy = orderBy;
-	}
-
-	public SQL2MongoBaseVisitorV1(StringBuilder query, StringBuilder orderBy,
-			StringBuilder groupBy) {
-		this(query, orderBy);
-		this.groupBy = groupBy;
 	}
 
 	public T visitNot(SQL2MongoParser.NotContext ctx) {
@@ -141,10 +128,6 @@ public class SQL2MongoBaseVisitorV1<T> extends AbstractParseTreeVisitor<T>
 
 		T r = visitChildren(ctx);
 
-		// if (or == 0) {
-		// query.append("]}");
-		// }
-
 		return r;
 	}
 
@@ -158,19 +141,4 @@ public class SQL2MongoBaseVisitorV1<T> extends AbstractParseTreeVisitor<T>
 		}
 		return false;
 	}
-
-	public T visitGroupBy(SQL2MongoParser.GroupByContext ctx) {
-
-		groupBy.append("{}");
-
-		return visitChildren(ctx);
-	}
-
-	public T visitOrderBy(SQL2MongoParser.OrderByContext ctx) {
-
-		orderBy.append("{}");
-
-		return visitChildren(ctx);
-	}
-
 }

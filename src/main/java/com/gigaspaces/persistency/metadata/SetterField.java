@@ -30,5 +30,4 @@ public class SetterField implements Setter {
 	public synchronized Class<?> getType() {
 		return field.getType();
 	}
-
 }
