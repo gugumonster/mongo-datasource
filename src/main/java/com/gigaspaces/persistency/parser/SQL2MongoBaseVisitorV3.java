@@ -127,7 +127,13 @@ public class SQL2MongoBaseVisitorV3<T> extends AbstractParseTreeVisitor<T>
 	 * @return Object instance type
 	 */
 	private Object evaluate(String val) {
-
+		
+		if(val == null || val.isEmpty())
+			return null;
+		
+		if(val.equals("?"))
+			return "'%{}'";
+		
 		boolean isValue = val.matches("'[^']*'");
 		// test if value is String
 		if (isValue) {

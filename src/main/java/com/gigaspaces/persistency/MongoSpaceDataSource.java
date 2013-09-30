@@ -35,11 +35,12 @@ import com.mongodb.QueryBuilder;
 /**
  * @author Shadi Massalha
  * 
+ *         default mongo db datasource implementation
  */
 public class MongoSpaceDataSource extends SpaceDataSource {
 
-//	private static final Log logger = LogFactory
-//			.getLog(MongoSpaceDataSource.class);
+	private static final Log logger = LogFactory
+			.getLog(MongoSpaceDataSource.class);
 
 	private MongoClientPool pool;
 	private LinkedList<SpaceTypeDescriptor> types;
@@ -53,11 +54,9 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 	@Override
 	public DataIterator<SpaceTypeDescriptor> initialMetadataLoad() {
 
-		//logger.trace("MongoSpaceDataSource.initialMetadataLoad()");
+		logger.trace("MongoSpaceDataSource.initialMetadataLoad()");
 
-		DB db = pool.checkOut();
-
-		DBCollection metadata = db.getCollection("metadata");
+		DBCollection metadata = pool.getCollection("metadata");
 
 		DBCursor m = metadata.find();
 
@@ -84,11 +83,12 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 				indexBuilder.ensureIndexes(spaceTypeDescriptor);
 
 			} catch (ClassNotFoundException e) {
-				//logger.error(e);
-				e.printStackTrace();
+				logger.error(e);
+				// throw e;
+
 			} catch (IOException e) {
-				//logger.error(e);
-				e.printStackTrace();
+				logger.error(e);
+				// throw e;
 			}
 		}
 
@@ -100,9 +100,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 		DBObject q = new BasicDBObject("_id", idQuery.getId());
 
-		DB db = pool.checkOut();
-
-		DBCollection c = db.getCollection(idQuery.getTypeDescriptor()
+		DBCollection c = pool.getCollection(idQuery.getTypeDescriptor()
 				.getTypeSimpleName());
 
 		DBObject cursor = c.findOne(q);
@@ -130,9 +128,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 		DBObject q1 = q.get();
 
-		DB db = pool.checkOut();
-
-		DBCollection c = db.getCollection(arg0.getTypeDescriptor()
+		DBCollection c = pool.getCollection(arg0.getTypeDescriptor()
 				.getTypeSimpleName());
 
 		DBCursor cursor = c.find(q1);

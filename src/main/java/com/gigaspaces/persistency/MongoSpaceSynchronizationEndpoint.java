@@ -48,9 +48,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 
 		SpaceTypeDescriptor t = introduceTypeData.getTypeDescriptor();
 
-		DB db = pool.checkOut();
-
-		DBCollection m = db.getCollection("metadata");
+		DBCollection m = pool.getCollection("metadata");
 
 		BasicDBObject obj = new BasicDBObject();
 

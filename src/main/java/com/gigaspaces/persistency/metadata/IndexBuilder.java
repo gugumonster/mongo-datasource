@@ -48,9 +48,7 @@ public class IndexBuilder {
 	private void createIndex(String typeSimpleName, String routing,
 			SpaceIndexType type, DBObject option) {
 
-		DB db = pool.checkOut();
-
-		DBCollection c = db.getCollection(typeSimpleName);
+		DBCollection c = pool.getCollection(typeSimpleName);
 
 		DBObject keys;
 

@@ -6,19 +6,21 @@ import java.util.Map;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStream;
+import org.apache.poi.util.TempFile;
 
 import com.gigaspaces.datasource.DataSourceQuery;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitorV1;
 import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitorV3;
 import com.gigaspaces.persistency.parser.SQL2MongoLexer;
 import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
 import com.mongodb.DBObject;
+import com.mongodb.QueryBuilder;
 import com.mongodb.util.JSON;
 
 public class MongoQueryFactory {
 
+	private static final String PARAM_PLACEHOLDER = "\"'%{}'\"";
 	private static final Map<SpaceTypeDescriptor, Map<String, StringBuilder>> cachedQuery = new HashMap<SpaceTypeDescriptor, Map<String, StringBuilder>>();
 
 	public synchronized static DBObject create(DataSourceQuery sql) {
@@ -80,16 +82,18 @@ public class MongoQueryFactory {
 	public static DBObject bind(StringBuilder sb, Object[] parameters) {
 
 		StringBuilder sb1 = new StringBuilder(sb.toString());
+		
+		if (parameters != null) {
+			for (int i = 0, j = 0; i < parameters.length; i++) {
 
-		for (int i = 0, j = 0; i < parameters.length; i++) {
+				j = sb1.indexOf(PARAM_PLACEHOLDER, j);
 
-			j = sb1.indexOf("\"?\"", j);
+				String p = serialize(parameters[i]);
 
-			String p = serialize(parameters[i]);
-
-			sb1.replace(j, j + 3, p);
+				sb1.replace(j, j + PARAM_PLACEHOLDER.length(), p);
+			}
 		}
-
+		
 		DBObject q = (DBObject) JSON.parse(sb1.toString());
 
 		return q;

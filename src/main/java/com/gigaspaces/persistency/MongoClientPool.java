@@ -20,7 +20,8 @@ import com.mongodb.ServerAddress;
  */
 public class MongoClientPool {
 
-	//private static final Log logger = LogFactory.getLog(MongoClientPool.class);
+	// private static final Log logger =
+	// LogFactory.getLog(MongoClientPool.class);
 
 	private MongoClient client;
 	private String dbName;
@@ -39,11 +40,14 @@ public class MongoClientPool {
 		return db;
 	}
 
+	public synchronized DBCollection getCollection(String collectionName) {
+		DB db = checkOut();
+		return db.getCollection(collectionName);
+	}
+
 	public void performBatch(DataSyncOperation[] dataSyncOperations) {
 
-		//logger.trace("MongoClientPool.performBatch()");
-
-		final DB db = checkOut();
+		// logger.trace("MongoClientPool.performBatch()");
 
 		synchronized (batchSynchLock) {
 			int len = dataSyncOperations.length;
@@ -62,7 +66,7 @@ public class MongoClientPool {
 
 				DBObject obj = mapper.maps(spaceDoc);
 
-				DBCollection col = db.getCollection(spaceTypeDescriptor
+				DBCollection col = getCollection(spaceTypeDescriptor
 						.getTypeSimpleName());
 
 				switch (dataSyncOperation.getDataSyncOperationType()) {
@@ -73,7 +77,7 @@ public class MongoClientPool {
 					break;
 				case REMOVE:
 					col.remove(obj);
-					break;				
+					break;
 				default:
 					throw new IllegalStateException(
 							"Unsupported data sync operation type: "

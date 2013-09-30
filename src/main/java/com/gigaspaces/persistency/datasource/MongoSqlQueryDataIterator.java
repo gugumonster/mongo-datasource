@@ -1,5 +1,8 @@
 package com.gigaspaces.persistency.datasource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.datasource.DataSourceQuery;
 import com.gigaspaces.persistency.MongoClientPool;
@@ -10,7 +13,14 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+/**
+ * @author Shadi Massalha
+ * 
+ */
 public class MongoSqlQueryDataIterator implements DataIterator<Object> {
+
+	private static final Log logger = LogFactory
+			.getLog(MongoSqlQueryDataIterator.class);
 
 	private MongoClientPool pool;
 	private DataSourceQuery query;
@@ -49,12 +59,15 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 	}
 
 	private void init() {
-		DB db = pool.checkOut();
-
-		DBCollection collection = db.getCollection(query.getTypeDescriptor()
+		DBCollection collection = pool.getCollection(query.getTypeDescriptor()
 				.getTypeSimpleName());
 
-		DBObject q = MongoQueryFactory.create(query);
+		DBObject q = null;
+
+		logger.debug(query);
+
+		if (query.supportsAsSQLQuery())
+			q = MongoQueryFactory.create(query);
 
 		cursor = collection.find(q);
 

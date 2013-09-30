@@ -59,8 +59,8 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 		spaceTypeDescriptor = types.get(index++);
 		this.pojoMapper = new DefaultMongoToPojoMapper(spaceTypeDescriptor);
-		DBCursor cursor = mongoClientPool.checkOut()
-				.getCollection(spaceTypeDescriptor.getTypeSimpleName()).find();
+		DBCursor cursor = mongoClientPool.getCollection(
+				spaceTypeDescriptor.getTypeSimpleName()).find();
 
 		return cursor;
 	}
