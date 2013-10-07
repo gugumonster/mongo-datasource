@@ -16,6 +16,8 @@ import org.openspaces.core.GigaSpace;
 
 import com.gigaspaces.client.ClearModifiers;
 import com.gigaspaces.client.CountModifiers;
+import com.gigaspaces.persistency.utils.CommandLineProcess;
+import com.gigaspaces.persistency.utils.IRepetitiveRunnable;
 import com.j_spaces.core.IJSpace;
 import com.j_spaces.core.admin.StatisticsAdmin;
 
@@ -26,16 +28,42 @@ public abstract class AbstractSystemTestUnit {
 	protected GigaSpace gigaSpace;
 	protected ProcessingUnit pu;
 
+	protected CommandLineProcess gsAgent;
+	protected CommandLineProcess mongod;
+
 	AbstractSystemTestUnit() {
 		admin = new AdminFactory().addGroup(getTestGroup()).createAdmin();
 	}
 
 	@Before
 	public void start() {
+
+		startMongoDB();
+
+		startGSAgent();
+
 		admin.getGridServiceManagers().waitForAtLeastOne();
 
 		deployQASpace();
 
+	}
+
+	protected void startGSAgent() {
+		gsAgent = new CommandLineProcess(
+				"C:/Temp/gigaspaces-xap-premium-9.6.0-ga/bin/gs-agent.bat",
+				init());
+
+		Thread th1 = new Thread(gsAgent);
+
+		th1.start();
+	}
+
+	protected void startMongoDB() {
+		mongod = new CommandLineProcess("C:/mongodb/bin/mongod.exe", null);
+
+		Thread th1 = new Thread(mongod);
+
+		th1.start();
 	}
 
 	private static Map<String, String> init() {

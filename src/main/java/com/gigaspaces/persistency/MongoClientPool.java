@@ -3,6 +3,9 @@ package com.gigaspaces.persistency;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
@@ -20,8 +23,7 @@ import com.mongodb.ServerAddress;
  */
 public class MongoClientPool {
 
-	// private static final Log logger =
-	// LogFactory.getLog(MongoClientPool.class);
+	private static final Log logger = LogFactory.getLog(MongoClientPool.class);
 
 	private MongoClient client;
 	private String dbName;
@@ -47,7 +49,9 @@ public class MongoClientPool {
 
 	public void performBatch(DataSyncOperation[] dataSyncOperations) {
 
-		// logger.trace("MongoClientPool.performBatch()");
+		if(logger.isTraceEnabled()){
+			logger.trace("MongoClientPool.performBatch("+dataSyncOperations+")");
+		}
 
 		synchronized (batchSynchLock) {
 			int len = dataSyncOperations.length;
@@ -67,12 +71,13 @@ public class MongoClientPool {
 				DBObject obj = mapper.maps(spaceDoc);
 
 				DBCollection col = getCollection(spaceTypeDescriptor
-						.getTypeSimpleName());
+						.getTypeName());
 
 				switch (dataSyncOperation.getDataSyncOperationType()) {
 				case WRITE:
 				case UPDATE:
 				case PARTIAL_UPDATE:
+				case CHANGE:
 					col.save(obj);
 					break;
 				case REMOVE:

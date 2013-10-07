@@ -60,7 +60,7 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	private void init() {
 		DBCollection collection = pool.getCollection(query.getTypeDescriptor()
-				.getTypeSimpleName());
+				.getTypeName());
 
 		DBObject q = null;
 
