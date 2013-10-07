@@ -1,13 +1,11 @@
 package com.gigaspaces.persistency.utils;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
 
 public class AssertUtils {
 
-	@SuppressWarnings("unchecked")
 	public static void AssertEquals(String message, List expecteds, List actuals) {
 
 		//Collections.sort(expecteds);

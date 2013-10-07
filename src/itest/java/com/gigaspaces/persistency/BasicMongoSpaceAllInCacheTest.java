@@ -23,8 +23,6 @@ public class BasicMongoSpaceAllInCacheTest extends AbstractSystemTestUnit {
 
 		IssuePojo[] pojos = gigaSpace.readMultiple(new IssuePojo(), 20);
 
-		// Assert.assertArrayEquals(issuePojos.toArray(), pojos);
-
 		AssertUtils.AssertEquals("", issuePojos, Arrays.asList(pojos));
 	}
 

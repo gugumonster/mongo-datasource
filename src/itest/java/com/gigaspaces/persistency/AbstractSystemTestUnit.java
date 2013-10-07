@@ -49,30 +49,20 @@ public abstract class AbstractSystemTestUnit {
 	}
 
 	protected void startGSAgent() {
+		Map<String, String> env = new HashMap<String, String>();
+
+		env.put("LOOKUPGROUPS", getTestGroup());
+
 		gsAgent = new CommandLineProcess(
-				"C:/Temp/gigaspaces-xap-premium-9.6.0-ga/bin/gs-agent.bat",
-				init());
+				"C:/Temp/gigaspaces-xap-premium-9.6.0-ga/bin/gs-agent.bat", env);
 
-		Thread th1 = new Thread(gsAgent);
-
-		th1.start();
+		new Thread(gsAgent).start();
 	}
 
 	protected void startMongoDB() {
 		mongod = new CommandLineProcess("C:/mongodb/bin/mongod.exe", null);
 
-		Thread th1 = new Thread(mongod);
-
-		th1.start();
-	}
-
-	private static Map<String, String> init() {
-
-		Map<String, String> env = new HashMap<String, String>();
-
-		env.put("LOOKUPGROUPS", getTestGroup());
-
-		return env;
+		new Thread(mongod).start();
 	}
 
 	@Test
