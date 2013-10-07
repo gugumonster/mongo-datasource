@@ -1,4 +1,4 @@
-package com.gigaspaces.persistency;
+package com.gigaspaces.persistency.utils;
 
 public interface IRepetitiveRunnable {
 	void run() throws Exception;

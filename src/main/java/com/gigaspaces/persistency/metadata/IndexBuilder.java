@@ -36,11 +36,11 @@ public class IndexBuilder {
 					|| idx.getName().equals(routing))
 				continue;
 
-			createIndex(spaceTypeDescriptor.getTypeSimpleName(), idx);
+			createIndex(spaceTypeDescriptor.getTypeName(), idx);
 		}
 
 		if (!id.equals(routing)) {
-			createIndex(spaceTypeDescriptor.getTypeSimpleName(), routing,
+			createIndex(spaceTypeDescriptor.getTypeName(), routing,
 					SpaceIndexType.BASIC, new BasicDBObject());
 		}
 	}

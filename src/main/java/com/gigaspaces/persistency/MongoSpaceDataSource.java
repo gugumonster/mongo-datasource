@@ -1,10 +1,21 @@
+/*******************************************************************************
+ * Copyright (c) 2012 GigaSpaces Technologies Ltd. All rights reserved
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 package com.gigaspaces.persistency;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
 import java.util.LinkedList;
 
 import org.apache.commons.logging.Log;
@@ -16,80 +27,59 @@ import com.gigaspaces.datasource.DataSourceIdQuery;
 import com.gigaspaces.datasource.DataSourceIdsQuery;
 import com.gigaspaces.datasource.DataSourceQuery;
 import com.gigaspaces.datasource.SpaceDataSource;
-import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
 import com.gigaspaces.persistency.datasource.DefaultMongoDataIterator;
-
 import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
 import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
 import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
-import com.gigaspaces.persistency.metadata.IndexBuilder;
+import com.gigaspaces.persistency.metadata.MetadataManager;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
 
 /**
- * @author Shadi Massalha
  * 
- *         default mongo db datasource implementation
+ * A MonogDB implementation of {@link com.gigaspaces.datasource.SpaceDataSource}.
+ * 
+ * @since 9.7.1
+ * @author Shadi Massalha
  */
 public class MongoSpaceDataSource extends SpaceDataSource {
 
 	private static final Log logger = LogFactory
 			.getLog(MongoSpaceDataSource.class);
 
-	private MongoClientPool pool;
+	private MongoClientPool mongoClient;
 	private LinkedList<SpaceTypeDescriptor> types;
-	private IndexBuilder indexBuilder;
 
-	public MongoSpaceDataSource(MongoClientPool pool) {
-		this.pool = pool;
-		this.indexBuilder = new IndexBuilder(pool);
+	private final MetadataManager metadataManager;
+
+	public MongoSpaceDataSource(MongoClientPool mongoClient) {
+		
+		if(mongoClient == null)
+			throw new IllegalArgumentException("mongoClient must be set and initiated");
+		
+		this.metadataManager = new MetadataManager(mongoClient);
+		this.mongoClient = mongoClient;
+
 	}
 
 	@Override
 	public DataIterator<SpaceTypeDescriptor> initialMetadataLoad() {
 
-		logger.trace("MongoSpaceDataSource.initialMetadataLoad()");
+		if (logger.isDebugEnabled())
+			logger.debug("MongoSpaceDataSource.initialMetadataLoad()");
 
-		DBCollection metadata = pool.getCollection("metadata");
-
-		DBCursor m = metadata.find();
-
-		types = new LinkedList<SpaceTypeDescriptor>();
-
-		while (m.hasNext()) {
-			DBObject type = m.next();
-
-			Object b = type.get("value");
-
-			try {
-
-				ObjectInput in = new ObjectInputStream(
-						new ByteArrayInputStream((byte[]) b));
-
-				Serializable typeDescriptorVersionedSerializableWrapper = IOUtils
-						.readObject(in);
-
-				SpaceTypeDescriptor spaceTypeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils
-						.fromSerializableForm(typeDescriptorVersionedSerializableWrapper);
-
-				types.add(spaceTypeDescriptor);
-
-				indexBuilder.ensureIndexes(spaceTypeDescriptor);
-
-			} catch (ClassNotFoundException e) {
-				logger.error(e);
-				// throw e;
-
-			} catch (IOException e) {
-				logger.error(e);
-				// throw e;
-			}
+		try {
+			types = metadataManager.loadMetadata();
+		} catch (ClassNotFoundException e) {			
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		return new DataIteratorAdapter<SpaceTypeDescriptor>(types.iterator());
@@ -98,10 +88,13 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 	@Override
 	public Object getById(DataSourceIdQuery idQuery) {
 
+		if (logger.isDebugEnabled())
+			logger.debug("MongoSpaceDataSource.getById(" + idQuery + ")");
+
 		DBObject q = new BasicDBObject("_id", idQuery.getId());
 
-		DBCollection c = pool.getCollection(idQuery.getTypeDescriptor()
-				.getTypeSimpleName());
+		DBCollection c = mongoClient.getCollection(idQuery.getTypeDescriptor()
+				.getTypeName());
 
 		DBObject cursor = c.findOne(q);
 
@@ -113,7 +106,11 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public DataIterator<Object> getDataIterator(DataSourceQuery query) {
-		return new MongoSqlQueryDataIterator(pool, query);
+
+		if (logger.isDebugEnabled())
+			logger.debug("MongoSpaceDataSource.getDataIterator()");
+
+		return new MongoSqlQueryDataIterator(mongoClient, query);
 	}
 
 	@Override
@@ -128,8 +125,8 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 		DBObject q1 = q.get();
 
-		DBCollection c = pool.getCollection(arg0.getTypeDescriptor()
-				.getTypeSimpleName());
+		DBCollection c = mongoClient.getCollection(arg0.getTypeDescriptor()
+				.getTypeName());
 
 		DBCursor cursor = c.find(q1);
 
@@ -139,15 +136,23 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public DataIterator<Object> initialDataLoad() {
-		return new MongoInitialDataLoadIterator(types, pool);
+		return new MongoInitialDataLoadIterator(types, mongoClient);
 	}
 
+    /**
+     * Returns <code>false</code>, inheritance is not supported.
+     * @return <code>false</code>.
+     */
 	@Override
 	public boolean supportsInheritance() {
 		return false;
 	}
 
 	public void close() {
-		pool.close();
+
+		if (logger.isDebugEnabled())
+			logger.debug("MongoSpaceDataSource.close()");
+
+		metadataManager.close();
 	}
 }
