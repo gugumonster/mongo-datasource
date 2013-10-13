@@ -101,8 +101,12 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	}
 
 	private void createMongoClient() {
-		client = new MongoClientPoolConfigurer().addresses(addresses).db(db)
-				.user(user).password(password).create();
+		client = new MongoClientPoolConfigurer()
+						.addresses(addresses)
+						.db(db)
+						.user(user)
+						.password(password)
+						.create();
 	}
 
 	/**

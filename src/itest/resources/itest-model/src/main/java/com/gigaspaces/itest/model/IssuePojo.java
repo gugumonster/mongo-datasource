@@ -8,14 +8,15 @@ public class IssuePojo implements Comparable<IssuePojo> {
 
 	private Integer id;
 	private String name;
-	
-	public IssuePojo() {}
-	
+
+	public IssuePojo() {
+	}
+
 	public IssuePojo(Integer id, String name) {
-		this.id= id;
+		this.id = id;
 		this.name = name;
 	}
-	
+
 	@SpaceId
 	public Integer getId() {
 		return id;
@@ -34,13 +35,30 @@ public class IssuePojo implements Comparable<IssuePojo> {
 	}
 
 	public int compareTo(IssuePojo o) {
-		
-		if(id == o.id)
+
+		if (id == o.id)
 			return 0;
-		
-		return id - o.id;	
+
+		return id - o.id;
 	}
 
-	
+	@Override
+	public boolean equals(Object obj) {
+		if (!IssuePojo.class.equals(obj.getClass()))
+			return false;
+
+		if (this == obj)
+			return true;
+
+		IssuePojo obj1 = (IssuePojo) obj;
+
+		if (!id.equals(obj1.id))
+			return false;
+
+		if (!name.equals(obj1.name))
+			return false;
+
+		return true;
+	}
 
 }

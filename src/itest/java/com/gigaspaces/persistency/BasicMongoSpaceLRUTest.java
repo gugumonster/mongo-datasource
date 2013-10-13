@@ -1,6 +1,5 @@
 package com.gigaspaces.persistency;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +11,7 @@ public class BasicMongoSpaceLRUTest extends AbstractSystemTestUnit {
 	@Override
 	public void test() {
 		List<IssuePojo> issuePojos = new LinkedList<IssuePojo>();
+		
 		for (int i = 0; i < 15; i++) {
 			issuePojos.add(new IssuePojo(i, "dank" + i));
 		}

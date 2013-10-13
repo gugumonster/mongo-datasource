@@ -34,5 +34,4 @@ public class BasicMongoSpaceAllInCacheTest extends AbstractSystemTestUnit {
 
 		AssertUtils.AssertEquals("", issuePojos, pojos);
 	}
-
 }

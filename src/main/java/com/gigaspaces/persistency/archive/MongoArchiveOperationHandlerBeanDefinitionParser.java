@@ -1,6 +1,7 @@
 package com.gigaspaces.persistency.archive;
 
-import org.jini.rio.qos.measurable.cpu.MpstatOutputParser;
+import java.util.List;
+
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -22,9 +23,6 @@ public class MongoArchiveOperationHandlerBeanDefinitionParser extends
 	private static final String MONGO_PASSWORD = "password";
 	private static final String MONGO_ADRESSES = "addresses";
 
-	// private static final String CASSANDRA_KEYSPACE="keyspace";
-	// private static final String CASSANDRA_HOSTS="hosts";
-	// private static final String CASSANDRA_PORT="port";
 	// private static final String CASSANDRA_CONSISTENCY="write-consistency";
 
 	@Override
@@ -41,12 +39,10 @@ public class MongoArchiveOperationHandlerBeanDefinitionParser extends
 		if (StringUtils.hasLength(gigaSpace)) {
 			builder.addPropertyReference("gigaSpace", gigaSpace);
 		}
-
-		String adresses = element.getAttribute(MONGO_ADRESSES);
-		element.getElementsByTagName(MONGO_ADRESSES);
-//		if (StringUtils.hasLength(keyspace)) {
-//			builder.addPropertyValue("keyspace", keyspace);
-//		}
+		// TODO: check this
+		List<?> addresses = parserContext.getDelegate().parseListElement(
+				element, builder.getRawBeanDefinition());
+		builder.addPropertyValue("addresses", addresses);
 
 		String db = element.getAttribute(MONGO_DB);
 		if (StringUtils.hasLength(db)) {
