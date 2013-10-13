@@ -95,6 +95,7 @@ public class MetadataManager {
 			logger.trace(wr);
 
 			indexBuilder.ensureIndexes(introduceTypeData.getTypeDescriptor());
+			pool.cacheSpaceTypeDesciptor(t);
 
 		} catch (IOException e) {
 			logger.error(e);

@@ -1,14 +1,16 @@
 package com.gigaspaces.persistency.error;
 
-public class MongoMetadataException extends Exception {
+public class MongoMetadataException extends SpaceMongoException {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public MongoMetadataException(String name) {
 		super(String.format("invalid collection name", name));
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8121486259267830343L;
+	
 
 }
