@@ -6,7 +6,7 @@ import com.gigaspaces.annotation.pojo.SpaceProperty;
 
 
 @SpaceClass
-public class SmallTypeHierarcyCassandraSpaceDataClassA {
+public class SmallTypeHierarcyMongoDBSpaceDataClassA {
 
 	@Override
 	public int hashCode() {
@@ -25,7 +25,7 @@ public class SmallTypeHierarcyCassandraSpaceDataClassA {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SmallTypeHierarcyCassandraSpaceDataClassA other = (SmallTypeHierarcyCassandraSpaceDataClassA) obj;
+		SmallTypeHierarcyMongoDBSpaceDataClassA other = (SmallTypeHierarcyMongoDBSpaceDataClassA) obj;
 		if (aProp == null) {
 			if (other.aProp != null)
 				return false;

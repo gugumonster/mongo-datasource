@@ -4,13 +4,13 @@ import com.gigaspaces.annotation.pojo.SpaceClass;
 import com.gigaspaces.annotation.pojo.SpaceProperty;
 
 @SpaceClass
-public class SmallTypeHierarcyCassandraSpaceDataClassC extends
-		SmallTypeHierarcyCassandraSpaceDataClassB {
+public class SmallTypeHierarcyMongoDBSpaceDataClassB extends
+		SmallTypeHierarcyMongoDBSpaceDataClassA {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((cProp == null) ? 0 : cProp.hashCode());
+		result = prime * result + ((bProp == null) ? 0 : bProp.hashCode());
 		return result;
 	}
 
@@ -22,23 +22,23 @@ public class SmallTypeHierarcyCassandraSpaceDataClassC extends
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SmallTypeHierarcyCassandraSpaceDataClassC other = (SmallTypeHierarcyCassandraSpaceDataClassC) obj;
-		if (cProp == null) {
-			if (other.cProp != null)
+		SmallTypeHierarcyMongoDBSpaceDataClassB other = (SmallTypeHierarcyMongoDBSpaceDataClassB) obj;
+		if (bProp == null) {
+			if (other.bProp != null)
 				return false;
-		} else if (!cProp.equals(other.cProp))
+		} else if (!bProp.equals(other.bProp))
 			return false;
 		return true;
 	}
 
-	private String cProp;
+	private String bProp;
 
 	@SpaceProperty
-	public String getCProp() {
-		return cProp;
+	public String getBProp() {
+		return bProp;
 	}
 
-	public void setCProp(String cProp) {
-		this.cProp = cProp;
+	public void setBProp(String bProp) {
+		this.bProp = bProp;
 	}
 }
