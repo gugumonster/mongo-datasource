@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openspaces.admin.Admin;
 import org.openspaces.admin.AdminFactory;
+import org.openspaces.admin.gsa.GridServiceAgent;
 import org.openspaces.admin.pu.ProcessingUnit;
 import org.openspaces.admin.pu.ProcessingUnitDeployment;
 import org.openspaces.core.GigaSpace;
@@ -69,7 +70,7 @@ public abstract class AbstractSystemTestUnit {
 	public abstract void test();
 
 	private void deployQASpace() {
-		File puArchive = new File("C:/Temp/qa-space.jar");
+		File puArchive = new File("C:/Temp/mongodb-qa-space-0.0.1-SNAPSHOT.jar");
 
 		ProcessingUnitDeployment deployment = new ProcessingUnitDeployment(
 				puArchive);
@@ -92,8 +93,17 @@ public abstract class AbstractSystemTestUnit {
 
 	@After
 	public void stop() {
+
 		pu.undeployAndWait();
 
+		for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
+			gsa.shutdown();
+		}
+
+		CommandLineProcess stopMongo = new CommandLineProcess(
+				"taskkill /F /IM mongod.exe", null);
+
+		// stopMongo.run();
 	}
 
 	protected void waitForEmptyReplicationBacklogAndClearMemory(

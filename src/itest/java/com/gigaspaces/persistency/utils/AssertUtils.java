@@ -8,12 +8,8 @@ public class AssertUtils {
 
 	public static void AssertEquals(String message, List expecteds, List actuals) {
 
-		//Collections.sort(expecteds);
-		//Collections.sort(actuals);
-		
 		for(int i=0;i<actuals.size();i++){
-			
-			Assert.assertTrue(message,expecteds.contains(actuals.get(i)));
+			Assert.assertEquals(message,expecteds.get(i), actuals.get(i));			
 		}
 	}
 }

@@ -51,6 +51,7 @@ public class MongoClientPool {
 
 		if(logger.isTraceEnabled()){
 			logger.trace("MongoClientPool.performBatch("+dataSyncOperations+")");
+			logger.trace("Batch size to be performed is "+ dataSyncOperations.length);
 		}
 
 		synchronized (batchSynchLock) {

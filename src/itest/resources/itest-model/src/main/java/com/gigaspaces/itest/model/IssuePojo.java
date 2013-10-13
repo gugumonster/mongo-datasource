@@ -4,7 +4,7 @@ import com.gigaspaces.annotation.pojo.SpaceClass;
 import com.gigaspaces.annotation.pojo.SpaceId;
 
 @SpaceClass
-public class IssuePojo {
+public class IssuePojo implements Comparable<IssuePojo> {
 
 	private Integer id;
 	private String name;
@@ -31,6 +31,14 @@ public class IssuePojo {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public int compareTo(IssuePojo o) {
+		
+		if(id == o.id)
+			return 0;
+		
+		return id - o.id;	
 	}
 
 	
