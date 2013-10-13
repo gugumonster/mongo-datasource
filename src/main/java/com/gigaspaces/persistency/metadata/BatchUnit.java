@@ -1,7 +1,6 @@
 package com.gigaspaces.persistency.metadata;
 
 import com.gigaspaces.document.SpaceDocument;
-import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.sync.DataSyncOperationType;
 
 /**

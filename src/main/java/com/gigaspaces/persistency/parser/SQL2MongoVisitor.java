@@ -1,7 +1,6 @@
 // Generated from SQL2Mongo.g4 by ANTLR 4.0
  package com.gigaspaces.persistency.parser; 
-import org.antlr.v4.runtime.tree.*;
-import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 public interface SQL2MongoVisitor<T> extends ParseTreeVisitor<T> {
 	T visitNot(SQL2MongoParser.NotContext ctx);

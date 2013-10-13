@@ -9,7 +9,6 @@ import com.gigaspaces.metadata.index.SpaceIndexType;
 import com.gigaspaces.persistency.MongoClientPool;
 import com.gigaspaces.sync.AddIndexData;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 

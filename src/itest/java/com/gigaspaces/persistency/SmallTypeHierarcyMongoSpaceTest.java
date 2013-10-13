@@ -3,6 +3,7 @@ package com.gigaspaces.persistency;
 import com.gigaspaces.itest.model.SmallTypeHierarcyMongoDBSpaceDataClassA;
 import com.gigaspaces.itest.model.SmallTypeHierarcyMongoDBSpaceDataClassB;
 import com.gigaspaces.itest.model.SmallTypeHierarcyMongoDBSpaceDataClassC;
+import com.gigaspaces.persistency.utils.AssertUtils;
 
 public class SmallTypeHierarcyMongoSpaceTest extends AbstractSystemTestUnit {
 
@@ -39,6 +40,6 @@ public class SmallTypeHierarcyMongoSpaceTest extends AbstractSystemTestUnit {
 	}
 
 	private void assertExpectedQueryResult(Object[] actual, Object... expected) {
-		// Assert.assertEquivalenceArrays("Read result", expected, actual);
+		AssertUtils.assertEquivalenceArrays("Read result", expected, actual);
 	}
 }

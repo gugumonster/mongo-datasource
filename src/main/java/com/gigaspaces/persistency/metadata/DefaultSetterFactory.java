@@ -31,7 +31,7 @@ public class DefaultSetterFactory {
 
 		if (method == null) {
 			Field field = ReflectionUtils.findField(clazz, key);
-			
+
 			return new SetterField(field);
 		}
 

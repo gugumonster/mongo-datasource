@@ -1,12 +1,12 @@
 package com.gigaspaces.persistency;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openspaces.persistency.cassandra.meta.mapping.SpaceTypeDescriptorHolder;
 
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
@@ -31,7 +31,7 @@ public class MongoClientPool {
 	private final MongoClient client;
 	private String dbName;
 
-	private static final Map<String, SpaceTypeDescriptor> types = new HashMap<String, SpaceTypeDescriptor>();
+	private static final Map<String, SpaceTypeDescriptorHolder> types = new HashMap<String, SpaceTypeDescriptorHolder>();
 	private static final Map<String, Mapper<SpaceDocument, DBObject>> _mappingCache = new HashMap<String, Mapper<SpaceDocument, DBObject>>();
 
 	private final Object batchSynchLock = new Object();
@@ -78,10 +78,12 @@ public class MongoClientPool {
 				BatchUnit batchUnit = rows.get(i);
 
 				SpaceDocument spaceDoc = batchUnit.getSpaceDocument();
-				SpaceTypeDescriptor spaceTypeDescriptor = types.get(batchUnit
-						.getTypeName());
+				SpaceTypeDescriptorHolder spaceTypeDescriptor = types
+						.get(batchUnit.getTypeName());
 
-				Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor);
+
+				Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor
+						.getTypeDescriptor());
 
 				DBObject obj = mapper.maps(spaceDoc);
 
@@ -163,7 +165,7 @@ public class MongoClientPool {
 		Mapper<SpaceDocument, DBObject> mapper = null;
 
 		synchronized (synch) {
-			mapper = _mappingCache.get(spaceTypeDescriptor);
+			mapper = _mappingCache.get(spaceTypeDescriptor.getTypeName());
 
 			if (mapper == null) {
 				mapper = new DefaultPojoToMongoMapper(spaceTypeDescriptor);
@@ -183,7 +185,8 @@ public class MongoClientPool {
 			throw new IllegalArgumentException(
 					"spaceTypeDescriptor can not be null");
 
-		types.put(spaceTypeDescriptor.getTypeName(), spaceTypeDescriptor);
+		types.put(spaceTypeDescriptor.getTypeName(),
+				new SpaceTypeDescriptorHolder(spaceTypeDescriptor));
 	}
 
 	public synchronized void close() {
@@ -191,14 +194,14 @@ public class MongoClientPool {
 		client.close();
 	}
 
-	public synchronized SpaceTypeDescriptor getSpaceTypeDescriptor(
+	public synchronized SpaceTypeDescriptorHolder getSpaceTypeDescriptor(
 			String typeName) {
 
 		return types.get(typeName);
 	}
 
-	public synchronized Collection<SpaceTypeDescriptor> getTypes() {
+	public synchronized Map<String,SpaceTypeDescriptorHolder> getTypes() {
 
-		return types.values();
+		return types;
 	}
 }

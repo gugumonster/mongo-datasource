@@ -39,7 +39,7 @@ public abstract class AbstractSystemTestUnit {
 	@Before
 	public void start() {
 
-		startMongoDB();
+		// startMongoDB();
 
 		startGSAgent();
 
@@ -99,9 +99,9 @@ public abstract class AbstractSystemTestUnit {
 		for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
 			gsa.shutdown();
 		}
-
-		CommandLineProcess stopMongo = new CommandLineProcess(
-				"taskkill /F /IM mongod.exe", null);
+		//
+		// CommandLineProcess stopMongo = new CommandLineProcess(
+		// "taskkill /F /IM mongod.exe", null);
 
 		// stopMongo.run();
 	}

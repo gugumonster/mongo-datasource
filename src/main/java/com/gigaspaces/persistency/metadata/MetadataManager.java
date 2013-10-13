@@ -13,6 +13,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openspaces.persistency.cassandra.meta.mapping.SpaceTypeDescriptorHolder;
+import org.openspaces.persistency.cassandra.meta.mapping.TypeHierarcyTopologySorter;
 
 import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
@@ -119,7 +121,9 @@ public class MetadataManager {
 
 			BatchUnit bu = new BatchUnit();
 			DataSyncOperation dso = dataSyncOperations[index];
-
+			
+			pool.cacheSpaceTypeDesciptor(dso.getTypeDescriptor());
+			
 			bu.setSpaceDocument(dso.getDataAsDocument());
 			bu.setDataSyncOperationType(dso.getDataSyncOperationType());
 
@@ -151,7 +155,7 @@ public class MetadataManager {
 			readMetadata(b);
 		}
 
-		return pool.getTypes();
+		return getTypes();
 	}
 
 	private void readMetadata(Object b) throws ClassNotFoundException,
@@ -183,7 +187,8 @@ public class MetadataManager {
 
 	}
 
-	public synchronized Collection<SpaceTypeDescriptor> getTypes() {
-		return pool.getTypes();
+	public synchronized Collection<SpaceTypeDescriptor> getTypes() {		
+		List<SpaceTypeDescriptor> result = TypeHierarcyTopologySorter.getSortedList(pool.getTypes());
+		return result;
 	}
 }
