@@ -1,6 +1,7 @@
 package com.gigaspaces.persistency.datasource;
 
-import java.util.LinkedList;
+import java.util.Collection;
+import java.util.Iterator;
 
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
@@ -13,15 +14,17 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 	private DBCursor currenCursor;
 	private MongoClientPool mongoClientPool;
-	private LinkedList<SpaceTypeDescriptor> types;
-	private int index;
+	private Iterator<SpaceTypeDescriptor> types;
 	private SpaceTypeDescriptor spaceTypeDescriptor;
 	private DefaultMongoToPojoMapper pojoMapper;
 
-	public MongoInitialDataLoadIterator(LinkedList<SpaceTypeDescriptor> type,
+	public MongoInitialDataLoadIterator(Collection<SpaceTypeDescriptor> type,
 			MongoClientPool mongoClientPool) {
+		if (type == null)
+			throw new IllegalArgumentException("");
+
 		this.mongoClientPool = mongoClientPool;
-		this.types = type;
+		this.types = type.iterator();
 		this.currenCursor = nextDataIterator();
 
 	}
@@ -54,10 +57,10 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 	private DBCursor nextDataIterator() {
 
-		if (types.size() <= index)
+		if (!types.hasNext())
 			return null;
 
-		spaceTypeDescriptor = types.get(index++);
+		spaceTypeDescriptor = types.next();
 		this.pojoMapper = new DefaultMongoToPojoMapper(spaceTypeDescriptor);
 		DBCursor cursor = mongoClientPool.getCollection(
 				spaceTypeDescriptor.getTypeName()).find();

@@ -7,7 +7,9 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +29,11 @@ import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
+/**
+ * @author Shadi Massalha
+ * 
+ * 
+ */
 public class MetadataManager {
 
 	private static final String TYPE_DESCRIPTOR_FIELD_NAME = "value";
@@ -103,7 +110,22 @@ public class MetadataManager {
 	}
 
 	public void performBatch(DataSyncOperation[] dataSyncOperations) {
-		pool.performBatch(dataSyncOperations);
+		int length = dataSyncOperations.length;
+
+		List<BatchUnit> rows = new LinkedList<BatchUnit>();
+
+		for (int index = 0; index < length; index++) {
+
+			BatchUnit bu = new BatchUnit();
+			DataSyncOperation dso = dataSyncOperations[index];
+
+			bu.setSpaceDocument(dso.getDataAsDocument());
+			bu.setDataSyncOperationType(dso.getDataSyncOperationType());
+
+			rows.add(bu);
+		}
+
+		pool.performBatch(rows);
 
 	}
 
@@ -112,28 +134,27 @@ public class MetadataManager {
 
 	}
 
-	public LinkedList<SpaceTypeDescriptor> loadMetadata()
+	public Collection<SpaceTypeDescriptor> loadMetadata()
 			throws ClassNotFoundException, IOException {
 
 		DBCollection metadata = pool.getCollection(METADATA_COLLECTION_NAME);
 
-		DBCursor m = metadata.find();
+		DBCursor cursor = metadata.find();
 
-		LinkedList<SpaceTypeDescriptor> types = new LinkedList<SpaceTypeDescriptor>();
+		while (cursor.hasNext()) {
 
-		while (m.hasNext()) {
-			DBObject type = m.next();
+			DBObject type = cursor.next();
 
 			Object b = type.get(TYPE_DESCRIPTOR_FIELD_NAME);
 
-			readMetadata(types, b);
+			readMetadata(b);
 		}
 
-		return types;
+		return pool.getTypes();
 	}
 
-	private void readMetadata(LinkedList<SpaceTypeDescriptor> types, Object b)
-			throws ClassNotFoundException, IOException {
+	private void readMetadata(Object b) throws ClassNotFoundException,
+			IOException {
 		try {
 
 			ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(
@@ -145,9 +166,9 @@ public class MetadataManager {
 			SpaceTypeDescriptor spaceTypeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils
 					.fromSerializableForm(typeDescriptorVersionedSerializableWrapper);
 
-			types.add(spaceTypeDescriptor);
-
 			indexBuilder.ensureIndexes(spaceTypeDescriptor);
+
+			pool.cacheSpaceTypeDesciptor(spaceTypeDescriptor);
 
 		} catch (ClassNotFoundException e) {
 			logger.error(e);
@@ -158,5 +179,10 @@ public class MetadataManager {
 			logger.error(e);
 			throw e;
 		}
+
+	}
+
+	public synchronized Collection<SpaceTypeDescriptor> getTypes() {
+		return pool.getTypes();
 	}
 }

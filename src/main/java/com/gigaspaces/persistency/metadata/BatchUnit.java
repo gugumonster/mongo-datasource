@@ -8,37 +8,37 @@ import com.gigaspaces.sync.DataSyncOperationType;
  * helper class that hold metadata for batch operation
  * 
  * @author Shadi Massalha
- *
+ * 
  */
 public class BatchUnit {
 
 	private SpaceDocument spaceDocument;
-	private SpaceTypeDescriptor spaceTypeDescriptor;
+	private String typeName;
 	private DataSyncOperationType dataSyncOperationType;
-	
+
 	public SpaceDocument getSpaceDocument() {
 		return spaceDocument;
 	}
-	
-	public SpaceTypeDescriptor getSpaceTypeDescriptor() {
-		return spaceTypeDescriptor;
+
+	public String getTypeName() {
+		return typeName;
 	}
-	
+
 	public DataSyncOperationType getDataSyncOperationType() {
 		return dataSyncOperationType;
 	}
-	
+
 	public void setSpaceDocument(SpaceDocument spaceDocument) {
+		if (spaceDocument == null)
+			throw new IllegalArgumentException("spaceDocument can not be null");
+
 		this.spaceDocument = spaceDocument;
+		this.typeName = spaceDocument.getTypeName();
 	}
-	
-	public void setSpaceTypeDescriptor(SpaceTypeDescriptor spaceTypeDescriptor) {
-		this.spaceTypeDescriptor = spaceTypeDescriptor;
-	}
-	
-	public void setDataSyncOperationType(DataSyncOperationType dataSyncOperationType) {
+
+	public void setDataSyncOperationType(
+			DataSyncOperationType dataSyncOperationType) {
 		this.dataSyncOperationType = dataSyncOperationType;
 	}
 
-	
 }

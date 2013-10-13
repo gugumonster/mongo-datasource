@@ -16,7 +16,6 @@
 package com.gigaspaces.persistency;
 
 import java.io.IOException;
-import java.util.LinkedList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,9 +40,9 @@ import com.mongodb.QueryBuilder;
 
 /**
  * 
- * A MonogDB implementation of {@link com.gigaspaces.datasource.SpaceDataSource}.
+ * A MonogDB implementation of {@link com.gigaspaces.datasource.SpaceDataSource}
  * 
- * @since 9.7.1
+ * 
  * @author Shadi Massalha
  */
 public class MongoSpaceDataSource extends SpaceDataSource {
@@ -52,18 +51,17 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 			.getLog(MongoSpaceDataSource.class);
 
 	private MongoClientPool mongoClient;
-	private LinkedList<SpaceTypeDescriptor> types;
 
 	private final MetadataManager metadataManager;
 
 	public MongoSpaceDataSource(MongoClientPool mongoClient) {
-		
-		if(mongoClient == null)
-			throw new IllegalArgumentException("mongoClient must be set and initiated");
-		
+
+		if (mongoClient == null)
+			throw new IllegalArgumentException(
+					"mongoClient must be set and initiated");
+
 		this.metadataManager = new MetadataManager(mongoClient);
 		this.mongoClient = mongoClient;
-
 	}
 
 	@Override
@@ -73,8 +71,8 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 			logger.debug("MongoSpaceDataSource.initialMetadataLoad()");
 
 		try {
-			types = metadataManager.loadMetadata();
-		} catch (ClassNotFoundException e) {			
+			metadataManager.loadMetadata();
+		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -82,7 +80,8 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 			e.printStackTrace();
 		}
 
-		return new DataIteratorAdapter<SpaceTypeDescriptor>(types.iterator());
+		return new DataIteratorAdapter<SpaceTypeDescriptor>(metadataManager
+				.getTypes().iterator());
 	}
 
 	@Override
@@ -136,13 +135,15 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public DataIterator<Object> initialDataLoad() {
-		return new MongoInitialDataLoadIterator(types, mongoClient);
+		return new MongoInitialDataLoadIterator(metadataManager.getTypes(),
+				mongoClient);
 	}
 
-    /**
-     * Returns <code>false</code>, inheritance is not supported.
-     * @return <code>false</code>.
-     */
+	/**
+	 * Returns <code>false</code>, inheritance is not supported.
+	 * 
+	 * @return <code>false</code>.
+	 */
 	@Override
 	public boolean supportsInheritance() {
 		return false;

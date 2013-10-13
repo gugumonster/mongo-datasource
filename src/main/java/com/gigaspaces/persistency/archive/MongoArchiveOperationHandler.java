@@ -57,6 +57,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 			BatchUnit batchUnit=new BatchUnit();
 			
 			batchUnit.setSpaceDocument((SpaceDocument) object);
+			((SpaceDocument)object).getTypeName();
 			batchUnit.setDataSyncOperationType(DataSyncOperationType.WRITE);
 									
 			rows.add(batchUnit);			

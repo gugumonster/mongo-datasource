@@ -1,6 +1,8 @@
 package com.gigaspaces.persistency;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -8,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
+import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
 import com.gigaspaces.persistency.metadata.Mapper;
 import com.gigaspaces.sync.DataSyncOperation;
@@ -25,11 +28,13 @@ public class MongoClientPool {
 
 	private static final Log logger = LogFactory.getLog(MongoClientPool.class);
 
-	private MongoClient client;
+	private final MongoClient client;
 	private String dbName;
-	private final Object batchSynchLock = new Object();
 
-	private static final Map<SpaceTypeDescriptor, Mapper<SpaceDocument, DBObject>> _mappingCache = new HashMap<SpaceTypeDescriptor, Mapper<SpaceDocument, DBObject>>();
+	private static final Map<String, SpaceTypeDescriptor> types = new HashMap<String, SpaceTypeDescriptor>();
+	private static final Map<String, Mapper<SpaceDocument, DBObject>> _mappingCache = new HashMap<String, Mapper<SpaceDocument, DBObject>>();
+
+	private final Object batchSynchLock = new Object();
 	private static final Object synch = new Object();
 
 	public MongoClientPool(ServerAddress host, String db) {
@@ -42,16 +47,73 @@ public class MongoClientPool {
 		return db;
 	}
 
+	/**
+	 * @param collectionName
+	 *            - name of the requested mongodb collection
+	 * @return
+	 */
 	public synchronized DBCollection getCollection(String collectionName) {
+
 		DB db = checkOut();
+
 		return db.getCollection(collectionName);
+	}
+
+	/**
+	 * @param rows
+	 *            - batch units which includes space documents and target
+	 *            operation type to be performed
+	 */
+	public void performBatch(List<BatchUnit> rows) {
+		if (logger.isTraceEnabled()) {
+			logger.trace("MongoClientPool.performBatch(" + rows + ")");
+			logger.trace("Batch size to be performed is " + rows.size());
+		}
+
+		int length = rows.size();
+
+		synchronized (batchSynchLock) {
+
+			for (int i = 0; i < length; i++) {
+				BatchUnit batchUnit = rows.get(i);
+
+				SpaceDocument spaceDoc = batchUnit.getSpaceDocument();
+				SpaceTypeDescriptor spaceTypeDescriptor = types.get(batchUnit
+						.getTypeName());
+
+				Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor);
+
+				DBObject obj = mapper.maps(spaceDoc);
+
+				DBCollection col = getCollection(batchUnit.getTypeName());
+
+				switch (batchUnit.getDataSyncOperationType()) {
+				case WRITE:
+				case UPDATE:
+				case PARTIAL_UPDATE:
+				case CHANGE:
+					col.save(obj);
+					break;
+				case REMOVE:
+					col.remove(obj);
+					break;
+				default:
+					throw new IllegalStateException(
+							"Unsupported data sync operation type: "
+									+ batchUnit.getDataSyncOperationType());
+
+				}
+			}
+		}
 	}
 
 	public void performBatch(DataSyncOperation[] dataSyncOperations) {
 
-		if(logger.isTraceEnabled()){
-			logger.trace("MongoClientPool.performBatch("+dataSyncOperations+")");
-			logger.trace("Batch size to be performed is "+ dataSyncOperations.length);
+		if (logger.isTraceEnabled()) {
+			logger.trace("MongoClientPool.performBatch(" + dataSyncOperations
+					+ ")");
+			logger.trace("Batch size to be performed is "
+					+ dataSyncOperations.length);
 		}
 
 		synchronized (batchSynchLock) {
@@ -91,7 +153,6 @@ public class MongoClientPool {
 											.getDataSyncOperationType());
 
 				}
-
 			}
 		}
 	}
@@ -107,7 +168,7 @@ public class MongoClientPool {
 			if (mapper == null) {
 				mapper = new DefaultPojoToMongoMapper(spaceTypeDescriptor);
 
-				_mappingCache.put(spaceTypeDescriptor, mapper);
+				_mappingCache.put(spaceTypeDescriptor.getTypeName(), mapper);
 			}
 
 		}
@@ -115,7 +176,29 @@ public class MongoClientPool {
 		return mapper;
 	}
 
+	public synchronized void cacheSpaceTypeDesciptor(
+			SpaceTypeDescriptor spaceTypeDescriptor) {
+
+		if (spaceTypeDescriptor == null)
+			throw new IllegalArgumentException(
+					"spaceTypeDescriptor can not be null");
+
+		types.put(spaceTypeDescriptor.getTypeName(), spaceTypeDescriptor);
+	}
+
 	public synchronized void close() {
+
 		client.close();
+	}
+
+	public synchronized SpaceTypeDescriptor getSpaceTypeDescriptor(
+			String typeName) {
+
+		return types.get(typeName);
+	}
+
+	public synchronized Collection<SpaceTypeDescriptor> getTypes() {
+
+		return types.values();
 	}
 }
