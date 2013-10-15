@@ -15,6 +15,10 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.error;
 
+/**
+ * @author Shadi Massalha
+ *
+ */
 public class MongoMetadataException extends SpaceMongoException {
 
 	/**

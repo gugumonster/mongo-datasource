@@ -35,6 +35,7 @@ import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
 import com.gigaspaces.persistency.MongoClientPool;
 import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpoint;
+import com.gigaspaces.persistency.error.SpaceMongoDataSourceException;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
@@ -135,9 +136,9 @@ public class MetadataManager {
 
 			BatchUnit bu = new BatchUnit();
 			DataSyncOperation dso = dataSyncOperations[index];
-			
+
 			pool.cacheSpaceTypeDesciptor(dso.getTypeDescriptor());
-			
+
 			bu.setSpaceDocument(dso.getDataAsDocument());
 			bu.setDataSyncOperationType(dso.getDataSyncOperationType());
 
@@ -153,8 +154,7 @@ public class MetadataManager {
 
 	}
 
-	public Collection<SpaceTypeDescriptor> loadMetadata()
-			throws ClassNotFoundException, IOException {
+	public Collection<SpaceTypeDescriptor> loadMetadata() {
 
 		DBCollection metadata = pool.getCollection(METADATA_COLLECTION_NAME);
 
@@ -172,8 +172,7 @@ public class MetadataManager {
 		return getTypes();
 	}
 
-	private void readMetadata(Object b) throws ClassNotFoundException,
-			IOException {
+	private void readMetadata(Object b) {
 		try {
 
 			ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(
@@ -192,17 +191,19 @@ public class MetadataManager {
 		} catch (ClassNotFoundException e) {
 			logger.error(e);
 
-			throw e;
+			throw new SpaceMongoDataSourceException("", e);
 
 		} catch (IOException e) {
 			logger.error(e);
-			throw e;
+			
+			throw new SpaceMongoDataSourceException("", e);
 		}
 
 	}
 
-	public synchronized Collection<SpaceTypeDescriptor> getTypes() {		
-		List<SpaceTypeDescriptor> result = TypeHierarcyTopologySorter.getSortedList(pool.getTypes());
+	public synchronized Collection<SpaceTypeDescriptor> getTypes() {
+		List<SpaceTypeDescriptor> result = TypeHierarcyTopologySorter
+				.getSortedList(pool.getTypes());
 		return result;
 	}
 }

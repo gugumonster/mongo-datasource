@@ -60,6 +60,7 @@ public class MongoClientPool {
 
 	public synchronized DB checkOut() {
 		DB db = client.getDB(dbName);
+		
 		return db;
 	}
 

@@ -13,33 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.gigaspaces.persistency.metadata;
+package com.gigaspaces.persistency.error;
 
-import java.lang.reflect.Method;
+/**
+ * @author Shadi Massalha
+ *
+ */
+public class SpaceMongoDataSourceException extends SpaceMongoException {
 
-import org.springframework.util.ReflectionUtils;
-
-public class SetterMehtod implements Setter {
-
-	private Method setter;
-
-	public SetterMehtod(Method setter) {
-		if (setter == null)
-			throw new IllegalArgumentException("setter method can not be null");
-
-		this.setter = setter;
+	public SpaceMongoDataSourceException(String message, Throwable e) {
+		super(message, e);
 	}
 
-	public synchronized void invokeSetter(Object target, Object arg0) {
-		try {
-			ReflectionUtils.invokeMethod(setter, target, arg0);
-		} catch (IllegalArgumentException ex) {
-			System.err.println(ex);
-		}
-
+	public SpaceMongoDataSourceException(String message) {
+		super(message);
 	}
 
-	public synchronized Class<?> getType() {
-		return setter.getParameterTypes()[0];
-	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 }

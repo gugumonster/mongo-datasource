@@ -19,10 +19,9 @@ import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.sync.DataSyncOperationType;
 
 /**
- * helper class that hold metadata for batch operation
- * 
  * @author Shadi Massalha
  * 
+ *         helper class that hold metadata for batch operation
  */
 public class BatchUnit {
 

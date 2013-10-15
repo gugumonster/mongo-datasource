@@ -15,8 +15,6 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
-import java.io.IOException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -70,15 +68,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceDataSource.initialMetadataLoad()");
 
-		try {
-			metadataManager.loadMetadata();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		metadataManager.loadMetadata();
 
 		return new DataIteratorAdapter<SpaceTypeDescriptor>(metadataManager
 				.getTypes().iterator());

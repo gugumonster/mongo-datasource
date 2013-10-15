@@ -15,27 +15,39 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.metadata;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.gigaspaces.document.SpaceDocument;
+import com.gigaspaces.internal.utils.ReflectionUtils;
 import com.gigaspaces.metadata.SpacePropertyDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
+import com.gigaspaces.persistency.error.SpaceMongoDataSourceException;
 import com.mongodb.DBObject;
 
 /**
  * @author Shadi Massalha
  * 
+ *         Implementation of {@link Mapper} this class map mongoDB types to POJO
+ *         one.
+ * 
  */
 public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		Mapper<DBObject, Object> {
 
-	private static final String _ID2 = "_id";
+	private static final String CLASS_NOT_FOUND = "class not found ";
+	private static final String _ID = "_id";
 	private SpaceTypeDescriptor spaceTypeDescriptor;
-	private Class<?> clazz;
+	private Class<?> type;
 
-	private final Map<String, Setter> setterCache = new HashMap<String, Setter>();
-	private final DefaultSetterFactory factory = new DefaultSetterFactory();
+	private static final Log logger = LogFactory
+			.getLog(DefaultMongoToPojoMapper.class);
+
+	private final Map<String, Method> setters = new HashMap<String, Method>();
 
 	public DefaultMongoToPojoMapper(SpaceTypeDescriptor spaceTypeDescriptor) {
 
@@ -45,27 +57,46 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 
 		this.spaceTypeDescriptor = spaceTypeDescriptor;
 
-		if (!spaceTypeDescriptor.supportsDynamicProperties())
-			try {
-				this.clazz = Class.forName(this.spaceTypeDescriptor
+		try {
+			if (!spaceTypeDescriptor.supportsDynamicProperties()) {
+
+				this.type = Class.forName(this.spaceTypeDescriptor
 						.getTypeName());
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
+				initFields(type, setters);
 			}
+		} catch (ClassNotFoundException e) {
+			String message = CLASS_NOT_FOUND
+					+ spaceTypeDescriptor.getTypeName();
+			logger.error(message, e);
+			throw new SpaceMongoDataSourceException(message, e);
+		}
 	}
 
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.gigaspaces.persistency.metadata.Mapper#maps(java.lang.Object)
+	 */
 	public synchronized Object maps(DBObject bson) {
 
 		if (bson == null)
 			return null;
 
-		if (this.spaceTypeDescriptor.supportsDynamicProperties())
+		if (spaceTypeDescriptor.supportsDynamicProperties())
 			return mapDocument(bson);
 
 		return mapPojo(bson);
 	}
 
+	/**
+	 * maps mongoDB {@link DBObject} to {@link SpaceDocument}
+	 * 
+	 * @param bson
+	 *            - mongoDB BSON data structure
+	 * @return - {@link SpaceDocument}
+	 */
 	private Object mapDocument(DBObject bson) {
 		SpaceDocument doc = new SpaceDocument(spaceTypeDescriptor.getTypeName());
 
@@ -74,7 +105,7 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 			if (d instanceof DBObject) {
 				doc.setProperty(key, mapDocument((DBObject) d));
 			} else {
-				if ("_id".equals(key)) {
+				if (_ID.equals(key)) {
 					doc.setProperty(spaceTypeDescriptor.getIdPropertyName(), d);
 				} else
 					doc.setProperty(key, d);
@@ -89,6 +120,9 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		Object pojo = null;
 
 		try {
+			if (logger.isTraceEnabled()) {
+				logger.trace("DefaultMongoToPojoMapper.mapPojo(" + bson + ")");
+			}
 			pojo = create();
 
 			mapIdProperty(bson, pojo);
@@ -117,11 +151,7 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 							sp.getName()))
 				continue;
 
-			Setter setter = getSetter(sp.getName());
-
-			Object arg0 = prepareArgument(bson, key, sp);
-
-			setter.invokeSetter(pojo, arg0);
+			mapProperty(bson, pojo, sp.getName(), sp.getName());
 		}
 	}
 
@@ -144,32 +174,22 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 
 		String propertyId = spaceTypeDescriptor.getIdPropertyName();
 
-		Setter idSetter = getSetter(propertyId);
-
-		Object arg0 = prepareArgument(bson, _ID2,
-				spaceTypeDescriptor.getFixedProperty(propertyId));
-
-		idSetter.invokeSetter(pojo, arg0);
+		mapProperty(bson, pojo, propertyId, _ID);
 	}
 
-	private Setter getSetter(String propertyId) {
-		SpacePropertyDescriptor spacePropertyDescriptor = spaceTypeDescriptor
-				.getFixedProperty(propertyId);
+	private void mapProperty(DBObject bson, Object pojo,
+			String sourcePropertyId, String destinationPropertyId) {
 
-		Setter setter = setterCache.get(propertyId);
+		Method idSetter = setters.get(sourcePropertyId);
+		Object arg0 = prepareArgument(bson, destinationPropertyId,
+				spaceTypeDescriptor.getFixedProperty(sourcePropertyId));
 
-		if (setter == null) {
-			setter = factory.create(clazz, spacePropertyDescriptor);
-
-			setterCache.put(propertyId, setter);
-		}
-
-		return setter;
+		ReflectionUtils.invokeMethod(idSetter, pojo, new Object[] { arg0 });
 	}
 
 	private Object create() throws ClassNotFoundException,
 			InstantiationException, IllegalAccessException {
 
-		return clazz.newInstance();
+		return type.newInstance();
 	}
 }

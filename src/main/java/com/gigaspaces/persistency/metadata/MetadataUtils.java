@@ -15,64 +15,73 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.metadata;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gigaspaces.internal.metadata.pojo.PojoPropertyInfo;
+import com.gigaspaces.internal.metadata.pojo.PojoTypeInfo;
+import com.gigaspaces.internal.metadata.pojo.PojoTypeInfoRepository;
+import com.gigaspaces.internal.utils.ReflectionUtils;
 import com.mongodb.DBObject;
 
 /**
  * @author Shadi Massalha
- *
+ * 
  */
 public class MetadataUtils {
 
-	private static final Map<String, Map<String, Setter>> cacheType = new HashMap<String, Map<String, Setter>>();
+	private static final Map<String, Map<String, Method>> cacheType = new HashMap<String, Map<String, Method>>();
 	private static final Object typeSynchLock = new Object();
 	private static final Object setterSynchLock = new Object();
-
-	private final DefaultSetterFactory factory = new DefaultSetterFactory();
 
 	public Object BSONtoPojo(Class<?> clazz, DBObject bson) {
 
 		Object target = create(clazz);
 
-		Map<String, Setter> mapper = getClassMapper(clazz);
+		Map<String, Method> mapper = getClassMapper(clazz);
 
 		for (String key : bson.keySet()) {
 
-			Setter setter = getSetter(clazz, mapper, key);
+			Method setter = getSetter(mapper, key);
 
 			Object data = bson.get(key);
 
-			if (setter.getType().isEnum()) {
-				setEnum(setter, target, data);
+			Class<?> type = getSetterType(setter);
+
+			if (type.isEnum()) {
+				setEnum(setter, type, target, data);
 			} else if (data instanceof DBObject) {
-				setObject(setter, target, (DBObject) data);
+				setObject(type, (DBObject) data);
 			} else {
 				setPrimitive(setter, target, data);
 			}
-
 		}
 
 		return target;
 	}
 
-	protected void setPrimitive(Setter setter, Object target, Object arg0) {
-		setter.invokeSetter(target, arg0);
+	private Class<?> getSetterType(Method setter) {
+		return setter.getParameterTypes()[0];
+	}
+
+	protected void setPrimitive(Method setter, Object target, Object arg0) {
+		ReflectionUtils.invokeMethod(setter, target, new Object[] { arg0 });
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void setEnum(Setter setter, Object target, Object arg0) {
+	protected void setEnum(Method setter, Class<?> type, Object target,
+			Object arg0) {
 
-		Enum<?> arg1 = Enum.valueOf((Class<Enum>) setter.getType(),
-				arg0.toString());
+		Enum<?> arg1 = Enum.valueOf((Class<Enum>) type, arg0.toString());
 
-		setter.invokeSetter(target, arg1);
+		ReflectionUtils.invokeMethod(setter, target, new Object[] { arg1 });
+
 	}
 
-	protected Object setObject(Setter setter, Object target, DBObject bson) {
+	protected Object setObject(Class<?> type, DBObject bson) {
 
-		return BSONtoPojo(setter.getType(), bson);
+		return BSONtoPojo(type, bson);
 	}
 
 	protected Object create(Class<?> clazz) {
@@ -90,37 +99,48 @@ public class MetadataUtils {
 		return pojo;
 	}
 
-	protected Setter getSetter(Class<?> clazz, Map<String, Setter> mapper,
-			String key) {
-		Setter setter = null;
+	protected Method getSetter(Map<String, Method> setters, String key) {
+
+		Method setter = null;
 
 		synchronized (setterSynchLock) {
-			setter = mapper.get(key);
-
-			if (setter == null) {
-				setter = factory.create(clazz, key);
-				mapper.put(key, setter);
-			}
+			setter = setters.get(key);
 		}
 
 		return setter;
 	}
 
-	protected Map<String, Setter> getClassMapper(Class<?> clazz) {
-		Map<String, Setter> mapper = null;
+	protected Map<String, Method> getClassMapper(Class<?> clazz) {
+		Map<String, Method> setters = null;
 
 		synchronized (typeSynchLock) {
+			setters = cacheType.get(clazz.getName());
 
-			cacheType.get(clazz.getName());
+			if (setters == null) {
 
-			if (mapper == null) {
-				mapper = new HashMap<String, Setter>();
+				setters = new HashMap<String, Method>();
 
-				cacheType.put(clazz.getName(), mapper);
+				initFields(clazz, setters);
 			}
 		}
 
-		return mapper;
+		return setters;
+	}
+
+	protected void initFields(Class<?> type, Map<String, Method> mapper) {
+		PojoTypeInfo typeInfo = PojoTypeInfoRepository.getPojoTypeInfo(type);
+
+		for (PojoPropertyInfo property : typeInfo.getProperties().values()) {
+			if ("class".equals(property.getName())) {
+				continue;
+			}
+
+			if (property.getGetterMethod() == null) {
+				continue;
+			}
+
+			mapper.put(property.getName(), property.getSetterMethod());
+		}
 	}
 
 }
