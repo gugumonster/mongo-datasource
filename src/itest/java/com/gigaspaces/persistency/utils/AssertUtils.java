@@ -8,7 +8,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class AssertUtils {
 
-	public static void AssertEquals(String message, List<?> expecteds,
+	public static void assertEquivalent(String message, List<?> expecteds,
 			List<?> actuals) {
 
 		for (int i = 0; i < actuals.size(); i++) {
@@ -22,6 +22,6 @@ public class AssertUtils {
 		List<?> expected1 = Arrays.asList(expected);
 		List<?> actual1 = Arrays.asList(actual);
 
-		AssertEquals(message, expected1, actual1);
+		assertEquivalent(message, expected1, actual1);
 	}
 }

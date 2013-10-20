@@ -32,6 +32,6 @@ public class BasicMongoSpaceAllInCacheTest extends AbstractSystemTestUnit {
 		Assert.assertEquals("size is not equals", issuePojos.size(),
 				pojos.size());
 
-		AssertUtils.AssertEquals("", issuePojos, pojos);
+		AssertUtils.assertEquivalent("", issuePojos, pojos);
 	}
 }

@@ -39,14 +39,20 @@ public abstract class AbstractSystemTestUnit {
 	@Before
 	public void start() {
 
-		// startMongoDB();
+		startMongoDB();
 
 		startGSAgent();
 
 		admin.getGridServiceManagers().waitForAtLeastOne();
 
+		drop();
+		
 		deployQASpace();
 
+	}
+
+	private void drop() {
+				
 	}
 
 	protected void startGSAgent() {

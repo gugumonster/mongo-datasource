@@ -8,6 +8,7 @@ public class IssuePojo implements Comparable<IssuePojo> {
 
 	private Integer id;
 	private String name;
+	private String priority;
 
 	public IssuePojo() {
 	}
@@ -34,6 +35,14 @@ public class IssuePojo implements Comparable<IssuePojo> {
 		this.name = name;
 	}
 
+	public String getPriority() {
+		return priority;
+	}
+
+	public void setPriority(String priority) {
+		this.priority = priority;
+	}
+
 	public int compareTo(IssuePojo o) {
 
 		if (id == o.id)
@@ -56,6 +65,9 @@ public class IssuePojo implements Comparable<IssuePojo> {
 			return false;
 
 		if (!name.equals(obj1.name))
+			return false;
+
+		if (!priority.equals(obj1.priority))
 			return false;
 
 		return true;
