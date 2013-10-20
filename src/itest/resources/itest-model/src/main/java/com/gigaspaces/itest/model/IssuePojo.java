@@ -8,7 +8,7 @@ public class IssuePojo implements Comparable<IssuePojo> {
 
 	private Integer id;
 	private String name;
-	private String priority;
+	private Priority priority;
 
 	public IssuePojo() {
 	}
@@ -35,11 +35,11 @@ public class IssuePojo implements Comparable<IssuePojo> {
 		this.name = name;
 	}
 
-	public String getPriority() {
+	public Priority getPriority() {
 		return priority;
 	}
 
-	public void setPriority(String priority) {
+	public void setPriority(Priority priority) {
 		this.priority = priority;
 	}
 
