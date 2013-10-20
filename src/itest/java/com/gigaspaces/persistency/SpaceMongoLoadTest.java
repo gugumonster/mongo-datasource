@@ -19,7 +19,6 @@ import com.gigaspaces.itest.model.MongoIssuePojo;
 import com.gigaspaces.itest.model.Priority;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.j_spaces.core.IJSpace;
 
 public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 
@@ -48,7 +47,7 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 		priorityMap.put(Priority.TRIVIAL, 4);
 		priorityMap.put(Priority.MEDIUM, 5);
 
-		IJSpace space2 = null;
+		//IJSpace space2 = null;
 		try {
 			// helper = new CassandraHelper(new File(getTestUnit().getConfig()
 			// .getTestDirPath()));

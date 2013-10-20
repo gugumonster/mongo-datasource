@@ -5,6 +5,7 @@ import java.util.List;
 import org.junit.Assert;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class AssertUtils {
 
@@ -22,6 +23,9 @@ public class AssertUtils {
 		List<?> expected1 = Arrays.asList(expected);
 		List<?> actual1 = Arrays.asList(actual);
 
+		Collections.sort(expected1);
+		Collections.sort(actual1);
+		
 		assertEquivalent(message, expected1, actual1);
 	}
 }

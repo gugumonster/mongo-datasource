@@ -2,7 +2,6 @@ package com.gigaspaces.persistency;
 
 import junit.framework.Assert;
 
-import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.itest.model.TestDataTypeWithDynamicProps;
 import com.gigaspaces.itest.model.TestDataTypeWithDynamicPropsDocument;
 import com.gigaspaces.itest.model.TestDataTypeWithDynamicPropsPojo;

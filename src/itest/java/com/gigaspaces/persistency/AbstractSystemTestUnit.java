@@ -1,12 +1,13 @@
 package com.gigaspaces.persistency;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.UnknownHostException;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openspaces.admin.Admin;
 import org.openspaces.admin.AdminFactory;
@@ -21,65 +22,96 @@ import com.gigaspaces.persistency.utils.CommandLineProcess;
 import com.gigaspaces.persistency.utils.IRepetitiveRunnable;
 import com.j_spaces.core.IJSpace;
 import com.j_spaces.core.admin.StatisticsAdmin;
+import com.mongodb.MongoClient;
 
 public abstract class AbstractSystemTestUnit {
 
-	protected final Admin admin;
+	protected final static Admin admin = new AdminFactory().addGroup(
+			getTestGroup()).createAdmin();;
 
 	protected GigaSpace gigaSpace;
 	protected ProcessingUnit pu;
 
-	protected CommandLineProcess gsAgent;
-	protected CommandLineProcess mongod;
+	protected static CommandLineProcess gsAgent;
+	protected static CommandLineProcess mongod;
 
+	private static String gs_home = "c:/temp/gigaspaces-xap-premium-9.6.0-ga";
+	private static String mongo_home = "c:/mongodb";
+	private static String deploy_path = "c:/temp/mongodb-ds-deploy";
+
+	static final String QA_DB = "qadb";
 	static final String GS_AGENT = "/bin/gs-agent.bat";
 	static final String MONGO_D = "/bin/mongod.exe";
 
-	AbstractSystemTestUnit() {
-		admin = new AdminFactory().addGroup(getTestGroup()).createAdmin();
-	}
-
-	@Before
-	public void start() {
-
+	@BeforeClass
+	public static void init() {
 		startMongoDB();
 
 		startGSAgent();
 
 		admin.getGridServiceManagers().waitForAtLeastOne();
+	}
 
-		drop();
-
+	@Before
+	public void start() {
 		deployQASpace();
+	}
+
+	private static void dropDB() {
+		MongoClient client;
+		try {
+			client = new MongoClient();
+
+			client.dropDatabase(QA_DB);
+
+		} catch (UnknownHostException e) {
+			throw new AssertionError(e);
+		}
 
 	}
 
-	private void drop() {
-
+	protected final static String getGSAPath() {
+		return gs_home + GS_AGENT;
 	}
 
-	protected void startGSAgent() {
-		Map<String, String> env = new HashMap<String, String>();
+	protected final static String getMongoDBPath() {
+		return mongo_home + MONGO_D;
+	}
 
-		env.put("LOOKUPGROUPS", getTestGroup());
+	protected String getDeploymentJarPath() {
+		return deploy_path + getPUJar();
+	}
 
-		gsAgent = new CommandLineProcess(
-				"C:/Temp/gigaspaces-xap-premium-9.6.0-ga/bin/gs-agent.bat", env);
+	protected String getPUJar() {
+		return "/mongodb-qa-space-0.0.1-SNAPSHOT.jar";
+	}
+
+	protected static void startGSAgent() {
+		gsAgent = new CommandLineProcess(getGSAPath());
+
+		gsAgent.addEnvironmentVariable("LOOKUPGROUPS", getTestGroup());
 
 		new Thread(gsAgent).start();
 	}
 
-	protected void startMongoDB() {
-		mongod = new CommandLineProcess("C:/mongodb/bin/mongod.exe", null);
+	protected static void startMongoDB() {
 
-		new Thread(mongod).start();
+		mongod = new CommandLineProcess(getMongoDBPath());
+
+		Thread t = new Thread(mongod);
+
+		t.start();
+	}
+
+	protected static void stopMongoDB() {
+		mongod.stop();
 	}
 
 	@Test
 	public abstract void test();
 
 	private void deployQASpace() {
-		File puArchive = new File("C:/Temp/mongodb-qa-space-0.0.1-SNAPSHOT.jar");
+		File puArchive = new File(getDeploymentJarPath());
 
 		ProcessingUnitDeployment deployment = new ProcessingUnitDeployment(
 				puArchive);
@@ -105,14 +137,20 @@ public abstract class AbstractSystemTestUnit {
 
 		pu.undeployAndWait();
 
+	}
+
+	@AfterClass
+	public static void destroy() {
+
 		for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
 			gsa.shutdown();
 		}
 
-		CommandLineProcess stopMongo = new CommandLineProcess(
-				"taskkill /F /IM mongod.exe /T", null);
+		gsAgent.stop();
 
-		stopMongo.run();
+		dropDB();
+
+		mongod.stop();
 	}
 
 	protected void waitForEmptyReplicationBacklogAndClearMemory(

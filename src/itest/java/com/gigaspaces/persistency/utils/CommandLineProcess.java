@@ -3,6 +3,7 @@ package com.gigaspaces.persistency.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Map;
 
 public class CommandLineProcess implements Runnable {
@@ -10,44 +11,46 @@ public class CommandLineProcess implements Runnable {
 	private String command;
 	private int exitValue;
 	Process process;
-	private Map<? extends String, ? extends String> env;
+	private Map<String, String> env = new HashMap<String, String>();
 
-	public CommandLineProcess(String cmd,
-			Map<? extends String, ? extends String> env) {
+	public CommandLineProcess(String cmd) {
 
 		if (cmd == null || cmd.isEmpty())
 			throw new IllegalArgumentException("cmd");
 
-		this.env = env;
 		this.command = cmd;
 	}
+
+	public void addEnvironmentVariable(String key, String value) {
+		env.put(key, value);
+	}
+
 	public void run() {
-		process = execute(command);
+		execute(command);
 
 		this.exitValue = process.exitValue();
 	}
 
-	private Process execute(String cmd) {
-		Process ps = null;
+	private void execute(String cmd) {
 		try {
 			ProcessBuilder builder = new ProcessBuilder(cmd);
 
-			if (env != null)
+			if (env.size() > 0)
 				builder.environment().putAll(env);
 
 			builder.redirectErrorStream(true);
-			ps = builder.start();
+			process = builder.start();
 
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(
-					ps.getInputStream()));
-
+					process.getInputStream()));
 
 			String line;
+
 			while ((line = stdInput.readLine()) != null) {
 				System.out.println(line);
 			}
 
-			ps.waitFor();
+			process.waitFor();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -56,8 +59,11 @@ public class CommandLineProcess implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
 
-		return ps;
+	public void stop() {
+		if (process != null)
+			process.destroy();
 	}
 
 	public int getExitValue() {
