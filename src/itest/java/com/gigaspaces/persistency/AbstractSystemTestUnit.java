@@ -32,6 +32,9 @@ public abstract class AbstractSystemTestUnit {
 	protected CommandLineProcess gsAgent;
 	protected CommandLineProcess mongod;
 
+	static final String GS_AGENT = "/bin/gs-agent.bat";
+	static final String MONGO_D = "/bin/mongod.exe";
+
 	AbstractSystemTestUnit() {
 		admin = new AdminFactory().addGroup(getTestGroup()).createAdmin();
 	}
@@ -46,13 +49,13 @@ public abstract class AbstractSystemTestUnit {
 		admin.getGridServiceManagers().waitForAtLeastOne();
 
 		drop();
-		
+
 		deployQASpace();
 
 	}
 
 	private void drop() {
-				
+
 	}
 
 	protected void startGSAgent() {
@@ -105,11 +108,11 @@ public abstract class AbstractSystemTestUnit {
 		for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
 			gsa.shutdown();
 		}
-		//
-		// CommandLineProcess stopMongo = new CommandLineProcess(
-		// "taskkill /F /IM mongod.exe", null);
 
-		// stopMongo.run();
+		CommandLineProcess stopMongo = new CommandLineProcess(
+				"taskkill /F /IM mongod.exe /T", null);
+
+		stopMongo.run();
 	}
 
 	protected void waitForEmptyReplicationBacklogAndClearMemory(
