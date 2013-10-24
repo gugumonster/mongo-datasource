@@ -54,11 +54,12 @@ public abstract class AbstractSystemTestUnit {
 
 	@Before
 	public void start() {
-		deployQASpace();
+		deploy();
 	}
 
 	private static void dropDB() {
 		MongoClient client;
+		
 		try {
 			client = new MongoClient();
 
@@ -110,7 +111,7 @@ public abstract class AbstractSystemTestUnit {
 	@Test
 	public abstract void test();
 
-	private void deployQASpace() {
+	private void deploy() {
 		File puArchive = new File(getDeploymentJarPath());
 
 		ProcessingUnitDeployment deployment = new ProcessingUnitDeployment(

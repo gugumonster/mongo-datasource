@@ -30,7 +30,7 @@ public class BasicMongoSpacePartialUpdateTest extends AbstractSystemTestUnit {
 		List<IssuePojo> partialUpdateIssuePojos = new LinkedList<IssuePojo>();
 		for (int i = 0; i < pojos.length; i++) {
 			IssuePojo issue = new IssuePojo();
-			issue.setId(pojos[i].getId());
+			issue.setKey(pojos[i].getKey());
 			issue.setPriority(Priority.BLOCKER);
 			issuePojos.get(i).setPriority(Priority.BLOCKER);
 			partialUpdateIssuePojos.add(issue);
