@@ -149,9 +149,9 @@ public abstract class AbstractSystemTestUnit {
 
 		gsAgent.stop();
 
-		dropDB();
+		//dropDB();
 
-		mongod.stop();
+		//mongod.stop();
 	}
 
 	protected void waitForEmptyReplicationBacklogAndClearMemory(
