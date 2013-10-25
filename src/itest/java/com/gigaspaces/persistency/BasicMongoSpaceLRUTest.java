@@ -49,4 +49,8 @@ public class BasicMongoSpaceLRUTest extends AbstractSystemTestUnit {
 		Assert.assertNull("Bad issue read", resultsArray[0]);
 	}
 
+	@Override
+	protected String getPUJar() {
+		return "/mongodb-qa-space-lru-0.0.1-SNAPSHOT.jar";
+	}
 }
