@@ -12,6 +12,9 @@ public class AssertUtils {
 	public static void assertEquivalent(String message, List<?> expecteds,
 			List<?> actuals) {
 
+		Collections.sort(expecteds);
+		Collections.sort(actuals);
+		
 		for (int i = 0; i < actuals.size(); i++) {
 			Assert.assertEquals(message, expecteds.get(i), actuals.get(i));
 		}
@@ -22,9 +25,6 @@ public class AssertUtils {
 
 		List<?> expected1 = Arrays.asList(expected);
 		List<?> actual1 = Arrays.asList(actual);
-
-		Collections.sort(expected1);
-		Collections.sort(actual1);
 		
 		assertEquivalent(message, expected1, actual1);
 	}

@@ -204,7 +204,7 @@ public abstract class AbstractSystemTestUnit {
 				iRepetitiveRunnable.run();
 
 				break;
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				try {
 					Thread.sleep(repeateInterval);
 				} catch (InterruptedException e1) {
