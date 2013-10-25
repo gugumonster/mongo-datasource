@@ -36,6 +36,21 @@
 	<!-- A bean representing a space (an IJSpace implementation). -->
 	<os-core:space id="space" url="/./qa-space"
 		space-data-source="spaceDataSource" space-sync-endpoint="spaceSynchronizationEndpoint">
+		<os-core:properties>
+			<props>
+				<prop key="space-config.engine.memory_usage.enabled">true</prop>
+				<prop key="space-config.engine.cache_policy">0</prop>
+				<prop key="space-config.engine.cache_size">10</prop>
+				<prop key="space-config.engine.memory_usage.high_watermark_percentage">90</prop>
+				<prop key="space-config.engine.memory_usage.write_only_block_percentage">85</prop>
+				<prop key="space-config.engine.memory_usage.write_only_check_percentage">76</prop>
+				<prop key="space-config.engine.memory_usage.low_watermark_percentage">75</prop>
+				<prop key="space-config.engine.memory_usage.eviction_batch_size">500</prop>
+				<prop key="space-config.engine.memory_usage.retry_yield_time">2000</prop>
+				<prop key="space-config.engine.memory_usage.retry_count">5</prop>
+				<prop key="space-config.engine.memory_usage.explicit-gc">false</prop>
+			</props>
+		</os-core:properties>
 	</os-core:space>
 
 	<!-- OpenSpaces simplified space API built on top of IJSpace/JavaSpace. -->
