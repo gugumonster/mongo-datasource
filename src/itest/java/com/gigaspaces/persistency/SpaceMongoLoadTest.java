@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
 
+import org.openspaces.admin.space.Space;
 import org.openspaces.core.GigaSpace;
 import org.openspaces.core.ReadMultipleException;
 import org.openspaces.core.TakeMultipleException;
@@ -19,6 +20,10 @@ import com.gigaspaces.itest.model.MongoIssuePojo;
 import com.gigaspaces.itest.model.Priority;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.j_spaces.core.IJSpace;
+import com.j_spaces.core.client.SpaceFinder;
+import com.j_spaces.jms.utils.GSJMSAdmin;
+import com.j_spaces.map.CacheFinder;
 
 public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 
@@ -49,6 +54,10 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 
 		//IJSpace space2 = null;
 		try {
+			
+			
+			
+							
 			// helper = new CassandraHelper(new File(getTestUnit().getConfig()
 			// .getTestDirPath()));
 			// helper.init();
@@ -61,15 +70,22 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 			// gigaSpace = new GigaSpaceConfigurer(space1).clustered(true)
 			// .create();
 			//
-			// waitForActiveReplicationChannelWithMirror(gigaSpace.getSpace());
-			// waitForActiveReplicationChannelWithMirror(space2);
+			
+			
+			 
+			 SpaceFinder.find("/./qa-space?cluster_schema=partitioned-sync2backup&groups="+getTestGroup()+"&total_members=2,1&id=1");
+			 waitForActiveReplicationChannelWithMirror(gigaSpace.getSpace());
+			 //waitForActiveReplicationChannelWithMirror(space2);
 			//
 			// this.gigaSpace = gigaSpace;
 			// try {
 			// test(gigaSpace);
 			// } catch (Throwable e) {
 			// throw new AssertionError(e);
-			// }
+			// }			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} finally {
 			// if (gigaSpace != null)
 			// waitForEmptyReplicationBacklog(gigaSpace);
@@ -77,7 +93,6 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 			// waitForEmptyReplicationBacklog(space2);
 			// helper.stop();
 		}
-
 	}
 
 	private void test(final GigaSpace gigaSpace) throws Throwable {
