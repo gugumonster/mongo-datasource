@@ -53,11 +53,7 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 		priorityMap.put(Priority.MEDIUM, 5);
 
 		//IJSpace space2 = null;
-		try {
-			
-			
-			
-							
+		try {							
 			// helper = new CassandraHelper(new File(getTestUnit().getConfig()
 			// .getTestDirPath()));
 			// helper.init();
@@ -70,9 +66,7 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 			// gigaSpace = new GigaSpaceConfigurer(space1).clustered(true)
 			// .create();
 			//
-			
-			
-			 
+
 			 SpaceFinder.find("/./qa-space?cluster_schema=partitioned-sync2backup&groups="+getTestGroup()+"&total_members=2,1&id=1");
 			 waitForActiveReplicationChannelWithMirror(gigaSpace.getSpace());
 			 //waitForActiveReplicationChannelWithMirror(space2);
