@@ -25,8 +25,8 @@ public class IssuePojo implements Issue {
 	private Date updated;
 	/** number of votes for this issue - default zero */
 	private Integer votes;
-	/** priority of this issue - default trivial */
-	private Priority priority;
+	/** Priority1 of this issue - default trivial */
+	private Priority Priority1;
 	/** votes string representation - used for regular expressions and alike */
 	private String votesRep;
 
@@ -68,7 +68,7 @@ public class IssuePojo implements Issue {
 		long now = System.currentTimeMillis();
 		created = new Date(now);
 		updated = new Date(now);
-		priority = Priority.TRIVIAL;
+		Priority1 = Priority1.TRIVIAL;
 		votes = 0;
 		votesRep = String.valueOf(votes);
 	}
@@ -93,29 +93,29 @@ public class IssuePojo implements Issue {
 
 		++votes;
 		votesRep = String.valueOf(votes);
-		Priority votedPriority = Priority.TRIVIAL;
-		Priority previous = priority;
+		Priority votedPriority1 = Priority1.TRIVIAL;
+		Priority previous = Priority1;
 
 		switch (votes) {
 		case 5:
-			votedPriority = Priority.MINOR;
+			votedPriority1 = Priority1.MINOR;
 			break;
 		case 10:
-			votedPriority = Priority.MEDIUM;
+			votedPriority1 = Priority1.MEDIUM;
 			break;
 		case 15:
-			votedPriority = Priority.MAJOR;
+			votedPriority1 = Priority1.MAJOR;
 			break;
 		case 20:
-			votedPriority = Priority.CRITICAL;
+			votedPriority1 = Priority1.CRITICAL;
 			break;
 		case 25:
-			votedPriority = Priority.BLOCKER;
+			votedPriority1 = Priority1.BLOCKER;
 			break;
 		}
 
-		if (votedPriority.ordinal() > priority.ordinal())
-			priority = votedPriority;
+		if (votedPriority1.ordinal() > Priority1.ordinal())
+			Priority1 = votedPriority1;
 
 		return previous;
 	}
@@ -124,20 +124,20 @@ public class IssuePojo implements Issue {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * com.gigaspaces.common_data.issue.Issue#setPriority(com.gigaspaces.common_data
-	 * .issue.IssueMetaDataEntry.Priority)
+	 * com.gigaspaces.common_data.issue.Issue#setPriority1(com.gigaspaces.common_data
+	 * .issue.IssueMetaDataEntry.Priority1)
 	 */
 	public void setPriority(Priority p) {
-		priority = p;
+		Priority1 = p;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.gigaspaces.common_data.issue.Issue#getPriority()
+	 * @see com.gigaspaces.common_data.issue.Issue#getPriority1()
 	 */
 	public Priority getPriority() {
-		return priority;
+		return Priority1;
 	}
 
 	/*
@@ -289,7 +289,7 @@ public class IssuePojo implements Issue {
 		sb.append("\t reporter: "
 				+ (getReporter() == null ? "Unassigned" : getReporter()));
 		sb.append("\t votes: " + getVotes());
-		sb.append("\t priority: " + getPriority());
+		sb.append("\t Priority1: " + getPriority());
 		sb.append("\t created: " + getCreated());
 		sb.append("\t updated: " + getUpdated());
 		return sb.toString();
@@ -337,7 +337,7 @@ public class IssuePojo implements Issue {
 				&& !this.getVotes().equals(otherIssue.getVotes()))
 			return false;
 
-		// verify priority
+		// verify Priority1
 		if (this.getPriority() == null && otherIssue.getPriority() != null)
 			return false;
 		else if (this.getPriority() != null

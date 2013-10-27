@@ -198,12 +198,9 @@ public class MetadataManager {
 
 		} catch (ClassNotFoundException e) {
 			logger.error(e);
-
 			throw new SpaceMongoDataSourceException("", e);
-
 		} catch (IOException e) {
 			logger.error(e);
-
 			throw new SpaceMongoDataSourceException("", e);
 		}
 

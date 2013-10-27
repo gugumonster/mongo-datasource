@@ -11,7 +11,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openspaces.admin.Admin;
 import org.openspaces.admin.AdminFactory;
-import org.openspaces.admin.gsa.GridServiceAgent;
 import org.openspaces.admin.pu.ProcessingUnit;
 import org.openspaces.admin.pu.ProcessingUnitDeployment;
 import org.openspaces.core.GigaSpace;
@@ -22,11 +21,14 @@ import com.gigaspaces.persistency.utils.CommandLineProcess;
 import com.gigaspaces.persistency.utils.IRepetitiveRunnable;
 import com.j_spaces.core.IJSpace;
 import com.j_spaces.core.admin.StatisticsAdmin;
+import com.j_spaces.core.client.FinderException;
+import com.j_spaces.core.client.SpaceFinder;
 import com.j_spaces.core.filters.ReplicationStatistics.ChannelState;
 import com.j_spaces.core.filters.ReplicationStatistics.OutgoingChannel;
 import com.j_spaces.core.filters.ReplicationStatistics.OutgoingReplication;
 import com.mongodb.MongoClient;
 
+@SuppressWarnings("deprecation")
 public abstract class AbstractSystemTestUnit {
 
 	protected final static Admin admin = new AdminFactory().addGroup(
@@ -53,6 +55,7 @@ public abstract class AbstractSystemTestUnit {
 		startGSAgent();
 
 		admin.getGridServiceManagers().waitForAtLeastOne();
+
 	}
 
 	@Before
@@ -62,7 +65,7 @@ public abstract class AbstractSystemTestUnit {
 
 	private static void dropDB() {
 		MongoClient client;
-		
+
 		try {
 			client = new MongoClient();
 
@@ -86,14 +89,29 @@ public abstract class AbstractSystemTestUnit {
 		return deploy_path + getPUJar();
 	}
 
+	protected boolean hasMirrorService() {
+		return getMirrorService() != null;
+	}
+
+	protected String getMirrorService() {
+		return null;
+	}
+
 	protected String getPUJar() {
 		return "/mongodb-qa-space-0.0.1-SNAPSHOT.jar";
+	}
+
+	protected IJSpace findSpace(String instanceId) throws FinderException {
+		return (IJSpace) SpaceFinder
+				.find(String
+						.format("jini://*/*/qa-space?cluster_schema=partitioned-sync2backup&groups=%s&total_members=2,1&id=%s",
+								getTestGroup(), instanceId));
 	}
 
 	protected static void startGSAgent() {
 		gsAgent = new CommandLineProcess(getGSAPath());
 
-		gsAgent.addEnvironmentVariable("LOOKUPGROUPS", getTestGroup());
+		gsAgent.addEnvironmentVariable("LOOKUPGROU" + "PS", getTestGroup());
 
 		new Thread(gsAgent).start();
 	}
@@ -114,7 +132,11 @@ public abstract class AbstractSystemTestUnit {
 	@Test
 	public abstract void test();
 
-	private void deploy() {
+	protected void deploy() {
+
+		if (hasMirrorService())
+			deployMirrorService();
+
 		File puArchive = new File(getDeploymentJarPath());
 
 		ProcessingUnitDeployment deployment = new ProcessingUnitDeployment(
@@ -128,8 +150,27 @@ public abstract class AbstractSystemTestUnit {
 
 			gigaSpace = pu.getSpace().getGigaSpace();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			throw new AssertionError(ex);
 		}
+	}
+
+	private void deployMirrorService() {
+		File mirrorPuArchive = new File(deploy_path + getMirrorService());
+
+		ProcessingUnitDeployment deployment = new ProcessingUnitDeployment(
+				mirrorPuArchive);
+
+		try {
+
+			pu = admin.getGridServiceManagers().deploy(deployment);
+
+			pu.waitFor(1);
+
+			// gigaSpace = pu.getSpace().getGigaSpace();
+		} catch (Exception ex) {
+			throw new AssertionError(ex);
+		}
+
 	}
 
 	public static String getTestGroup() {
@@ -139,50 +180,60 @@ public abstract class AbstractSystemTestUnit {
 	@After
 	public void stop() {
 
-		//pu.undeployAndWait();
+		// pu.undeployAndWait();
 
 	}
 
 	@AfterClass
 	public static void destroy() {
 
-//		for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
-//			gsa.shutdown();
-//		}
-//
-//		gsAgent.stop();
+		// for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
+		// gsa.shutdown();
+		// }
+		//
+		// gsAgent.stop();
 
-		//dropDB();
+		// dropDB();
 
-		//mongod.stop();
+		// mongod.stop();
 	}
 
-    protected void waitForActiveReplicationChannelWithMirror(final IJSpace space) throws Exception {
-    	repeat(new IRepetitiveRunnable() {
-            public void run() throws Exception {
-                boolean channelFound = false;
-                
-                for (OutgoingChannel channel : getOutgoingReplication(space).getChannels()) {
-                    if (!channel.getTargetMemberName().contains("mirror-service")) {
-                        continue;
-                    }
-                    
-                    Assert.assertEquals("No replication with mirror", ChannelState.ACTIVE, channel.getChannelState());
-                    channelFound = true;
-                }
-                
-                if (!channelFound) {
-                    Assert.fail("no replication channel with mirror");
-                }
-            }
-        }, 60 * 1000);
-        
-    }
-    
-    protected OutgoingReplication getOutgoingReplication(IJSpace space) throws Exception {
-        return ((StatisticsAdmin) space.getAdmin()).getHolder().getReplicationStatistics().getOutgoingReplication();
-    }
-    
+	protected void say(String string) {
+		// TODO Auto-generated method stub
+		
+	}
+	protected void waitForActiveReplicationChannelWithMirror(final IJSpace space)
+			throws Exception {
+		repeat(new IRepetitiveRunnable() {
+			public void run() throws Exception {
+				boolean channelFound = false;
+
+				for (OutgoingChannel channel : getOutgoingReplication(space)
+						.getChannels()) {
+					if (!channel.getTargetMemberName().contains(
+							"mirror-service")) {
+						continue;
+					}
+
+					Assert.assertEquals("No replication with mirror",
+							ChannelState.ACTIVE, channel.getChannelState());
+					channelFound = true;
+				}
+
+				if (!channelFound) {
+					Assert.fail("no replication channel with mirror");
+				}
+			}
+		}, 60 * 1000);
+
+	}
+
+	protected OutgoingReplication getOutgoingReplication(IJSpace space)
+			throws Exception {
+		return ((StatisticsAdmin) space.getAdmin()).getHolder()
+				.getReplicationStatistics().getOutgoingReplication();
+	}
+
 	protected void waitForEmptyReplicationBacklogAndClearMemory(
 			GigaSpace gigaSpace) {
 		waitForEmptyReplicationBacklog(gigaSpace);
@@ -208,7 +259,7 @@ public abstract class AbstractSystemTestUnit {
 		waitForEmptyReplicationBacklog(gigaSpace.getSpace());
 	}
 
-	private void waitForEmptyReplicationBacklog(IJSpace space) {
+	protected void waitForEmptyReplicationBacklog(IJSpace space) {
 		repeat(new IRepetitiveRunnable() {
 
 			public void run() throws Exception {

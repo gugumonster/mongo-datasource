@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
 
-import org.openspaces.core.GigaSpace;
+import org.openspaces.admin.gsa.GridServiceAgent;
 import org.openspaces.core.space.UrlSpaceConfigurer;
 
 import com.gigaspaces.client.ReadModifiers;
@@ -17,12 +17,13 @@ import com.gigaspaces.itest.model.MongoIssuePojo;
 import com.gigaspaces.itest.model.Priority;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.j_spaces.core.IJSpace;
 
 public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 	@SuppressWarnings("unchecked")
 	private final BiMap<Priority, Integer> priorityMap = initPriortyMap(new HashBiMap<Priority, Integer>());
 
-	private GigaSpace gigaSpace;
+	// private GigaSpace gigaSpace;
 	private volatile boolean work = true;
 	private static final int NUMBER_OF_WRITERS = 1;
 	private volatile ThreadBarrier barrier = new ThreadBarrier(
@@ -35,24 +36,35 @@ public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 	UrlSpaceConfigurer space2Config;
 	UrlSpaceConfigurer space2_1Config;
 
+	private IJSpace space1;
+
+	private IJSpace space2;
+
 	@Override
 	public void test() {
-		// try {
-		// helper = new CassandraHelper(new File(getTestUnit().getConfig()
-		// .getTestDirPath()));
-		// helper.init();
-		// startMirror(2, 1);
-		//
-		// initConfigurersAndStartSpaces();
-		// fillClusterData();
-		// teardownCluster();
-		// initConfigurersAndStartSpaces();
-		//
-		// assertValidInitialDataLoad();
-		// } finally {
-		// helper.stop();
-		// }
+		try {
+			// initConfigurersAndStartSpaces();
+			space1 = findSpace("1");
+			space2 = findSpace("2");
 
+			fillClusterData();
+			teardownCluster();
+			initConfigurersAndStartSpaces();
+			//
+			assertValidInitialDataLoad();
+		} catch (Exception e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	@Override
+	protected String getMirrorService() {
+		return "/mongodb-qa-mirror-0.0.1-SNAPSHOT.jar";
+	}
+
+	@Override
+	protected String getPUJar() {
+		return "/mongodb-qa-initial-load-0.0.1-SNAPSHOT.jar";
 	}
 
 	private void assertValidInitialDataLoad() {
@@ -77,47 +89,42 @@ public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 	}
 
 	private void initConfigurersAndStartSpaces() throws Exception {
-		// space1Config = getSpaceConfigurer(1, null, 2, 1);
-		// space1_1Config = getSpaceConfigurer(1, 1, 2, 1);
-		// space2Config = getSpaceConfigurer(2, null, 2, 1);
-		// space2_1Config = getSpaceConfigurer(2, 1, 2, 1);
-		//
-		// space1Config.create();
-		// space1_1Config.create();
-		// space2Config.create();
-		// space2_1Config.create();
-		//
-		// this.gigaSpace = new
-		// GigaSpaceConfigurer(space1Config.space()).clustered(true).create();
-		//
-		// waitForActiveReplicationChannelWithMirror(space1Config.space());
-		// waitForActiveReplicationChannelWithMirror(space2Config.space());
+		startGSAgent();
+
+		admin.getGridServiceManagers().waitForAtLeastOne();
+
+		deploy();
+
+		waitForActiveReplicationChannelWithMirror(space1);
+		waitForActiveReplicationChannelWithMirror(space2);
 	}
 
 	private void fillClusterData() throws Exception {
-		// say("starting workers");
-		// startWorkers();
-		//
-		// say("sleep 30 sec");
-		// Thread.sleep(10 * 1000);
-		//
-		// say("stopping, written so far: " + writes.size());
-		// barrier.inspect();
-		// say("stopping workers");
-		// work = false;
-		// barrier.await();
-		//
-		// waitForEmptyReplicationBacklog(space1Config.space());
-		// waitForEmptyReplicationBacklog(space2Config.space());
-		//
-		// say("total written: " + writes.size());
+		say("starting workers");
+		startWorkers();
+
+		say("sleep 30 sec");
+		Thread.sleep(10 * 1000);
+
+		say("stopping, written so far: " + writes.size());
+		barrier.inspect();
+		say("stopping workers");
+		work = false;
+		barrier.await();
+
+		waitForEmptyReplicationBacklog(space1);
+		waitForEmptyReplicationBacklog(space2);
+
+		say("total written: " + writes.size());
 	}
 
 	private void teardownCluster() throws Exception {
-		// space2_1Config.destroy();
-		// space1_1Config.destroy();
-		// space1Config.destroy();
-		// space2Config.destroy();
+
+		for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
+			gsa.shutdown();
+		}
+
+		gsAgent.stop();
 	}
 
 	private void startWorkers() {

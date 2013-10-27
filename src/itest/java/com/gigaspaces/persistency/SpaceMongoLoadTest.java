@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
 
-import org.openspaces.admin.space.Space;
 import org.openspaces.core.GigaSpace;
 import org.openspaces.core.ReadMultipleException;
 import org.openspaces.core.TakeMultipleException;
@@ -21,16 +20,12 @@ import com.gigaspaces.itest.model.Priority;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.j_spaces.core.IJSpace;
-import com.j_spaces.core.client.SpaceFinder;
-import com.j_spaces.jms.utils.GSJMSAdmin;
-import com.j_spaces.map.CacheFinder;
 
 public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 
 	private final Random random = new Random();
 	private final BiMap<Priority, Integer> priorityMap = new HashBiMap<Priority, Integer>();
 
-	private GigaSpace gigaSpace;
 	private volatile boolean work = true;
 	private static final int NUMBER_OF_WRITERS = 5;
 	private static final int NUMBER_OF_TAKERS = 2;
@@ -52,8 +47,8 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 		priorityMap.put(Priority.TRIVIAL, 4);
 		priorityMap.put(Priority.MEDIUM, 5);
 
-		//IJSpace space2 = null;
-		try {							
+		IJSpace space2 = null;
+		try {
 			// helper = new CassandraHelper(new File(getTestUnit().getConfig()
 			// .getTestDirPath()));
 			// helper.init();
@@ -67,19 +62,14 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 			// .create();
 			//
 
-			 SpaceFinder.find("/./qa-space?cluster_schema=partitioned-sync2backup&groups="+getTestGroup()+"&total_members=2,1&id=1");
-			 waitForActiveReplicationChannelWithMirror(gigaSpace.getSpace());
-			 //waitForActiveReplicationChannelWithMirror(space2);
-			//
-			// this.gigaSpace = gigaSpace;
-			// try {
-			// test(gigaSpace);
-			// } catch (Throwable e) {
-			// throw new AssertionError(e);
-			// }			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			space2 = findSpace("2");
+			//waitForActiveReplicationChannelWithMirror(gigaSpace.getSpace());
+			//waitForActiveReplicationChannelWithMirror(space2);
+
+			test(gigaSpace);
+
+		} catch (Throwable e) {
+			throw new AssertionError(e);
 		} finally {
 			// if (gigaSpace != null)
 			// waitForEmptyReplicationBacklog(gigaSpace);
@@ -89,20 +79,25 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 		}
 	}
 
+	@Override
+	protected String getPUJar() {
+		return "/mongodb-qa-load-0.0.1-SNAPSHOT.jar";
+	}
+	
 	private void test(final GigaSpace gigaSpace) throws Throwable {
-		//say("starting workers");
+		// say("starting workers");
 		startWorkers();
 
-		//say("sleep 15 sec");
+		// say("sleep 15 sec");
 		Thread.sleep(15 * 1000);
 
-		//say("written so far: " + writes.size() + ", taken so far: "
-		//		+ takes.size());
+		// say("written so far: " + writes.size() + ", taken so far: "
+		// + takes.size());
 		barrier.inspect();
 		work = false;
 		barrier.await();
-		//say("taking remaning entries. total written: " + writes.size()
-		//		+ ", taken so far: " + takes.size());
+		// say("taking remaning entries. total written: " + writes.size()
+		// + ", taken so far: " + takes.size());
 		long startTime = System.currentTimeMillis();
 		// votes values are 0..priorityMap.size()-1
 		for (int i = 0; i < priorityMap.size(); i++) {
@@ -132,21 +127,21 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 			} while (takenIssues.length > 0);
 		}
 
-		//say("taking " + writes.size() + " took "
-		//		+ (System.currentTimeMillis() - startTime) + "ms");
+		// say("taking " + writes.size() + " took "
+		// + (System.currentTimeMillis() - startTime) + "ms");
 
 		Assert.assertTrue("duplicate takes: " + dupTakes, dupTakes.isEmpty());
 		Assert.assertTrue("invalid takes: " + nonValidIssues,
 				nonValidIssues.isEmpty());
 
-		//say("total written: " + writes.size());
+		// say("total written: " + writes.size());
 		Assert.assertEquals(writes, takes);
 
 	}
 
 	private void handleTakes(int i, Object[] takenIssues, long now) {
-		//say("took=" + takenIssues.length + "\tvotes=" + i + " \tms="
-		//		+ (System.currentTimeMillis() - now));
+		// say("took=" + takenIssues.length + "\tvotes=" + i + " \tms="
+		// + (System.currentTimeMillis() - now));
 		for (Object o : takenIssues) {
 			MongoIssuePojo issue = (MongoIssuePojo) o;
 			checkVaildIssue(issue);

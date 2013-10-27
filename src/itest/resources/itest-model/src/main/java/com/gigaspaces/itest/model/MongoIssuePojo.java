@@ -32,7 +32,7 @@ public class MongoIssuePojo implements Issue {
 	private Date updated;
 	/** number of votes for this issue - default zero */
 	private Integer votes;
-	/** priority of this issue - default trivial */
+	/** Priority1 of this issue - default trivial */
 	private Priority priority;
 	/** votes string representation - used for regular expressions and alike */
 	private String votesRep;

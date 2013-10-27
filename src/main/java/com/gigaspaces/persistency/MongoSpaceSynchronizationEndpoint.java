@@ -90,6 +90,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 	public void close() {
 		if (logger.isDebugEnabled())
 			logger.trace("MongoSpaceSynchronizationEndpoint.close()");
+		
 		 metadataManager.close();
 	}
 
