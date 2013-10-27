@@ -28,6 +28,7 @@ import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
 import com.gigaspaces.persistency.metadata.Mapper;
+import com.gigaspaces.persistency.metadata.MetadataManager;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -55,12 +56,12 @@ public class MongoClientPool {
 	public MongoClientPool(ServerAddress host, String db) {
 		this.client = new MongoClient(host);
 		this.dbName = db;
-			
+
 	}
 
 	public synchronized DB checkOut() {
 		DB db = client.getDB(dbName);
-		
+
 		return db;
 	}
 
@@ -97,7 +98,6 @@ public class MongoClientPool {
 				SpaceDocument spaceDoc = batchUnit.getSpaceDocument();
 				SpaceTypeDescriptorHolder spaceTypeDescriptor = types
 						.get(batchUnit.getTypeName());
-
 
 				Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor
 						.getTypeDescriptor());
@@ -196,14 +196,21 @@ public class MongoClientPool {
 	}
 
 	public synchronized void cacheSpaceTypeDesciptor(
-			SpaceTypeDescriptor spaceTypeDescriptor) {
+			SpaceTypeDescriptor spaceTypeDescriptor,
+			MetadataManager metadataManager) {
 
 		if (spaceTypeDescriptor == null)
 			throw new IllegalArgumentException(
 					"spaceTypeDescriptor can not be null");
-
-		types.put(spaceTypeDescriptor.getTypeName(),
-				new SpaceTypeDescriptorHolder(spaceTypeDescriptor));
+		
+		if(!types.containsKey(spaceTypeDescriptor.getTypeName())){
+			metadataManager.introduceType(spaceTypeDescriptor);
+		}
+		
+		SpaceTypeDescriptorHolder holder = new SpaceTypeDescriptorHolder(
+				spaceTypeDescriptor);
+		
+		types.put(spaceTypeDescriptor.getTypeName(), holder);
 	}
 
 	public synchronized void close() {
@@ -217,7 +224,7 @@ public class MongoClientPool {
 		return types.get(typeName);
 	}
 
-	public synchronized Map<String,SpaceTypeDescriptorHolder> getTypes() {
+	public synchronized Map<String, SpaceTypeDescriptorHolder> getTypes() {
 
 		return types;
 	}

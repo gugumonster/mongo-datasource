@@ -44,8 +44,7 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 	private SpaceTypeDescriptor spaceTypeDescriptor;
 	private Class<?> type;
 
-	private static final Log logger = LogFactory
-			.getLog(DefaultMongoToPojoMapper.class);
+	private static final Log logger = LogFactory.getLog(DefaultMongoToPojoMapper.class);
 
 	private final Map<String, Method> setters = new HashMap<String, Method>();
 
@@ -64,6 +63,8 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 						.getTypeName());
 
 				initFields(type, setters);
+			} else {
+				
 			}
 		} catch (ClassNotFoundException e) {
 			String message = CLASS_NOT_FOUND
@@ -72,7 +73,6 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 			throw new SpaceMongoDataSourceException(message, e);
 		}
 	}
-
 
 	/*
 	 * (non-Javadoc)

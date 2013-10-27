@@ -64,24 +64,31 @@ public class MetadataManager {
 	private IndexBuilder indexBuilder;
 
 	public MetadataManager(MongoClientPool pool) {
+
 		if (pool == null)
 			throw new IllegalArgumentException("mongo client can not be null");
 
 		this.pool = pool;
+
 		this.indexBuilder = new IndexBuilder(pool);
 	}
 
 	public void introduceType(IntroduceTypeData introduceTypeData) {
 
-		SpaceTypeDescriptor t = introduceTypeData.getTypeDescriptor();
+		SpaceTypeDescriptor spaceTypeDescriptor = introduceTypeData
+				.getTypeDescriptor();
 
+		introduceType(spaceTypeDescriptor);
+	}
+
+	public void introduceType(SpaceTypeDescriptor spaceTypeDescriptor) {
 		DBCollection m = getPool().getCollection(METADATA_COLLECTION_NAME);
 
 		BasicDBObject obj = new BasicDBObject();
 
-		obj.append(DEFAULT_ID, t.getTypeName());
+		obj.append(DEFAULT_ID, spaceTypeDescriptor.getTypeName());
 
-		writeMetadata(introduceTypeData, t, m, obj);
+		writeMetadata(spaceTypeDescriptor, m, obj);
 	}
 
 	/**
@@ -89,12 +96,12 @@ public class MetadataManager {
 	 * collection
 	 * 
 	 * @param introduceTypeData
-	 * @param t
+	 * @param spaceTypeDescriptor
 	 * @param m
 	 * @param obj
 	 */
-	private void writeMetadata(IntroduceTypeData introduceTypeData,
-			SpaceTypeDescriptor t, DBCollection m, BasicDBObject obj) {
+	private void writeMetadata(SpaceTypeDescriptor spaceTypeDescriptor,
+			DBCollection m, BasicDBObject obj) {
 		try {
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -103,7 +110,7 @@ public class MetadataManager {
 
 			IOUtils.writeObject(out,
 					SpaceTypeDescriptorVersionedSerializationUtils
-							.toSerializableForm(t));
+							.toSerializableForm(spaceTypeDescriptor));
 
 			obj.append(TYPE_DESCRIPTOR_FIELD_NAME, bos.toByteArray());
 
@@ -111,8 +118,9 @@ public class MetadataManager {
 
 			logger.trace(wr);
 
-			indexBuilder.ensureIndexes(introduceTypeData.getTypeDescriptor());
-			pool.cacheSpaceTypeDesciptor(t);
+			indexBuilder.ensureIndexes(spaceTypeDescriptor);
+
+			//pool.cacheSpaceTypeDesciptor(spaceTypeDescriptor, this);
 
 		} catch (IOException e) {
 			logger.error(e);
@@ -137,7 +145,7 @@ public class MetadataManager {
 			BatchUnit bu = new BatchUnit();
 			DataSyncOperation dso = dataSyncOperations[index];
 
-			pool.cacheSpaceTypeDesciptor(dso.getTypeDescriptor());
+			pool.cacheSpaceTypeDesciptor(dso.getTypeDescriptor(), this);
 
 			bu.setSpaceDocument(dso.getDataAsDocument());
 			bu.setDataSyncOperationType(dso.getDataSyncOperationType());
@@ -186,7 +194,7 @@ public class MetadataManager {
 
 			indexBuilder.ensureIndexes(spaceTypeDescriptor);
 
-			pool.cacheSpaceTypeDesciptor(spaceTypeDescriptor);
+			pool.cacheSpaceTypeDesciptor(spaceTypeDescriptor, this);
 
 		} catch (ClassNotFoundException e) {
 			logger.error(e);
@@ -195,7 +203,7 @@ public class MetadataManager {
 
 		} catch (IOException e) {
 			logger.error(e);
-			
+
 			throw new SpaceMongoDataSourceException("", e);
 		}
 
