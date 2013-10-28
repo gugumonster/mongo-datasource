@@ -23,33 +23,33 @@ import com.mongodb.ServerAddress;
  * @author Shadi Massalha
  *
  */
-public class MongoClientPoolConfigurer {
+public class MongoClientWrapperConfigurer {
 
 	private ServerAddress[] addresses;
 	private String db;
 	private String user;
 	private String password;
 
-	public MongoClientPoolConfigurer addresses(ServerAddress[] addresses) {
+	public MongoClientWrapperConfigurer addresses(ServerAddress[] addresses) {
 		this.addresses = addresses;
 		return this;
 	}
 
-	public MongoClientPoolConfigurer db(String db){
+	public MongoClientWrapperConfigurer db(String db){
 		this.db=db;
 		return this;
 	}
-	public MongoClientPoolConfigurer user(String user) {
+	public MongoClientWrapperConfigurer user(String user) {
 		this.user = user;
 		return this;
 	}
 
-	public MongoClientPoolConfigurer password(String password) {
+	public MongoClientWrapperConfigurer password(String password) {
 		this.password = password;
 		return this;
 	}
 
-	public MongoClientPool create() {
+	public MongoClientWrapper create() {
 
 		if (addresses == null)
 			throw new IllegalArgumentException("addresses must be set");
@@ -61,6 +61,6 @@ public class MongoClientPoolConfigurer {
 		if(!StringUtils.hasLength(db))
 			throw new IllegalArgumentException("db can not be null or empty");
 		
-		return new MongoClientPool(addresses[0],db);
+		return new MongoClientWrapper(addresses[0],db);
 	}
 }

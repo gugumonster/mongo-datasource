@@ -26,7 +26,7 @@ public class MongoSpaceSynchronizationEndpointBeanFactory implements
 	private final MongoSpaceSynchronizationEndpointConfigurer configurer = getConfigurer();
 	private MongoSpaceSynchronizationEndpoint mongoSpaceSynchronizationEndpoint;
 
-	public void setMongoClientPool(MongoClientPool mongoClientPool){
+	public void setMongoClientPool(MongoClientWrapper mongoClientPool){
 		configurer.mongoClientPool(mongoClientPool);
 	}
 	

@@ -40,9 +40,9 @@ import com.mongodb.ServerAddress;
  * @author Shadi Massalha
  * 
  */
-public class MongoClientPool {
+public class MongoClientWrapper {
 
-	private static final Log logger = LogFactory.getLog(MongoClientPool.class);
+	private static final Log logger = LogFactory.getLog(MongoClientWrapper.class);
 
 	private final MongoClient client;
 	private String dbName;
@@ -53,7 +53,7 @@ public class MongoClientPool {
 	private final Object batchSynchLock = new Object();
 	private static final Object synch = new Object();
 
-	public MongoClientPool(ServerAddress host, String db) {
+	public MongoClientWrapper(ServerAddress host, String db) {
 		this.client = new MongoClient(host);
 		this.dbName = db;
 

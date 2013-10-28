@@ -21,7 +21,7 @@ import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.index.AbstractSpaceIndex;
 import com.gigaspaces.metadata.index.SpaceIndex;
 import com.gigaspaces.metadata.index.SpaceIndexType;
-import com.gigaspaces.persistency.MongoClientPool;
+import com.gigaspaces.persistency.MongoClientWrapper;
 import com.gigaspaces.sync.AddIndexData;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -29,9 +29,9 @@ import com.mongodb.DBObject;
 
 public class IndexBuilder {
 
-	private MongoClientPool pool;
+	private MongoClientWrapper pool;
 
-	public IndexBuilder(MongoClientPool pool) {
+	public IndexBuilder(MongoClientWrapper pool) {
 		this.pool = pool;
 	}
 

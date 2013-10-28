@@ -33,7 +33,7 @@ import org.openspaces.persistency.cassandra.meta.mapping.TypeHierarcyTopologySor
 import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
-import com.gigaspaces.persistency.MongoClientPool;
+import com.gigaspaces.persistency.MongoClientWrapper;
 import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpoint;
 import com.gigaspaces.persistency.error.SpaceMongoDataSourceException;
 import com.gigaspaces.sync.AddIndexData;
@@ -60,10 +60,10 @@ public class MetadataManager {
 	private static final Log logger = LogFactory
 			.getLog(MongoSpaceSynchronizationEndpoint.class);
 
-	private final MongoClientPool pool;
+	private final MongoClientWrapper pool;
 	private IndexBuilder indexBuilder;
 
-	public MetadataManager(MongoClientPool pool) {
+	public MetadataManager(MongoClientWrapper pool) {
 
 		if (pool == null)
 			throw new IllegalArgumentException("mongo client can not be null");
@@ -131,7 +131,7 @@ public class MetadataManager {
 		indexBuilder.ensureIndexes(addIndexData);
 	}
 
-	public MongoClientPool getPool() {
+	public MongoClientWrapper getPool() {
 		return pool;
 	}
 

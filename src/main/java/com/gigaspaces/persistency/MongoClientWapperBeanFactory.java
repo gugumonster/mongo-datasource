@@ -21,12 +21,12 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.mongodb.ServerAddress;
 
-public class MongoClientPoolBeanFactory implements
-		FactoryBean<MongoClientPool>, InitializingBean, DisposableBean {
+public class MongoClientWapperBeanFactory implements
+		FactoryBean<MongoClientWrapper>, InitializingBean, DisposableBean {
 
-	private MongoClientPool mongoClientPool;
+	private MongoClientWrapper mongoClientPool;
 
-	private final MongoClientPoolConfigurer configurer = getConfigurer();
+	private final MongoClientWrapperConfigurer configurer = getConfigurer();
 
 	public void setAddresses(ServerAddress[] addresses) {
 		configurer.addresses(addresses);		
@@ -48,20 +48,20 @@ public class MongoClientPoolBeanFactory implements
 		mongoClientPool.close();
 	}
 
-	private MongoClientPoolConfigurer getConfigurer() {
-		return new MongoClientPoolConfigurer();
+	private MongoClientWrapperConfigurer getConfigurer() {
+		return new MongoClientWrapperConfigurer();
 	}
 
 	public void afterPropertiesSet() throws Exception {
 		this.mongoClientPool = configurer.create();
 	}
 
-	public MongoClientPool getObject() throws Exception {
+	public MongoClientWrapper getObject() throws Exception {
 		return mongoClientPool;
 	}
 
 	public Class<?> getObjectType() {
-		return MongoClientPool.class;
+		return MongoClientWrapper.class;
 	}
 
 	public boolean isSingleton() {

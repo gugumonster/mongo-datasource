@@ -26,8 +26,8 @@ import org.openspaces.archive.ArchiveOperationHandler;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.gigaspaces.document.SpaceDocument;
-import com.gigaspaces.persistency.MongoClientPool;
-import com.gigaspaces.persistency.MongoClientPoolConfigurer;
+import com.gigaspaces.persistency.MongoClientWrapper;
+import com.gigaspaces.persistency.MongoClientWrapperConfigurer;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.sync.DataSyncOperationType;
@@ -48,7 +48,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	private String user;
 	private String password;
 
-	private MongoClientPool client;
+	private MongoClientWrapper client;
 
 	/**
 	 * @see ArchiveOperationHandler#archive(Object...)
@@ -101,7 +101,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	}
 
 	private void createMongoClient() {
-		client = new MongoClientPoolConfigurer()
+		client = new MongoClientWrapperConfigurer()
 						.addresses(addresses)
 						.db(db)
 						.user(user)
@@ -111,7 +111,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	/**
 	 * @param db
-	 * @see MongoClientPoolConfigurer#db(String)
+	 * @see MongoClientWrapperConfigurer#db(String)
 	 */
 	@Required
 	public void setDb(String db) {
@@ -121,7 +121,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	/**
 	 * @param user
-	 * @see MongoClientPoolConfigurer#user(String)
+	 * @see MongoClientWrapperConfigurer#user(String)
 	 */
 	public void setUser(String user) {
 		this.user = user;
@@ -129,7 +129,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	/**
 	 * @param password
-	 * @see MongoClientPoolConfigurer#password(String)
+	 * @see MongoClientWrapperConfigurer#password(String)
 	 */
 	public void setPassword(String password) {
 		this.password = password;
@@ -137,7 +137,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	/**
 	 * @param addresses
-	 * @see MongoClientPoolConfigurer#addresses(ServerAddress[])
+	 * @see MongoClientWrapperConfigurer#addresses(ServerAddress[])
 	 */
 	@Required
 	public void setAddresses(ServerAddress[] addresses) {

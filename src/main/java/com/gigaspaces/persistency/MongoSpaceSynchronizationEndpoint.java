@@ -40,7 +40,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 
 	private final MetadataManager metadataManager;
 
-	public MongoSpaceSynchronizationEndpoint(MongoClientPool pool) {
+	public MongoSpaceSynchronizationEndpoint(MongoClientWrapper pool) {
 
 		this.metadataManager = new MetadataManager(pool);
 	}

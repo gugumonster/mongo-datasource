@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.datasource.DataSourceQuery;
-import com.gigaspaces.persistency.MongoClientPool;
+import com.gigaspaces.persistency.MongoClientWrapper;
 import com.gigaspaces.persistency.error.UnSupportedQueryException;
 import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
 import com.mongodb.DBCollection;
@@ -36,12 +36,12 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 	private static final Log logger = LogFactory
 			.getLog(MongoSqlQueryDataIterator.class);
 
-	private MongoClientPool pool;
+	private MongoClientWrapper pool;
 	private DataSourceQuery query;
 	private DBCursor cursor;
 	private DefaultMongoToPojoMapper pojoMapper;
 
-	public MongoSqlQueryDataIterator(MongoClientPool pool, DataSourceQuery query) {
+	public MongoSqlQueryDataIterator(MongoClientWrapper pool, DataSourceQuery query) {
 		if (pool == null)
 			throw new IllegalArgumentException("");
 

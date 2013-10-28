@@ -48,11 +48,11 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 	private static final Log logger = LogFactory
 			.getLog(MongoSpaceDataSource.class);
 
-	private MongoClientPool mongoClient;
+	private MongoClientWrapper mongoClient;
 
 	private final MetadataManager metadataManager;
 
-	public MongoSpaceDataSource(MongoClientPool mongoClient) {
+	public MongoSpaceDataSource(MongoClientWrapper mongoClient) {
 
 		if (mongoClient == null)
 			throw new IllegalArgumentException(

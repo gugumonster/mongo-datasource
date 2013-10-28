@@ -20,7 +20,7 @@ import java.util.Iterator;
 
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.MongoClientPool;
+import com.gigaspaces.persistency.MongoClientWrapper;
 import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -28,13 +28,13 @@ import com.mongodb.DBObject;
 public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 	private DBCursor currenCursor;
-	private MongoClientPool mongoClientPool;
+	private MongoClientWrapper mongoClientPool;
 	private Iterator<SpaceTypeDescriptor> types;
 	private SpaceTypeDescriptor spaceTypeDescriptor;
 	private DefaultMongoToPojoMapper pojoMapper;
 
 	public MongoInitialDataLoadIterator(Collection<SpaceTypeDescriptor> type,
-			MongoClientPool mongoClientPool) {
+			MongoClientWrapper mongoClientPool) {
 		if (type == null)
 			throw new IllegalArgumentException("");
 
