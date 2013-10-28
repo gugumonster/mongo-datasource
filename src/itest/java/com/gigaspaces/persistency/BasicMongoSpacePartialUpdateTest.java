@@ -36,6 +36,7 @@ public class BasicMongoSpacePartialUpdateTest extends AbstractSystemTestUnit {
 			partialUpdateIssuePojos.add(issue);
 		}
 
+		
 		gigaSpace.writeMultiple(
 				partialUpdateIssuePojos.toArray(new IssuePojo[] {}),
 				WriteModifiers.PARTIAL_UPDATE);
@@ -47,4 +48,8 @@ public class BasicMongoSpacePartialUpdateTest extends AbstractSystemTestUnit {
 
 	}
 
+	@Override
+	protected String getPUJar() {		
+		return "/mongodb-qa-partial-update-0.0.1-SNAPSHOT.jar";
+	}
 }

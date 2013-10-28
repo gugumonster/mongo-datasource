@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openspaces.admin.Admin;
 import org.openspaces.admin.AdminFactory;
+import org.openspaces.admin.gsa.GridServiceAgent;
 import org.openspaces.admin.pu.ProcessingUnit;
 import org.openspaces.admin.pu.ProcessingUnitDeployment;
 import org.openspaces.core.GigaSpace;
@@ -94,7 +95,7 @@ public abstract class AbstractSystemTestUnit {
 	}
 
 	protected String getMirrorService() {
-		return null;
+		return "/mongodb-qa-mirror-0.0.1-SNAPSHOT.jar";
 	}
 
 	protected String getPUJar() {
@@ -165,8 +166,7 @@ public abstract class AbstractSystemTestUnit {
 			pu = admin.getGridServiceManagers().deploy(deployment);
 
 			pu.waitFor(1);
-
-			// gigaSpace = pu.getSpace().getGigaSpace();
+			
 		} catch (Exception ex) {
 			throw new AssertionError(ex);
 		}
@@ -180,18 +180,18 @@ public abstract class AbstractSystemTestUnit {
 	@After
 	public void stop() {
 
-		// pu.undeployAndWait();
+		pu.undeployAndWait();
 
 	}
 
 	@AfterClass
 	public static void destroy() {
 
-		// for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
-		// gsa.shutdown();
-		// }
-		//
-		// gsAgent.stop();
+		for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
+			gsa.shutdown();
+		}
+
+		gsAgent.stop();
 
 		// dropDB();
 
@@ -200,8 +200,9 @@ public abstract class AbstractSystemTestUnit {
 
 	protected void say(String string) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	protected void waitForActiveReplicationChannelWithMirror(final IJSpace space)
 			throws Exception {
 		repeat(new IRepetitiveRunnable() {

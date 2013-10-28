@@ -35,6 +35,16 @@ public class DocumentPojoWithDynamicPropsMongoSpaceTest extends
 		});
 	}
 
+	@Override
+	protected String getMirrorService() {
+		return "/mongodb-qa-mirror-0.0.1-SNAPSHOT.jar";
+	}
+
+	@Override
+	protected String getPUJar() {
+		return "/mongodb-qa-document-pojo-0.0.1-SNAPSHOT.jar";
+	}
+
 	private void testWriteDocumentReadPojo() {
 		test(new TestDescriptor() {
 			public TestDataTypeWithDynamicProps getWritten() {

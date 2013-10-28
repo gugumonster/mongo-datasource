@@ -28,7 +28,7 @@
 		<property name="mongoClientPool" ref="mongoClient" />
 	</bean>
 
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientPoolBeanFactory">
+	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientWapperBeanFactory">
 
 		<!-- comma separated seed list -->
 		<property name="addresses">

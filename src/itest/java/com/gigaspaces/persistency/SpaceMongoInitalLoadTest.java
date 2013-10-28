@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Assert;
 
 import org.openspaces.admin.gsa.GridServiceAgent;
-import org.openspaces.core.space.UrlSpaceConfigurer;
 
 import com.gigaspaces.client.ReadModifiers;
 import com.gigaspaces.client.WriteModifiers;
@@ -17,7 +16,6 @@ import com.gigaspaces.itest.model.MongoIssuePojo;
 import com.gigaspaces.itest.model.Priority;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.j_spaces.core.IJSpace;
 
 public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 	@SuppressWarnings("unchecked")
@@ -31,26 +29,13 @@ public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 	private final AtomicInteger idGenerator = new AtomicInteger(0);
 	private final ConcurrentMap<Integer, Integer> writes = new ConcurrentHashMap<Integer, Integer>();
 
-	UrlSpaceConfigurer space1Config;
-	UrlSpaceConfigurer space1_1Config;
-	UrlSpaceConfigurer space2Config;
-	UrlSpaceConfigurer space2_1Config;
-
-	private IJSpace space1;
-
-	private IJSpace space2;
-
 	@Override
 	public void test() {
 		try {
-			// initConfigurersAndStartSpaces();
-			space1 = findSpace("1");
-			space2 = findSpace("2");
-
 			fillClusterData();
 			teardownCluster();
 			initConfigurersAndStartSpaces();
-			//
+
 			assertValidInitialDataLoad();
 		} catch (Exception e) {
 			throw new AssertionError(e);
@@ -95,8 +80,8 @@ public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 
 		deploy();
 
-		waitForActiveReplicationChannelWithMirror(space1);
-		waitForActiveReplicationChannelWithMirror(space2);
+		waitForActiveReplicationChannelWithMirror(gigaSpace.getSpace());
+		// waitForActiveReplicationChannelWithMirror(space2);
 	}
 
 	private void fillClusterData() throws Exception {
@@ -112,8 +97,8 @@ public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 		work = false;
 		barrier.await();
 
-		waitForEmptyReplicationBacklog(space1);
-		waitForEmptyReplicationBacklog(space2);
+		waitForEmptyReplicationBacklog(gigaSpace.getSpace());
+		// waitForEmptyReplicationBacklog(space2);
 
 		say("total written: " + writes.size());
 	}

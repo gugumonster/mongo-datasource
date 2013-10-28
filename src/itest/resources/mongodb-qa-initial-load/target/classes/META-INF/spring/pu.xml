@@ -63,7 +63,7 @@
 	<!-- Defines a local Jini transaction manager. -->
 	<os-core:distributed-tx-manager id="transactionManager" />
 
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientPoolBeanFactory">
+	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientWapperBeanFactory">
 
 		<!-- comma separated seed list -->
 		<property name="addresses">

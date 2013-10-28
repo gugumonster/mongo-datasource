@@ -30,6 +30,7 @@ import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
 import com.gigaspaces.persistency.metadata.Mapper;
 import com.gigaspaces.persistency.metadata.MetadataManager;
 import com.gigaspaces.sync.DataSyncOperation;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -101,7 +102,8 @@ public class MongoClientWrapper {
 
 				Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor
 						.getTypeDescriptor());
-
+				String id = spaceTypeDescriptor.getTypeDescriptor().getIdPropertyName();
+				
 				DBObject obj = mapper.maps(spaceDoc);
 
 				DBCollection col = getCollection(batchUnit.getTypeName());
@@ -109,7 +111,7 @@ public class MongoClientWrapper {
 				switch (batchUnit.getDataSyncOperationType()) {
 				case WRITE:
 				case UPDATE:
-				case PARTIAL_UPDATE:
+				case PARTIAL_UPDATE:					
 				case CHANGE:
 					col.save(obj);
 					break;
