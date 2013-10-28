@@ -48,9 +48,12 @@ public class DefaultPojoToMongoMapper implements
 		Map<String, Object> map2 = new LinkedHashMap<String, Object>();
 
 		for (Entry<String, Object> entry : properties.entrySet()) {
-			
-			if(entry.getValue() == null) continue;
-			
+
+		/*	if (entry.getValue() == null) {
+				map2.put(entry.getKey(), null);
+				continue;
+			}
+*/
 			if (entry.getValue().getClass().isEnum()) {
 				map2.put(entry.getKey(), entry.getValue().toString());
 			} else if (entry.getValue() instanceof SpaceDocument) {
@@ -62,8 +65,9 @@ public class DefaultPojoToMongoMapper implements
 
 				if (isId(entry.getKey()))
 					map2.put("_id", entry.getValue());
-				else
+				else {
 					map2.put(entry.getKey(), entry.getValue());
+				}
 			}
 		}
 

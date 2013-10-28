@@ -47,7 +47,7 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 		priorityMap.put(Priority.TRIVIAL, 4);
 		priorityMap.put(Priority.MEDIUM, 5);
 
-		IJSpace space2 = null;
+		// IJSpace space2 = null;
 		try {
 			// helper = new CassandraHelper(new File(getTestUnit().getConfig()
 			// .getTestDirPath()));
@@ -62,9 +62,10 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 			// .create();
 			//
 
-			space2 = findSpace("2");
+			// space2 = findSpace("2");
+
 			//waitForActiveReplicationChannelWithMirror(gigaSpace.getSpace());
-			//waitForActiveReplicationChannelWithMirror(space2);
+			// waitForActiveReplicationChannelWithMirror(space2);
 
 			test(gigaSpace);
 
@@ -80,24 +81,29 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 	}
 
 	@Override
+	protected String getMirrorService() {
+		return "/mongodb-qa-mirror-0.0.1-SNAPSHOT.jar";
+	}
+
+	@Override
 	protected String getPUJar() {
 		return "/mongodb-qa-load-0.0.1-SNAPSHOT.jar";
 	}
-	
+
 	private void test(final GigaSpace gigaSpace) throws Throwable {
-		// say("starting workers");
+		say("starting workers");
 		startWorkers();
 
-		// say("sleep 15 sec");
+		say("sleep 15 sec");
 		Thread.sleep(15 * 1000);
 
-		// say("written so far: " + writes.size() + ", taken so far: "
-		// + takes.size());
+		say("written so far: " + writes.size() + ", taken so far: "
+				+ takes.size());
 		barrier.inspect();
 		work = false;
 		barrier.await();
-		// say("taking remaning entries. total written: " + writes.size()
-		// + ", taken so far: " + takes.size());
+		say("taking remaning entries. total written: " + writes.size()
+				+ ", taken so far: " + takes.size());
 		long startTime = System.currentTimeMillis();
 		// votes values are 0..priorityMap.size()-1
 		for (int i = 0; i < priorityMap.size(); i++) {
@@ -127,14 +133,14 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 			} while (takenIssues.length > 0);
 		}
 
-		// say("taking " + writes.size() + " took "
-		// + (System.currentTimeMillis() - startTime) + "ms");
+		say("taking " + writes.size() + " took "
+				+ (System.currentTimeMillis() - startTime) + "ms");
 
 		Assert.assertTrue("duplicate takes: " + dupTakes, dupTakes.isEmpty());
 		Assert.assertTrue("invalid takes: " + nonValidIssues,
 				nonValidIssues.isEmpty());
 
-		// say("total written: " + writes.size());
+		say("total written: " + writes.size());
 		Assert.assertEquals(writes, takes);
 
 	}
