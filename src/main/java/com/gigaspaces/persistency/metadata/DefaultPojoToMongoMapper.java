@@ -49,11 +49,10 @@ public class DefaultPojoToMongoMapper implements
 
 		for (Entry<String, Object> entry : properties.entrySet()) {
 
-		/*	if (entry.getValue() == null) {
-				map2.put(entry.getKey(), null);
+			if (entry.getValue() == null) {				
 				continue;
 			}
-*/
+			
 			if (entry.getValue().getClass().isEnum()) {
 				map2.put(entry.getKey(), entry.getValue().toString());
 			} else if (entry.getValue() instanceof SpaceDocument) {

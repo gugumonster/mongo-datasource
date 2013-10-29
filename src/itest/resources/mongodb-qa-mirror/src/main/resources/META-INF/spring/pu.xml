@@ -17,10 +17,9 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
 
 	<os-core:mirror id="mirror" url="/./mirror-service"
-		space-sync-endpoint="spaceSynchronizationEndpoint"
-		operation-grouping="group-by-replication-bulk">
-		<os-core:source-space name="qa-space"
-			partitions="2" backups="1" />
+		space-sync-endpoint="spaceSynchronizationEndpoint" operation-grouping="group-by-replication-bulk">
+		<os-core:source-space name="qa-space" partitions="2"
+			backups="1" />
 	</os-core:mirror>
 
 	<bean id="spaceSynchronizationEndpoint"
@@ -28,17 +27,18 @@
 		<property name="mongoClientPool" ref="mongoClient" />
 	</bean>
 
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientWapperBeanFactory">
-
-		<!-- comma separated seed list -->
-		<property name="addresses">
+	<bean id="seeds" class="java.util.ArrayList">
+		<constructor-arg>
 			<list>
 				<bean class="com.mongodb.ServerAddress">
 					<constructor-arg name="host" value="localhost" />
 				</bean>
 			</list>
-		</property>
+		</constructor-arg>
+	</bean>
 
+	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientWapperBeanFactory">
+		<property name="seeds" ref="seeds" />
 		<property name="db" value="qadb" />
 	</bean>
 </beans>
