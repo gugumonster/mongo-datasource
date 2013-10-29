@@ -20,7 +20,7 @@ package com.gigaspaces.persistency.error;
  * 
  * @author Shadi Massalha
  */
-abstract public class SpaceMongoException extends RuntimeException {
+public class SpaceMongoException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

@@ -77,6 +77,7 @@ public class MongoClientWrapperConfigurer {
 
 	public MongoClientWrapperConfigurer uri(MongoClientURI uri) {
 		this.uri = uri;
+		new MongoClientURI("");
 		return this;
 	}
 

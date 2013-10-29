@@ -18,7 +18,6 @@ package com.gigaspaces.persistency;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.gigaspaces.persistency.metadata.MetadataManager;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
@@ -38,11 +37,14 @@ public class MongoSpaceSynchronizationEndpoint extends
 	private static final Log logger = LogFactory
 			.getLog(MongoSpaceSynchronizationEndpoint.class);
 
-	private final MetadataManager metadataManager;
+	private MongoClientWrapper client;
 
-	public MongoSpaceSynchronizationEndpoint(MongoClientWrapper pool) {
+	public MongoSpaceSynchronizationEndpoint(MongoClientWrapper client) {
+		
+		if (client == null)
+			throw new IllegalArgumentException("mongo client can not be null.");
 
-		this.metadataManager = new MetadataManager(pool);
+		this.client = client;
 	}
 
 	@Override
@@ -52,7 +54,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 			logger.trace("MongoSpaceSynchronizationEndpoint.onIntroduceType("
 					+ introduceTypeData + ")");
 
-		metadataManager.introduceType(introduceTypeData);
+		client.introduceType(introduceTypeData);
 	}
 
 	@Override
@@ -61,7 +63,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 			logger.debug("MongoSpaceSynchronizationEndpoint.onAddIndex("
 					+ addIndexData + ")");
 
-		metadataManager.ensureIndexes(addIndexData);
+		client.ensureIndexes(addIndexData);
 	}
 
 	@Override
@@ -90,14 +92,14 @@ public class MongoSpaceSynchronizationEndpoint extends
 	public void close() {
 		if (logger.isDebugEnabled())
 			logger.trace("MongoSpaceSynchronizationEndpoint.close()");
-		
-		 metadataManager.close();
+
+		client.close();
 	}
 
 	private void doSynchronization(DataSyncOperation dataSyncOperations[]) {
 		if (logger.isDebugEnabled())
 			logger.trace("MongoSpaceSynchronizationEndpoint.doSynchronization()");
 
-		metadataManager.performBatch(dataSyncOperations);
+		client.performBatch(dataSyncOperations);
 	}
 }

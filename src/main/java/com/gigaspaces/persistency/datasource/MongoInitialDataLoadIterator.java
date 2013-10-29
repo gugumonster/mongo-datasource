@@ -15,7 +15,6 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.datasource;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import com.gigaspaces.datasource.DataIterator;
@@ -33,13 +32,12 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 	private SpaceTypeDescriptor spaceTypeDescriptor;
 	private DefaultMongoToPojoMapper pojoMapper;
 
-	public MongoInitialDataLoadIterator(Collection<SpaceTypeDescriptor> type,
-			MongoClientWrapper mongoClientPool) {
-		if (type == null)
-			throw new IllegalArgumentException("");
+	public MongoInitialDataLoadIterator(MongoClientWrapper client) {
+		if (client == null)
+			throw new IllegalArgumentException("mongo client can not be null");
 
-		this.mongoClientPool = mongoClientPool;
-		this.types = type.iterator();
+		this.mongoClientPool = client;
+		this.types = client.getSortedTypes().iterator();
 		this.currenCursor = nextDataIterator();
 
 	}

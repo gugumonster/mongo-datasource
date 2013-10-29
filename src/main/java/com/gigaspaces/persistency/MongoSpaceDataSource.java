@@ -15,6 +15,8 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,7 +31,6 @@ import com.gigaspaces.persistency.datasource.DefaultMongoDataIterator;
 import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
 import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
 import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
-import com.gigaspaces.persistency.metadata.MetadataManager;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -52,7 +53,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	private MongoClientWrapper mongoClient;
 
-	private final MetadataManager metadataManager;
+	// private final MetadataManager metadataManager;
 
 	public MongoSpaceDataSource(MongoClientWrapper mongoClient) {
 
@@ -60,7 +61,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 			throw new IllegalArgumentException(
 					"mongoClient must be set and initiated");
 
-		this.metadataManager = new MetadataManager(mongoClient);
+		// this.metadataManager = new MetadataManager(mongoClient);
 		this.mongoClient = mongoClient;
 	}
 
@@ -70,10 +71,11 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceDataSource.initialMetadataLoad()");
 
-		metadataManager.loadMetadata();
+		Collection<SpaceTypeDescriptor> sortedCollection = mongoClient
+				.loadMetadata();
 
-		return new DataIteratorAdapter<SpaceTypeDescriptor>(metadataManager
-				.getTypes().iterator());
+		return new DataIteratorAdapter<SpaceTypeDescriptor>(
+				sortedCollection.iterator());
 	}
 
 	@Override
@@ -127,8 +129,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public DataIterator<Object> initialDataLoad() {
-		return new MongoInitialDataLoadIterator(metadataManager.getTypes(),
-				mongoClient);
+		return new MongoInitialDataLoadIterator(mongoClient);
 	}
 
 	/**
@@ -146,6 +147,6 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceDataSource.close()");
 
-		metadataManager.close();
+		mongoClient.close();
 	}
 }
