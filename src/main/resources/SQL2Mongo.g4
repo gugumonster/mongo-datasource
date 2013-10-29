@@ -25,15 +25,16 @@ atom: ID (op^ value)*
 
 op: '>' | '>=' | '<' | '<=' | '=' | '!=' | 'like' | 'rlike' | 'is';
 
-value: (NULL|INT|BOOL|FLOAT|STRING|PRAM);
+value: (NULL|PRAM);
+//value: (NULL|INT|BOOL|FLOAT|STRING|PRAM);
 
-INT: ('0'..'9')+;
-FLOAT:INT'.'INT;
-BOOL : ('true'|'false');
-STRING: '\''.*?'\'';
+//INT: ('0'..'9')+;
+//FLOAT:INT'.'INT;
+//BOOL : ('true'|'false');
+//STRING: '\''.*?'\'';
 NULL: 'NOT'?' '+'null';
 PRAM:'?';
 
 ID : NAME ('.' NAME)*;
-NAME : ('a'..'z' | 'A'..'Z' | '0'..'9')+;
+NAME : ('_'|'a'..'z' | 'A'..'Z' | '0'..'9')+;
 WS : (' ' | '\t' | '\r' | '\n')+ {skip();};

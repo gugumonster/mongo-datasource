@@ -24,7 +24,7 @@ import org.antlr.v4.runtime.TokenStream;
 
 import com.gigaspaces.datasource.DataSourceQuery;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitorV3;
+import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitor;
 import com.gigaspaces.persistency.parser.SQL2MongoLexer;
 import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
@@ -85,7 +85,7 @@ public class MongoQueryFactory {
 
 		SQL2MongoParser parser = new SQL2MongoParser(tokenStream);
 
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = new SQL2MongoBaseVisitorV3<ParseContext>();
+		SQL2MongoBaseVisitor<ParseContext> visitor = new SQL2MongoBaseVisitor<ParseContext>();
 
 		parser.parse().accept(visitor);
 

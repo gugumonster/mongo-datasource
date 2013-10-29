@@ -45,6 +45,8 @@ import com.mongodb.QueryBuilder;
  */
 public class MongoSpaceDataSource extends SpaceDataSource {
 
+	private static final String _ID = "_id";
+
 	private static final Log logger = LogFactory
 			.getLog(MongoSpaceDataSource.class);
 
@@ -80,7 +82,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceDataSource.getById(" + idQuery + ")");
 
-		DBObject q = new BasicDBObject("_id", idQuery.getId());
+		DBObject q = new BasicDBObject(_ID, idQuery.getId());
 
 		DBCollection c = mongoClient.getCollection(idQuery.getTypeDescriptor()
 				.getTypeName());
@@ -109,7 +111,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 		for (Object id : arg0.getIds()) {
 
-			q.or(new BasicDBObject("_id", id));
+			q.or(new BasicDBObject(_ID, id));
 		}
 
 		DBObject q1 = q.get();

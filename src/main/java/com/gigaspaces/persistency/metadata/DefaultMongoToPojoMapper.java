@@ -46,6 +46,7 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 
 	private static final Log logger = LogFactory.getLog(DefaultMongoToPojoMapper.class);
 
+	//TODO: to replaced with fast reflection ProcedureCache by giga
 	private final Map<String, Method> setters = new HashMap<String, Method>();
 
 	public DefaultMongoToPojoMapper(SpaceTypeDescriptor spaceTypeDescriptor) {
@@ -131,10 +132,13 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+			//TODO: shadi throw exception
 		} catch (InstantiationException e) {
 			e.printStackTrace();
+			//TODO: shadi throw exception
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
+			//TODO: shadi throw exception
 		}
 
 		return pojo;

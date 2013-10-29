@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
 import com.mongodb.QueryBuilder;
 
-public class SQL2MongoBaseVisitorV3Test {
+public class SQL2MongoBaseVisitorTest {
 
 	@Test
 	public void testSQL2MongoBaseVisitorV3() {
@@ -22,7 +22,7 @@ public class SQL2MongoBaseVisitorV3Test {
 
 	@Test
 	public void testEquals() {
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = parse("number = 10");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("number = 10");
 
 		QueryBuilder qb = QueryBuilder.start("number").is(10);
 
@@ -32,7 +32,7 @@ public class SQL2MongoBaseVisitorV3Test {
 
 	@Test
 	public void testNotEquals() {
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = parse("number != 100.0276");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("number != 100.0276");
 
 		QueryBuilder qb = QueryBuilder.start("number").notEquals(100.0276);
 
@@ -41,7 +41,7 @@ public class SQL2MongoBaseVisitorV3Test {
 
 	@Test
 	public void testSimpleAnd() {
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = parse("number is NOT null AND name like '%m_n%db%'");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("number is NOT null AND name like '%m_n%db%'");
 
 		QueryBuilder qb = QueryBuilder.start().and("number").exists(false)
 				.and("name").regex(Pattern.compile("m.n.*db"));
@@ -51,7 +51,7 @@ public class SQL2MongoBaseVisitorV3Test {
 
 	@Test
 	public void testMultipleAnd() {
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = parse("number is NOT null AND name like '%m_n%db%' AND age >= 20");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("number is NOT null AND name like '%m_n%db%' AND age >= 20");
 
 		QueryBuilder qb = QueryBuilder.start().and("number").exists(false)
 				.and("name").regex(Pattern.compile("m.n.*db")).and("age")
@@ -62,7 +62,7 @@ public class SQL2MongoBaseVisitorV3Test {
 
 	@Test
 	public void testSimpleOr() {
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = parse("x < 3.3 OR y <= 20");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 OR y <= 20");
 
 		QueryBuilder qb = QueryBuilder.start()
 				.or(QueryBuilder.start("x").lessThan(3.3).get())
@@ -73,7 +73,7 @@ public class SQL2MongoBaseVisitorV3Test {
 
 	@Test
 	public void testMultipleOr() {
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = parse("x < 3.3 OR y <= 20 OR z = true");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 OR y <= 20 OR z = true");
 
 		QueryBuilder qb = QueryBuilder.start()
 				.or(QueryBuilder.start("x").lessThan(3.3).get())
@@ -85,7 +85,7 @@ public class SQL2MongoBaseVisitorV3Test {
 
 	@Test
 	public void testAndOr() {
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = parse("x < 3.3 AND y <= 20 OR z = true");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 AND y <= 20 OR z = true");
 
 		QueryBuilder qb = QueryBuilder.start().or(
 				QueryBuilder.start().and("x").lessThan(3.3).and("y")
@@ -97,7 +97,7 @@ public class SQL2MongoBaseVisitorV3Test {
 	
 	@Test
 	public void testOrWithTwoAndClause() {
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = parse("x < 3.3 AND y <= 20 OR z = true AND w like 'ab%'");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 AND y <= 20 OR z = true AND w like 'ab%'");
 
 		QueryBuilder qb = QueryBuilder.start().or(
 				QueryBuilder.start().and("x").lessThan(3.3).and("y")
@@ -112,7 +112,7 @@ public class SQL2MongoBaseVisitorV3Test {
 
 	@Test
 	public void testAndWithTwoOrClause() {
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = parse("x < 3.3 OR y <= 20 AND z = true OR w like 'ab%'");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 OR y <= 20 AND z = true OR w like 'ab%'");
 
 		QueryBuilder qb = QueryBuilder.start().and(
 				QueryBuilder.start().and("x").lessThan(3.3).and("y")
@@ -128,7 +128,7 @@ public class SQL2MongoBaseVisitorV3Test {
 	/**
 	 * @return
 	 */
-	private SQL2MongoBaseVisitorV3<ParseContext> parse(String line) {
+	private SQL2MongoBaseVisitor<ParseContext> parse(String line) {
 		ANTLRInputStream charstream = new ANTLRInputStream(line);
 
 		SQL2MongoLexer lexer = new SQL2MongoLexer(charstream);
@@ -137,7 +137,7 @@ public class SQL2MongoBaseVisitorV3Test {
 
 		SQL2MongoParser parser = new SQL2MongoParser(tokenStream);
 
-		SQL2MongoBaseVisitorV3<ParseContext> visitor = new SQL2MongoBaseVisitorV3<ParseContext>();
+		SQL2MongoBaseVisitor<ParseContext> visitor = new SQL2MongoBaseVisitor<ParseContext>();
 
 		parser.parse().accept(visitor);
 		return visitor;

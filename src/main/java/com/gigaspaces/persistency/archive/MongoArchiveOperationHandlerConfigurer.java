@@ -15,6 +15,11 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.archive;
 
+import java.util.List;
+
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
 /**
@@ -55,17 +60,70 @@ public class MongoArchiveOperationHandlerConfigurer {
 	}
 
 	/**
-	 * @see MongoArchiveOperationHandler#setAddresses(ServerAddress[])
+	 * @see MongoArchiveOperationHandler#setSeeds(List)
 	 */
-	public MongoArchiveOperationHandlerConfigurer addresses(
-			ServerAddress[] addresses) {
-		handler.setAddresses(addresses);
+	public MongoArchiveOperationHandlerConfigurer seeds(
+			List<ServerAddress> seeds) {
+		handler.setSeeds(seeds);
+		return this;
+	}
+
+	/**
+	 * @see MongoArchiveOperationHandler#setCredentials(List)
+	 */
+	public MongoArchiveOperationHandlerConfigurer credentials(
+			List<MongoCredential> credentials) {
+		handler.setCredentials(credentials);
+		return this;
+	}
+
+	/**
+	 * @see MongoArchiveOperationHandler#setOptions(MongoClientOptions)
+	 */
+	public MongoArchiveOperationHandlerConfigurer options(
+			MongoClientOptions options) {
+		handler.setOptions(options);
+		return this;
+	}
+
+	/**
+	 * @see MongoArchiveOperationHandler#setHost(String)
+	 */
+	public MongoArchiveOperationHandlerConfigurer host(String host) {
+		handler.setHost(host);
+		return this;
+	}
+
+	/**
+	 * @see MongoArchiveOperationHandler#setPort(int)
+	 */
+	public MongoArchiveOperationHandlerConfigurer port(int port) {
+		handler.setPort(port);
+		return this;
+	}
+
+	/**
+	 * @see MongoArchiveOperationHandler#setAddr(ServerAddress)
+	 */
+	public MongoArchiveOperationHandlerConfigurer addr(ServerAddress addr) {
+		handler.setAddr(addr);
+		return this;
+	}
+
+	/**
+	 * @see MongoArchiveOperationHandler#setUri(MongoClientURI)
+	 */
+	public MongoArchiveOperationHandlerConfigurer uri(MongoClientURI uri) {
+		handler.setUri(uri);
 		return this;
 	}
 
 	public MongoArchiveOperationHandler create() {
+
 		if (!initialized) {
+
 			handler.afterPropertiesSet();
+
 			initialized = true;
 		}
 

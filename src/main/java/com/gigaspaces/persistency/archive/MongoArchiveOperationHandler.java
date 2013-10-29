@@ -23,14 +23,19 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openspaces.archive.ArchiveOperationHandler;
+import org.openspaces.core.GigaSpace;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.gigaspaces.document.SpaceDocument;
+import com.gigaspaces.persistency.MongoClientConfiguration;
 import com.gigaspaces.persistency.MongoClientWrapper;
 import com.gigaspaces.persistency.MongoClientWrapperConfigurer;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.sync.DataSyncOperationType;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
 /**
@@ -39,16 +44,31 @@ import com.mongodb.ServerAddress;
  * 
  */
 @SuppressWarnings("restriction")
-public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
+public class MongoArchiveOperationHandler implements ArchiveOperationHandler,
+		MongoClientConfiguration {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
-	private ServerAddress[] addresses;
-	private String db;
-	private String user;
-	private String password;
+	// injected(required)
+	private GigaSpace gigaSpace;
 
 	private MongoClientWrapper client;
+
+	private List<ServerAddress> seeds;
+	private String db;
+	private List<MongoCredential> credentials;
+	private MongoClientOptions options;
+	private ServerAddress addr;
+	private String host;
+	private int port;
+	private MongoClientURI uri;
+	private String password;
+	private String user;
+
+	@Required
+	public void setGigaSpace(GigaSpace gigaSpace) {
+		this.gigaSpace = gigaSpace;
+	}
 
 	/**
 	 * @see ArchiveOperationHandler#archive(Object...)
@@ -74,14 +94,14 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 			batchUnit.setSpaceDocument((SpaceDocument) object);
 			((SpaceDocument) object).getTypeName();
 			batchUnit.setDataSyncOperationType(DataSyncOperationType.WRITE);
-
+			
 			rows.add(batchUnit);
 		}
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Writing to mongo " + rows.size() + " objects");
 		}
-
+		// TODO: check if type descriptor is empty gigaspace ref		
 		client.performBatch(rows);
 	}
 
@@ -97,20 +117,25 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	@PostConstruct
 	public void afterPropertiesSet() {
 
+		if (gigaSpace == null) {
+			throw new IllegalArgumentException("gigaSpace cannot be null");
+		}
+
 		createMongoClient();
 	}
 
 	private void createMongoClient() {
-		client = new MongoClientWrapperConfigurer()
-						.addresses(addresses)
-						.db(db)
-						.user(user)
-						.password(password)
-						.create();
+		client = new MongoClientWrapperConfigurer().seeds(seeds)
+				.credentials(credentials).options(options).addr(addr).uri(uri)
+				.host(host).port(port).user(user).password(password).db(db)
+				.create();
+	}
+
+	public GigaSpace getGigaSpace() {
+		return gigaSpace;
 	}
 
 	/**
-	 * @param db
 	 * @see MongoClientWrapperConfigurer#db(String)
 	 */
 	@Required
@@ -120,7 +145,6 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	}
 
 	/**
-	 * @param user
 	 * @see MongoClientWrapperConfigurer#user(String)
 	 */
 	public void setUser(String user) {
@@ -128,7 +152,6 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	}
 
 	/**
-	 * @param password
 	 * @see MongoClientWrapperConfigurer#password(String)
 	 */
 	public void setPassword(String password) {
@@ -136,11 +159,56 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	}
 
 	/**
-	 * @param addresses
-	 * @see MongoClientWrapperConfigurer#addresses(ServerAddress[])
+	 * @see MongoClientWrapperConfigurer#seeds(ServerAddress[])
 	 */
-	@Required
-	public void setAddresses(ServerAddress[] addresses) {
-		this.addresses = addresses;
+	public void setSeeds(List<ServerAddress> seeds) {
+		this.seeds = seeds;
+	}
+
+	/**
+	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setCredentials(java
+	 *      .util.List)
+	 */
+	public void setCredentials(List<MongoCredential> credentials) {
+		this.credentials = credentials;
+	}
+
+	/**
+	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setOptions(com.mongodb
+	 *      .MongoClientOptions)
+	 */
+	public void setOptions(MongoClientOptions options) {
+		this.options = options;
+	}
+
+	/**
+	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setAddr(com.mongodb
+	 *      .ServerAddress)
+	 */
+	public void setAddr(ServerAddress addr) {
+		this.addr = addr;
+	}
+
+	/**
+	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setHost(java.lang
+	 *      .String)
+	 */
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	/**
+	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setPort(int)
+	 */
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	/**
+	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setUri(com.mongodb
+	 *      .MongoClientURI)
+	 */
+	public void setUri(MongoClientURI uri) {
+		this.uri = uri;
 	}
 }

@@ -124,6 +124,7 @@ public class MetadataManager {
 
 		} catch (IOException e) {
 			logger.error(e);
+			//TODO: throw exception shadi
 		}
 	}
 
@@ -206,7 +207,8 @@ public class MetadataManager {
 
 	}
 
-	public synchronized Collection<SpaceTypeDescriptor> getTypes() {
+	public synchronized Collection<SpaceTypeDescriptor> getTypes() { 
+		
 		List<SpaceTypeDescriptor> result = TypeHierarcyTopologySorter
 				.getSortedList(pool.getTypes());
 		return result;

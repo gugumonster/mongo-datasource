@@ -65,7 +65,7 @@ public class DefaultPojoToMongoMapper implements
 
 				if (isId(entry.getKey()))
 					map2.put("_id", entry.getValue());
-				else {
+				else {					
 					map2.put(entry.getKey(), entry.getValue());
 				}
 			}

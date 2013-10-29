@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openspaces.persistency.cassandra.meta.mapping.SpaceTypeDescriptorHolder;
+import org.springframework.util.StringUtils;
 
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
@@ -29,13 +30,10 @@ import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
 import com.gigaspaces.persistency.metadata.Mapper;
 import com.gigaspaces.persistency.metadata.MetadataManager;
-import com.gigaspaces.sync.DataSyncOperation;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
 
 /**
  * @author Shadi Massalha
@@ -43,26 +41,46 @@ import com.mongodb.ServerAddress;
  */
 public class MongoClientWrapper {
 
-	private static final Log logger = LogFactory.getLog(MongoClientWrapper.class);
+	private static final Log logger = LogFactory
+			.getLog(MongoClientWrapper.class);
 
 	private final MongoClient client;
 	private String dbName;
 
+	// TODO: shadi must add documentation
 	private static final Map<String, SpaceTypeDescriptorHolder> types = new HashMap<String, SpaceTypeDescriptorHolder>();
 	private static final Map<String, Mapper<SpaceDocument, DBObject>> _mappingCache = new HashMap<String, Mapper<SpaceDocument, DBObject>>();
 
 	private final Object batchSynchLock = new Object();
+
+	private char[] password = new char[0];
+	private String user;
+
 	private static final Object synch = new Object();
 
-	public MongoClientWrapper(ServerAddress host, String db) {
-		this.client = new MongoClient(host);
+	public MongoClientWrapper(MongoClient client, String db) {
+		this.client = client;
 		this.dbName = db;
 
 	}
 
-	public synchronized DB checkOut() {
-		DB db = client.getDB(dbName);
+	public MongoClientWrapper(MongoClient client2, String db, String user,
+			String password) {
+		this(client2, db);
 
+		if (user != null)
+			this.user = user;
+
+		if (password != null)
+			this.password = password.toCharArray();
+	}
+
+	public synchronized DB getConnection() {
+		DB db = client.getDB(dbName);
+		
+		if (StringUtils.hasLength(user))
+			db.authenticate(user, password);
+		
 		return db;
 	}
 
@@ -73,7 +91,7 @@ public class MongoClientWrapper {
 	 */
 	public synchronized DBCollection getCollection(String collectionName) {
 
-		DB db = checkOut();
+		DB db = getConnection();
 
 		return db.getCollection(collectionName);
 	}
@@ -90,99 +108,55 @@ public class MongoClientWrapper {
 		}
 
 		int length = rows.size();
+		// TODO: check conccurency
+		// synchronized (batchSynchLock) {
 
-		synchronized (batchSynchLock) {
+		for (int i = 0; i < length; i++) {
+			BatchUnit batchUnit = rows.get(i);
 
-			for (int i = 0; i < length; i++) {
-				BatchUnit batchUnit = rows.get(i);
+			SpaceDocument spaceDoc = batchUnit.getSpaceDocument();
+			SpaceTypeDescriptorHolder spaceTypeDescriptor = types.get(batchUnit
+					.getTypeName());
 
-				SpaceDocument spaceDoc = batchUnit.getSpaceDocument();
-				SpaceTypeDescriptorHolder spaceTypeDescriptor = types
-						.get(batchUnit.getTypeName());
+			Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor
+					.getTypeDescriptor());
+			String id = spaceTypeDescriptor.getTypeDescriptor()
+					.getIdPropertyName();
 
-				Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor
-						.getTypeDescriptor());
-				String id = spaceTypeDescriptor.getTypeDescriptor().getIdPropertyName();
-				
-				DBObject obj = mapper.maps(spaceDoc);
+			DBObject obj = mapper.maps(spaceDoc);
 
-				DBCollection col = getCollection(batchUnit.getTypeName());
+			DBCollection col = getCollection(batchUnit.getTypeName());
 
-				switch (batchUnit.getDataSyncOperationType()) {
-				case WRITE:
-				case UPDATE:
-				case PARTIAL_UPDATE:					
-				case CHANGE:
-					col.save(obj);
-					break;
-				case REMOVE:
-					col.remove(obj);
-					break;
-				default:
-					throw new IllegalStateException(
-							"Unsupported data sync operation type: "
-									+ batchUnit.getDataSyncOperationType());
+			switch (batchUnit.getDataSyncOperationType()) {
 
-				}
+			case WRITE:
+			case UPDATE:
+			case PARTIAL_UPDATE: // TODO: add partial update and change api
+									// support and wiki documentaion
+			case CHANGE:// TODO: add partial update and change api support and
+						// wiki documentaion
+				col.save(obj);
+				break;
+			// case REMOVE_BY_UID: // TODO: not supported by cassandra
+			// implementation
+			case REMOVE:
+				col.remove(obj);
+				break;
+			default:
+				throw new IllegalStateException(
+						"Unsupported data sync operation type: "
+								+ batchUnit.getDataSyncOperationType());
+
 			}
 		}
-	}
-
-	public void performBatch(DataSyncOperation[] dataSyncOperations) {
-
-		if (logger.isTraceEnabled()) {
-			logger.trace("MongoClientPool.performBatch(" + dataSyncOperations
-					+ ")");
-			logger.trace("Batch size to be performed is "
-					+ dataSyncOperations.length);
-		}
-
-		synchronized (batchSynchLock) {
-			int len = dataSyncOperations.length;
-
-			for (int i = 0; i < len; i++) {
-				DataSyncOperation dataSyncOperation = dataSyncOperations[i];
-
-				if (!dataSyncOperation.supportsDataAsDocument())
-					continue;
-
-				SpaceDocument spaceDoc = dataSyncOperation.getDataAsDocument();
-				SpaceTypeDescriptor spaceTypeDescriptor = dataSyncOperation
-						.getTypeDescriptor();
-
-				Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor);
-
-				DBObject obj = mapper.maps(spaceDoc);
-
-				DBCollection col = getCollection(spaceTypeDescriptor
-						.getTypeName());
-
-				switch (dataSyncOperation.getDataSyncOperationType()) {
-				case WRITE:
-				case UPDATE:
-				case PARTIAL_UPDATE:
-				case CHANGE:
-					col.save(obj);
-					break;
-				case REMOVE:
-					col.remove(obj);
-					break;
-				default:
-					throw new IllegalStateException(
-							"Unsupported data sync operation type: "
-									+ dataSyncOperation
-											.getDataSyncOperationType());
-
-				}
-			}
-		}
+		// }
 	}
 
 	protected Mapper<SpaceDocument, DBObject> getMapper(
 			SpaceTypeDescriptor spaceTypeDescriptor) {
 
 		Mapper<SpaceDocument, DBObject> mapper = null;
-
+		// TODO: change to conccurency hash map
 		synchronized (synch) {
 			mapper = _mappingCache.get(spaceTypeDescriptor.getTypeName());
 
@@ -204,14 +178,14 @@ public class MongoClientWrapper {
 		if (spaceTypeDescriptor == null)
 			throw new IllegalArgumentException(
 					"spaceTypeDescriptor can not be null");
-		
-		if(!types.containsKey(spaceTypeDescriptor.getTypeName())){
+
+		if (!types.containsKey(spaceTypeDescriptor.getTypeName())) {
 			metadataManager.introduceType(spaceTypeDescriptor);
 		}
-		
+
 		SpaceTypeDescriptorHolder holder = new SpaceTypeDescriptorHolder(
 				spaceTypeDescriptor);
-		
+
 		types.put(spaceTypeDescriptor.getTypeName(), holder);
 	}
 

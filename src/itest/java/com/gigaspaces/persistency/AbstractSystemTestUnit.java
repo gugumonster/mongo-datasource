@@ -29,12 +29,14 @@ import com.j_spaces.core.filters.ReplicationStatistics.OutgoingChannel;
 import com.j_spaces.core.filters.ReplicationStatistics.OutgoingReplication;
 import com.mongodb.MongoClient;
 
+//TODO: support linux gigaspace
 @SuppressWarnings("deprecation")
 public abstract class AbstractSystemTestUnit {
 
 	protected final static Admin admin = new AdminFactory().addGroup(
 			getTestGroup()).createAdmin();;
 
+			
 	protected GigaSpace gigaSpace;
 	protected ProcessingUnit pu;
 

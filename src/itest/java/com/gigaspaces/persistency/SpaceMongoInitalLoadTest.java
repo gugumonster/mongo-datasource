@@ -17,6 +17,7 @@ import com.gigaspaces.itest.model.Priority;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+
 public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 	@SuppressWarnings("unchecked")
 	private final BiMap<Priority, Integer> priorityMap = initPriortyMap(new HashBiMap<Priority, Integer>());

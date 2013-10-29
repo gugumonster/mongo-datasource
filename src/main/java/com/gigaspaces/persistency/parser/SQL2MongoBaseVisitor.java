@@ -28,7 +28,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
 
-public class SQL2MongoBaseVisitorV3<T> extends AbstractParseTreeVisitor<T>
+public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 		implements SQL2MongoVisitor<T> {
 
 	private DBObject query;
@@ -39,7 +39,7 @@ public class SQL2MongoBaseVisitorV3<T> extends AbstractParseTreeVisitor<T>
 	LinkedList<DBObject> ands = new LinkedList<DBObject>();
 	LinkedList<DBObject> ors = new LinkedList<DBObject>();
 
-	public SQL2MongoBaseVisitorV3() {
+	public SQL2MongoBaseVisitor() {
 		this.query = new BasicDBObject();
 	}
 
