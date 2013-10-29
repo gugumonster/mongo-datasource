@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Built-By: Shadi Massalha
-Build-Jdk: 1.6.0_27-ea
-Created-By: Maven Integration for Eclipse
-

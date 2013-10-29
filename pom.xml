@@ -46,8 +46,8 @@
 
 		<!-- local repository dependency that will be packaged and installed -->
 		<dependency>
-			<groupId>com.gigaspaces.itest.model</groupId>
-			<artifactId>itest-model</artifactId>
+			<groupId>com.gigaspaces.stest.model</groupId>
+			<artifactId>stest-model</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
