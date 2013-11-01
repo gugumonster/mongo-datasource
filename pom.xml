@@ -11,6 +11,7 @@
 			<name>OpenSpaces</name>
 			<url>http://maven-repository.openspaces.org</url>
 		</repository>
+
 	</repositories>
 
 	<dependencies>
@@ -49,6 +50,17 @@
 			<groupId>com.gigaspaces.stest.model</groupId>
 			<artifactId>stest-model</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<!-- mongo embedded server implementation for testing -->
+		<dependency>
+			<groupId>de.flapdoodle.embed</groupId>
+			<artifactId>de.flapdoodle.embed.mongo</artifactId>
+			<version>1.40</version>
+		</dependency>
+		<dependency>
+			<groupId>de.flapdoodle.embed</groupId>
+			<artifactId>de.flapdoodle.embed.process</artifactId>
+			<version>1.35</version>
 		</dependency>
 	</dependencies>
 </project>
