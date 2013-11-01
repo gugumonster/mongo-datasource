@@ -37,4 +37,14 @@ public class MongoTestServer {
 	public int getPort() {
 		return port;
 	}
+
+	public String getHost() {
+
+		return "localhost";
+	}
+
+	public String getDBName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

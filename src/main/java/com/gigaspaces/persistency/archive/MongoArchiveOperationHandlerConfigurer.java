@@ -17,11 +17,17 @@ package com.gigaspaces.persistency.archive;
 
 import java.util.List;
 
+import org.openspaces.core.GigaSpace;
+
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
+/**
+ * @author Shadi Massalha
+ * 
+ */
 /**
  * @author Shadi Massalha
  * 
@@ -115,6 +121,14 @@ public class MongoArchiveOperationHandlerConfigurer {
 	 */
 	public MongoArchiveOperationHandlerConfigurer uri(MongoClientURI uri) {
 		handler.setUri(uri);
+		return this;
+	}
+
+	/**
+	 * @see MongoArchiveOperationHandler#setGigaSpace(GigaSpace)
+	 */
+	public MongoArchiveOperationHandlerConfigurer gigaSpace(GigaSpace gigaSpace) {
+		handler.setGigaSpace(gigaSpace);
 		return this;
 	}
 

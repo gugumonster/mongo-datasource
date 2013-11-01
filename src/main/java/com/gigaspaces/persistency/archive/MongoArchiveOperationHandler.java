@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,14 +95,14 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler,
 			batchUnit.setSpaceDocument((SpaceDocument) object);
 			((SpaceDocument) object).getTypeName();
 			batchUnit.setDataSyncOperationType(DataSyncOperationType.WRITE);
-			
+
 			rows.add(batchUnit);
 		}
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Writing to mongo " + rows.size() + " objects");
 		}
-		// TODO: check if type descriptor is empty gigaspace ref		
+		// TODO: check if type descriptor is empty gigaspace ref
 		client.performBatch(rows);
 	}
 
@@ -210,5 +211,12 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler,
 	 */
 	public void setUri(MongoClientURI uri) {
 		this.uri = uri;
+	}
+
+	@PreDestroy
+	public void destroy() {
+		if (client != null) {
+			client.close();
+		}
 	}
 }
