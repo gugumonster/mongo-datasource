@@ -47,4 +47,14 @@ public class EmbeddedMongoController {
 		return _port;
 	}
 
+	public void createDb(String dbName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void dropDb(String dbName) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

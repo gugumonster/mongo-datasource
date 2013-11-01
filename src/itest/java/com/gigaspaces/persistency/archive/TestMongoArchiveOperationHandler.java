@@ -24,7 +24,7 @@ import com.gigaspaces.persistency.AbstractMongoTest;
 import com.gigaspaces.persistency.MongoTestServer;
 import com.j_spaces.core.IJSpace;
 
-public class TestMongoArchiveOperationHandler extends AbstractMongoTest {
+public class TestMongoArchiveOperationHandler {
 
 	private static final String SPACE_DOCUMENT_NAME_KEY = "Name";
 

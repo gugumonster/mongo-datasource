@@ -1,5 +1,7 @@
 package com.gigaspaces.persistency;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -11,10 +13,19 @@ import com.gigaspaces.persistency.helper.EmbeddedMongoController;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
-
+		BasicMongoTest.class,
+		BasicQueriesMongoTest.class,
+		DifferentTypesQueryMongoTest.class,
+		InitialDataLoadMongoTest.class,
+		MetadataSpaceTypeDescriptorConversionTest.class,
+		MultiTypeMongoTest.class,
+		PojoWithPrimitiveTypesMongoTest.class,
+		ReadByIdsMongoTest.class,
+		WriteAndRemoveMongoTest.class
 })
 public class MongoTestSuite {
 
+	private static final AtomicInteger runningNumber = new AtomicInteger(0);
 	private static volatile boolean isSuiteMode = false;
 
 	private static final EmbeddedMongoController mongoController = new EmbeddedMongoController();
@@ -32,6 +43,18 @@ public class MongoTestSuite {
 		mongoController.stopMongo();
 	}
 
+	public static String createDatabaseAndReturnItsName() {
+
+        String dbName = "space" + runningNumber.incrementAndGet();
+        mongoController.createDb(dbName);
+        return dbName;
+	}
+	
+    public static void dropDb(String dbName)
+    {
+        mongoController.dropDb(dbName);
+    }
+
 	public static boolean isSuiteMode() {
 		return isSuiteMode;
 	}
@@ -40,4 +63,5 @@ public class MongoTestSuite {
 
 		return mongoController.getPort();
 	}
+
 }

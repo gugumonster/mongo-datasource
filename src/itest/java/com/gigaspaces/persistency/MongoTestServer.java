@@ -5,6 +5,7 @@ import com.gigaspaces.persistency.helper.EmbeddedMongoController;
 
 public class MongoTestServer {
 
+	private String dbName = "space";
 	private int port;
 	private final EmbeddedMongoController mongoController = new EmbeddedMongoController();
 
@@ -15,15 +16,14 @@ public class MongoTestServer {
 	 */
 	public void initialize(boolean isEmbedded) {
 		if (MongoTestSuite.isSuiteMode()) {
-			// keySpaceName =
-			// CassandraTestSuite.createKeySpaceAndReturnItsName();
+			dbName = MongoTestSuite.createDatabaseAndReturnItsName();
 			port = MongoTestSuite.getPort();
 		} else {
 			GSLogConfigLoader.getLoader();
 			mongoController.initMongo(isEmbedded);
-			/*
-			 * cassandraController.createKeySpace(keySpaceName);
-			 */
+
+			mongoController.createDb(dbName);
+
 			port = mongoController.getPort();
 		}
 	}
@@ -44,7 +44,6 @@ public class MongoTestServer {
 	}
 
 	public String getDBName() {
-		// TODO Auto-generated method stub
-		return null;
+		return dbName;
 	}
 }
