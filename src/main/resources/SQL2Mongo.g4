@@ -15,6 +15,8 @@ expression:
 	
 or: and ('or'^ and)*;
 
+
+
 and: not ('and'^ not)*;
 
 not: 'NOT'^ atom
