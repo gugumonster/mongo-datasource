@@ -33,7 +33,7 @@ public class MongoFactoryBeansTest {
 
 	@Before
 	public void startServer() {
-		server.initialize(false);
+		server.initialize();
 	}
 
 	@After

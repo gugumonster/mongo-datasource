@@ -82,15 +82,12 @@ public class IndexBuilder {
 	}
 
 	private DBObject getOptions(SpaceIndex idx) {
-		AbstractSpaceIndex a = (AbstractSpaceIndex) idx;
 
 		DBObject option = new BasicDBObject();
 
-		if (a != null) {
+		if (idx.isUnique())
+			option.put("unique", idx.isUnique());
 
-			if (a.isUnique())
-				option.put("unique", a.isUnique());
-		}
 		return option;
 	}
 

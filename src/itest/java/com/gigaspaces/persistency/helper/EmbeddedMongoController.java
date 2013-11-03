@@ -1,60 +1,59 @@
 package com.gigaspaces.persistency.helper;
 
-import de.flapdoodle.embed.mongo.MongoShellProcess;
+import com.mongodb.MongoClient;
+
 import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.IMongodConfig;
-import de.flapdoodle.embed.mongo.config.MongosConfigBuilder;
-//import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.mongo.config.MongodConfig;
+import de.flapdoodle.embed.mongo.distribution.Version;
 
 public class EmbeddedMongoController {
 
-	private MongodExecutable _mongodExe;
-    private MongoShellProcess _mongod;
+	private static final String LOCALHOST = "localhost";
+	private int _port = 12345;
+	private MongodProcess mongodProcess;
+	private MongoClient client;
 
-	private int _port = 27017;
+	public void initMongo() {
 
-	public void initMongo(boolean isEmbedded) {
+		try {
 
-		
-	//	MongodStarter runtime = MongodStarter.getDefaultInstance();
-		
-		
-		   //IMongodConfig mongodConfig = new MongodConfigBuilder();
-	//	   .version(Version.Main.PRODUCTION)
-	//	   .net(new Net(12345, Network.localhostIsIPv6())).build();
+			MongodStarter starter = MongodStarter.getDefaultInstance();
 
-          // IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder().defaults(Command.MongoD).build();
-		
-		// _mongodExe = runtime.prepare(new MongosConfigBuilder().build();
-         //.version(Version.Main.PRODUCTION)
-         //.net(new Net(12345, Network.localhostIsIPv6()))
-         //.build());
-		 
-		 //_mongod = _mongodExe.start();
-		// mongodExe = runtime.prepare(new MongodConfig(Version.V2_3_0, 12345,
-		// Network.localhostIsIPv6()));
-		// mongod = mongodExe.start();
-		// mongo = new Mongo("localhost", 12345);
+			MongodExecutable mognoExecutable = starter
+					.prepare(new MongodConfig(Version.V2_2_3, _port,
+							false));
+
+			mongodProcess = mognoExecutable.start();
+
+			client = new MongoClient(LOCALHOST, _port);
+
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void stopMongo() {
-		// TODO Auto-generated method stub
 
+		client.close();
+
+		mongodProcess.stop();
 	}
 
-	public int getPort() {		
+	public int getPort() {
+
 		return _port;
 	}
 
 	public void createDb(String dbName) {
-		// TODO Auto-generated method stub
-		
+
+		client.getDB(dbName);
 	}
 
 	public void dropDb(String dbName) {
-		// TODO Auto-generated method stub
-		
-	}
 
+		client.dropDatabase(dbName);
+	}
 }

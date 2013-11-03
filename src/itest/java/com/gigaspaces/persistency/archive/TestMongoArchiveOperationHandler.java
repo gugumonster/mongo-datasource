@@ -45,7 +45,7 @@ public class TestMongoArchiveOperationHandler {
 
 	@Before
 	public void startServer() {
-		server.initialize(false);
+		server.initialize();
 	}
 
 	@After

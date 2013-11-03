@@ -15,6 +15,7 @@ import com.gigaspaces.metadata.index.SpaceIndexType;
 
 public abstract class AbstractMongoTest {
 
+	private static final int PORT = 12345;
 	protected static final Random random = new Random();
 	private static final String LOCALHOST = "127.0.0.1";
 
@@ -27,7 +28,7 @@ public abstract class AbstractMongoTest {
 	@Before
 	public void initialSetup() {
 
-		server.initialize(isEmbedded());
+		server.initialize();
 
 		_syncInterceptorClient = createMongoClientWrapper("cluster-sync");
 		_syncInterceptor = createMongoSyncEndpointInterceptor(_syncInterceptorClient);
@@ -53,10 +54,6 @@ public abstract class AbstractMongoTest {
 		server.destroy();
 	}
 
-	protected boolean isEmbedded() {
-		return false;
-	}
-
 	protected MongoSpaceDataSource createMongoSpaceDataSource(
 			MongoClientWrapper _dataSourceClient2) {
 
@@ -77,7 +74,7 @@ public abstract class AbstractMongoTest {
 
 	protected MongoClientWrapper createMongoClientWrapper(String cluterName) {
 		MongoClientWrapper client = new MongoClientWrapperConfigurer()
-				.host(LOCALHOST).port(0).db(cluterName).create();
+				.host(LOCALHOST).port(PORT).db(cluterName).create();
 
 		return client;
 	}

@@ -57,12 +57,6 @@ public class BasicMongoTest extends AbstractMongoTest {
 	    private static final String     DYNAMIC_COL_8      = "dynamicCol8";
 	    private static final byte[]     DYNAMIC_COL_8_VAL  = { (byte) 123 };
 	    
-	    @Override
-	    protected boolean isEmbedded()
-	    {
-	        return false;
-	    }
-	    
 	    @Test
 	    public void test() throws IOException
 	    {

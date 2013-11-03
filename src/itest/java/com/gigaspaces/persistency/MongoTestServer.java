@@ -14,13 +14,13 @@ public class MongoTestServer {
 	 *            - run Mongo in this process. Use for debugging only since
 	 *            causes leaks.
 	 */
-	public void initialize(boolean isEmbedded) {
+	public void initialize() {
 		if (MongoTestSuite.isSuiteMode()) {
 			dbName = MongoTestSuite.createDatabaseAndReturnItsName();
 			port = MongoTestSuite.getPort();
 		} else {
 			GSLogConfigLoader.getLoader();
-			mongoController.initMongo(isEmbedded);
+			mongoController.initMongo();
 
 			mongoController.createDb(dbName);
 

@@ -1,5 +1,6 @@
 package com.gigaspaces.persistency;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.AfterClass;
@@ -13,7 +14,7 @@ import com.gigaspaces.persistency.helper.EmbeddedMongoController;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
-		BasicMongoTest.class,
+		BasicMongoTest.class/*,
 		BasicQueriesMongoTest.class,
 		DifferentTypesQueryMongoTest.class,
 		InitialDataLoadMongoTest.class,
@@ -21,7 +22,7 @@ import com.gigaspaces.persistency.helper.EmbeddedMongoController;
 		MultiTypeMongoTest.class,
 		PojoWithPrimitiveTypesMongoTest.class,
 		ReadByIdsMongoTest.class,
-		WriteAndRemoveMongoTest.class
+		WriteAndRemoveMongoTest.class*/
 })
 public class MongoTestSuite {
 
@@ -31,10 +32,10 @@ public class MongoTestSuite {
 	private static final EmbeddedMongoController mongoController = new EmbeddedMongoController();
 
 	@BeforeClass
-	public static void beforeSuite() {
+	public static void beforeSuite() throws IOException {
 		GSLogConfigLoader.getLoader();
 		isSuiteMode = true;
-		mongoController.initMongo(false);
+		mongoController.initMongo();
 	}
 
 	@AfterClass
