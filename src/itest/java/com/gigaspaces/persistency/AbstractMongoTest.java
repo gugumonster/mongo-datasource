@@ -30,9 +30,9 @@ public abstract class AbstractMongoTest {
 
 		server.initialize();
 
-		_syncInterceptorClient = createMongoClientWrapper("cluster-sync");
+		_syncInterceptorClient = createMongoClientWrapper(server.getDBName());
 		_syncInterceptor = createMongoSyncEndpointInterceptor(_syncInterceptorClient);
-		_dataSourceClient = createMongoClientWrapper("cluster-datasource");
+		_dataSourceClient = createMongoClientWrapper(server.getDBName());
 		_dataSource = createMongoSpaceDataSource(_dataSourceClient);
 	}
 
@@ -72,9 +72,9 @@ public abstract class AbstractMongoTest {
 		return syncInterceptor;
 	}
 
-	protected MongoClientWrapper createMongoClientWrapper(String cluterName) {
+	protected MongoClientWrapper createMongoClientWrapper(String dbName) {
 		MongoClientWrapper client = new MongoClientWrapperConfigurer()
-				.host(LOCALHOST).port(PORT).db(cluterName).create();
+				.host(LOCALHOST).port(PORT).db(dbName).create();
 
 		return client;
 	}

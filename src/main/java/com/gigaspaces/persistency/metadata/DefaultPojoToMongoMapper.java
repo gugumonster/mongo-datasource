@@ -15,6 +15,8 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.metadata;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -49,13 +51,13 @@ public class DefaultPojoToMongoMapper implements
 
 		for (Entry<String, Object> entry : properties.entrySet()) {
 
-			if (entry.getValue() == null) {				
-				continue;
-			}
-			
-			if (entry.getValue().getClass().isEnum()) {
-				map2.put(entry.getKey(), entry.getValue().toString());
-			} else if (entry.getValue() instanceof SpaceDocument) {
+			/*
+			 * if (entry.getValue() == null) { continue; }
+			 * 
+			 * if (entry.getValue().getClass().isEnum()) {
+			 * map2.put(entry.getKey(), entry.getValue().toString()); } else
+			 */
+			if (entry.getValue() instanceof SpaceDocument) {
 				Map<String, Object> m = ((SpaceDocument) entry.getValue())
 						.getProperties();
 
@@ -63,9 +65,9 @@ public class DefaultPojoToMongoMapper implements
 			} else {
 
 				if (isId(entry.getKey()))
-					map2.put("_id", entry.getValue());
-				else {					
-					map2.put(entry.getKey(), entry.getValue());
+					map2.put("_id", convert(entry.getValue()));
+				else {
+					map2.put(entry.getKey(), convert(entry.getValue()));
 				}
 			}
 		}
@@ -76,6 +78,24 @@ public class DefaultPojoToMongoMapper implements
 	private boolean isId(String value) {
 
 		return spaceTypeDescriptor.getIdPropertyName().equals(value);
+	}
+
+	private Object convert(Object value) {
+
+		if (value == null)
+			return null;
+
+		Class<?> type = value.getClass();
+
+		if (type.isEnum())
+			return value.toString();
+
+		if (value instanceof BigInteger)
+			return ((BigInteger) value).longValue();
+		else if (value instanceof BigDecimal)
+			return ((BigDecimal) value).doubleValue();
+
+		return value;
 	}
 
 }
