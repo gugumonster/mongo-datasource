@@ -14,10 +14,10 @@ import com.gigaspaces.persistency.helper.EmbeddedMongoController;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
-		BasicMongoTest.class/*,
+		/*BasicMongoTest.class,
 		BasicQueriesMongoTest.class,
-		DifferentTypesQueryMongoTest.class,
-		InitialDataLoadMongoTest.class,
+		DifferentTypesQueryMongoTest.class,*/
+		InitialDataLoadMongoTest.class/*,
 		MetadataSpaceTypeDescriptorConversionTest.class,
 		MultiTypeMongoTest.class,
 		PojoWithPrimitiveTypesMongoTest.class,

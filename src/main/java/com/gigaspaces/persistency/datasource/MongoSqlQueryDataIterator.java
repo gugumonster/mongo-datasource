@@ -36,22 +36,22 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 	private static final Log logger = LogFactory
 			.getLog(MongoSqlQueryDataIterator.class);
 
-	private MongoClientWrapper pool;
+	private MongoClientWrapper client;
 	private DataSourceQuery query;
 	private DBCursor cursor;
 	private DefaultMongoToPojoMapper pojoMapper;
 
-	public MongoSqlQueryDataIterator(MongoClientWrapper pool, DataSourceQuery query) {
-		if (pool == null)
+	public MongoSqlQueryDataIterator(MongoClientWrapper client, DataSourceQuery query) {
+		if (client == null)
 			throw new IllegalArgumentException("");
 
 		if (query == null)
 			throw new IllegalArgumentException("query can not be null");
 
-		if (!query.supportsAsSQLQuery())
+		if (!(query.supportsAsSQLQuery() || query.supportsTemplateAsDocument()))
 			throw new UnSupportedQueryException("not sql query");
 
-		this.pool = pool;
+		this.client = client;
 		this.query = query;
 		this.pojoMapper = new DefaultMongoToPojoMapper(
 				query.getTypeDescriptor());
@@ -73,7 +73,7 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 	}
 
 	private void init() {
-		DBCollection collection = pool.getCollection(query.getTypeDescriptor()
+		DBCollection collection = client.getCollection(query.getTypeDescriptor()
 				.getTypeName());
 
 		DBObject q = null;

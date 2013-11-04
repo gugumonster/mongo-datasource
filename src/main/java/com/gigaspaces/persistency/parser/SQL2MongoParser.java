@@ -15,13 +15,13 @@ public class SQL2MongoParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__13=1, T__12=2, T__11=3, T__10=4, T__9=5, T__8=6, T__7=7, T__6=8, T__5=9, 
-		T__4=10, T__3=11, T__2=12, T__1=13, T__0=14, INT=15, FLOAT=16, BOOL=17, 
-		STRING=18, NULL=19, PRAM=20, ID=21, NAME=22, WS=23;
+		T__11=1, T__10=2, T__9=3, T__8=4, T__7=5, T__6=6, T__5=7, T__4=8, T__3=9, 
+		T__2=10, T__1=11, T__0=12, OR=13, AND=14, NULL=15, PRAM=16, ID=17, NAME=18, 
+		WS=19;
 	public static final String[] tokenNames = {
-		"<INVALID>", "'is'", "'>'", "'like'", "')'", "'and'", "'or'", "'('", "'rlike'", 
-		"'<'", "'='", "'>='", "'!='", "'NOT'", "'<='", "INT", "FLOAT", "BOOL", 
-		"STRING", "NULL", "'?'", "ID", "NAME", "WS"
+		"<INVALID>", "'is'", "'>'", "'like'", "')'", "'('", "'rlike'", "'<'", 
+		"'='", "'>='", "'!='", "'NOT'", "'<='", "OR", "AND", "NULL", "'?'", "ID", 
+		"NAME", "WS"
 	};
 	public static final int
 		RULE_parse = 0, RULE_expression = 1, RULE_or = 2, RULE_and = 3, RULE_not = 4, 
@@ -119,9 +119,13 @@ public class SQL2MongoParser extends Parser {
 	}
 
 	public static class OrContext extends ParserRuleContext {
+		public TerminalNode OR(int i) {
+			return getToken(SQL2MongoParser.OR, i);
+		}
 		public AndContext and(int i) {
 			return getRuleContext(AndContext.class,i);
 		}
+		public List<TerminalNode> OR() { return getTokens(SQL2MongoParser.OR); }
 		public List<AndContext> and() {
 			return getRuleContexts(AndContext.class);
 		}
@@ -147,10 +151,10 @@ public class SQL2MongoParser extends Parser {
 			setState(26);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==6) {
+			while (_la==OR) {
 				{
 				{
-				setState(22); match(6);
+				setState(22); match(OR);
 				setState(23); and();
 				}
 				}
@@ -174,6 +178,10 @@ public class SQL2MongoParser extends Parser {
 	public static class AndContext extends ParserRuleContext {
 		public List<NotContext> not() {
 			return getRuleContexts(NotContext.class);
+		}
+		public List<TerminalNode> AND() { return getTokens(SQL2MongoParser.AND); }
+		public TerminalNode AND(int i) {
+			return getToken(SQL2MongoParser.AND, i);
 		}
 		public NotContext not(int i) {
 			return getRuleContext(NotContext.class,i);
@@ -200,10 +208,10 @@ public class SQL2MongoParser extends Parser {
 			setState(34);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==5) {
+			while (_la==AND) {
 				{
 				{
-				setState(30); match(5);
+				setState(30); match(AND);
 				setState(31); not();
 				}
 				}
@@ -245,14 +253,14 @@ public class SQL2MongoParser extends Parser {
 		try {
 			setState(40);
 			switch (_input.LA(1)) {
-			case 13:
+			case 11:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(37); match(13);
+				setState(37); match(11);
 				setState(38); atom();
 				}
 				break;
-			case 7:
+			case 5:
 			case ID:
 				enterOuterAlt(_localctx, 2);
 				{
@@ -316,7 +324,7 @@ public class SQL2MongoParser extends Parser {
 				setState(48);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 1) | (1L << 2) | (1L << 3) | (1L << 8) | (1L << 9) | (1L << 10) | (1L << 11) | (1L << 12) | (1L << 14))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 1) | (1L << 2) | (1L << 3) | (1L << 6) | (1L << 7) | (1L << 8) | (1L << 9) | (1L << 10) | (1L << 12))) != 0)) {
 					{
 					{
 					setState(43); op();
@@ -329,10 +337,10 @@ public class SQL2MongoParser extends Parser {
 				}
 				}
 				break;
-			case 7:
+			case 5:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(51); match(7);
+				setState(51); match(5);
 				setState(52); expression();
 				setState(53); match(4);
 				}
@@ -373,7 +381,7 @@ public class SQL2MongoParser extends Parser {
 			{
 			setState(57);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 1) | (1L << 2) | (1L << 3) | (1L << 8) | (1L << 9) | (1L << 10) | (1L << 11) | (1L << 12) | (1L << 14))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 1) | (1L << 2) | (1L << 3) | (1L << 6) | (1L << 7) | (1L << 8) | (1L << 9) | (1L << 10) | (1L << 12))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
@@ -391,12 +399,8 @@ public class SQL2MongoParser extends Parser {
 	}
 
 	public static class ValueContext extends ParserRuleContext {
-		public TerminalNode FLOAT() { return getToken(SQL2MongoParser.FLOAT, 0); }
-		public TerminalNode INT() { return getToken(SQL2MongoParser.INT, 0); }
 		public TerminalNode PRAM() { return getToken(SQL2MongoParser.PRAM, 0); }
 		public TerminalNode NULL() { return getToken(SQL2MongoParser.NULL, 0); }
-		public TerminalNode STRING() { return getToken(SQL2MongoParser.STRING, 0); }
-		public TerminalNode BOOL() { return getToken(SQL2MongoParser.BOOL, 0); }
 		public ValueContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -417,7 +421,7 @@ public class SQL2MongoParser extends Parser {
 			{
 			setState(59);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INT) | (1L << FLOAT) | (1L << BOOL) | (1L << STRING) | (1L << NULL) | (1L << PRAM))) != 0)) ) {
+			if ( !(_la==NULL || _la==PRAM) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
@@ -435,20 +439,20 @@ public class SQL2MongoParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\2\3\31@\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t"+
+		"\2\3\25@\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t"+
 		"\t\3\2\3\2\3\2\3\3\3\3\3\4\3\4\3\4\7\4\33\n\4\f\4\16\4\36\13\4\3\5\3\5"+
 		"\3\5\7\5#\n\5\f\5\16\5&\13\5\3\6\3\6\3\6\5\6+\n\6\3\7\3\7\3\7\3\7\7\7"+
 		"\61\n\7\f\7\16\7\64\13\7\3\7\3\7\3\7\3\7\5\7:\n\7\3\b\3\b\3\t\3\t\3\t"+
-		"\2\n\2\4\6\b\n\f\16\20\2\4\5\3\5\n\16\20\20\3\21\26<\2\22\3\2\2\2\4\25"+
+		"\2\n\2\4\6\b\n\f\16\20\2\4\5\3\5\b\f\16\16\3\21\22<\2\22\3\2\2\2\4\25"+
 		"\3\2\2\2\6\27\3\2\2\2\b\37\3\2\2\2\n*\3\2\2\2\f9\3\2\2\2\16;\3\2\2\2\20"+
 		"=\3\2\2\2\22\23\5\4\3\2\23\24\7\1\2\2\24\3\3\2\2\2\25\26\5\6\4\2\26\5"+
-		"\3\2\2\2\27\34\5\b\5\2\30\31\7\b\2\2\31\33\5\b\5\2\32\30\3\2\2\2\33\36"+
+		"\3\2\2\2\27\34\5\b\5\2\30\31\7\17\2\2\31\33\5\b\5\2\32\30\3\2\2\2\33\36"+
 		"\3\2\2\2\34\32\3\2\2\2\34\35\3\2\2\2\35\7\3\2\2\2\36\34\3\2\2\2\37$\5"+
-		"\n\6\2 !\7\7\2\2!#\5\n\6\2\" \3\2\2\2#&\3\2\2\2$\"\3\2\2\2$%\3\2\2\2%"+
-		"\t\3\2\2\2&$\3\2\2\2\'(\7\17\2\2(+\5\f\7\2)+\5\f\7\2*\'\3\2\2\2*)\3\2"+
-		"\2\2+\13\3\2\2\2,\62\7\27\2\2-.\5\16\b\2./\5\20\t\2/\61\3\2\2\2\60-\3"+
+		"\n\6\2 !\7\20\2\2!#\5\n\6\2\" \3\2\2\2#&\3\2\2\2$\"\3\2\2\2$%\3\2\2\2"+
+		"%\t\3\2\2\2&$\3\2\2\2\'(\7\r\2\2(+\5\f\7\2)+\5\f\7\2*\'\3\2\2\2*)\3\2"+
+		"\2\2+\13\3\2\2\2,\62\7\23\2\2-.\5\16\b\2./\5\20\t\2/\61\3\2\2\2\60-\3"+
 		"\2\2\2\61\64\3\2\2\2\62\60\3\2\2\2\62\63\3\2\2\2\63:\3\2\2\2\64\62\3\2"+
-		"\2\2\65\66\7\t\2\2\66\67\5\4\3\2\678\7\6\2\28:\3\2\2\29,\3\2\2\29\65\3"+
+		"\2\2\65\66\7\7\2\2\66\67\5\4\3\2\678\7\6\2\28:\3\2\2\29,\3\2\2\29\65\3"+
 		"\2\2\2:\r\3\2\2\2;<\t\2\2\2<\17\3\2\2\2=>\t\3\2\2>\21\3\2\2\2\7\34$*\62"+
 		"9";
 	public static final ATN _ATN =

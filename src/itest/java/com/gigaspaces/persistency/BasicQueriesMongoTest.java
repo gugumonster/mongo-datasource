@@ -96,7 +96,7 @@ public class BasicQueriesMongoTest extends AbstractMongoTest {
             .setProperty(DYNAMIC_COL_6, DYNAMIC_COL_6_VAL));
         testDataIterator(new SpaceDocument(TEST_CF)
             .setProperty(DYNAMIC_COL_7, DYNAMIC_COL_7_VAL));
-        testDataIterator(new SpaceDocument(TEST_CF)
+       testDataIterator(new SpaceDocument(TEST_CF)
             .setProperty(DYNAMIC_COL_8, DYNAMIC_COL_8_VAL));
         testDataIterator(new SpaceDocument(TEST_CF)
             .setProperty(DYNAMIC_COL_9_NAME, DYNAMIC_COL_9_NAME_VAL));

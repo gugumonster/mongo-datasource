@@ -13,11 +13,9 @@ parse
 expression:
 	or;
 	
-or: and ('or'^ and)*;
+or: and (OR^ and)*;
 
-
-
-and: not ('and'^ not)*;
+and: not (AND^ not)*;
 
 not: 'NOT'^ atom
 	| atom;
@@ -27,12 +25,11 @@ atom: ID (op^ value)*
 
 op: '>' | '>=' | '<' | '<=' | '=' | '!=' | 'like' | 'rlike' | 'is';
 
-value: (NULL|INT|BOOL|FLOAT|STRING|PRAM);
+value: (NULL|PRAM);
 
-INT: ('0'..'9')+;
-FLOAT:INT'.'INT;
-BOOL : ('true'|'false');
-STRING: '\''.*?'\'';
+OR:('O'|'o')('R'|'r');
+AND:('A'|'a')('N'|'n')('D'|'d');
+
 NULL: 'NOT'?' '+'null';
 PRAM:'?';
 

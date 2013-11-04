@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.TokenStream;
 
 import com.gigaspaces.datasource.DataSourceQuery;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
+import com.gigaspaces.persistency.metadata.DataConversionUtils;
 import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitor;
 import com.gigaspaces.persistency.parser.SQL2MongoLexer;
 import com.gigaspaces.persistency.parser.SQL2MongoParser;
@@ -33,7 +34,7 @@ import com.mongodb.util.JSON;
 
 public class MongoQueryFactory {
 
-	private static final String PARAM_PLACEHOLDER = "\"'%{}'\"";
+	private static final String PARAM_PLACEHOLDER = "'%{}'";
 	private static final Map<SpaceTypeDescriptor, Map<String, StringBuilder>> cachedQuery = new HashMap<SpaceTypeDescriptor, Map<String, StringBuilder>>();
 
 	public synchronized static DBObject create(DataSourceQuery sql) {
@@ -95,29 +96,29 @@ public class MongoQueryFactory {
 	public static DBObject bind(StringBuilder sb, Object[] parameters) {
 
 		StringBuilder sb1 = new StringBuilder(sb.toString());
-		
+
+		DBObject query = (DBObject) JSON.parse(sb1.toString());
+
 		if (parameters != null) {
-			for (int i = 0, j = 0; i < parameters.length; i++) {
 
-				j = sb1.indexOf(PARAM_PLACEHOLDER, j);
+			int index = 0;
+			for (String field : query.keySet()) {
 
-				String p = serialize(parameters[i]);
+				Object ph = query.get(field);
 
-				sb1.replace(j, j + PARAM_PLACEHOLDER.length(), p);
+				if (index >= parameters.length)
+					return query;
+
+				if (ph instanceof String) {
+
+					if (PARAM_PLACEHOLDER.equals(ph)) {
+						query.put(field, DataConversionUtils.convert(parameters[index++]));
+					}
+				}
 			}
-		}
-		
-		DBObject q = (DBObject) JSON.parse(sb1.toString());
 
-		return q;
-	}
-
-	private static String serialize(Object parameter) {
-
-		if (parameter.getClass().isEnum()) {
-			return "\"" + parameter + "\"";
 		}
 
-		return JSON.serialize(parameter);
+		return query;
 	}
 }
