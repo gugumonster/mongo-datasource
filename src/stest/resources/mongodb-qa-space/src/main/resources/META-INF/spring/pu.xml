@@ -38,8 +38,10 @@
 		space-data-source="spaceDataSource" mirror="true" schema="persistent">
 		<os-core:properties>
 			<props>
-				<prop key="space-config.engine.memory_usage.enabled">true</prop>
 				<prop key="space-config.engine.cache_policy">1</prop>
+				<!-- <prop key="space-config.engine.memory_usage.enabled">true</prop> -->
+				<prop key="cluster-config.cache-loader.central-data-source">true</prop>
+				<prop key="cluster-config.mirror-service.supports-partial-update">true</prop>
 			</props>
 		</os-core:properties>
 	</os-core:space>
@@ -52,6 +54,7 @@
 		class="com.gigaspaces.persistency.MongoSpaceDataSourceBeanFactory">
 		<property name="mongoClientPool" ref="mongoClient" />
 	</bean>
+
 	<!-- Defines a local Jini transaction manager. -->
 	<os-core:distributed-tx-manager id="transactionManager" />
 
@@ -59,6 +62,6 @@
 		<property name="db" value="qadb" />
 		<property name="host" value="localhost" />
 		<property name="port" value="27017" />
-
 	</bean>
+	
 </beans>
