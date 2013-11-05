@@ -30,6 +30,7 @@ import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.datasource.DefaultMongoDataIterator;
 import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
 import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
+import com.gigaspaces.persistency.metadata.DataConversionUtils;
 import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -84,7 +85,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceDataSource.getById(" + idQuery + ")");
 
-		DBObject q = new BasicDBObject(_ID, idQuery.getId());
+		DBObject q = new BasicDBObject(_ID, DataConversionUtils.convert(idQuery.getId()));
 
 		DBCollection c = mongoClient.getCollection(idQuery.getTypeDescriptor()
 				.getTypeName());

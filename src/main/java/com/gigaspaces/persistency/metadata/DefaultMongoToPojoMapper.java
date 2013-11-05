@@ -15,6 +15,7 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.metadata;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -24,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.regexp.recompile;
+import org.jacorb.idl.runtime.float_token;
 
 import com.gigaspaces.document.DocumentObjectConverter;
 import com.gigaspaces.document.SpaceDocument;
@@ -34,7 +37,9 @@ import com.gigaspaces.internal.utils.ReflectionUtils;
 import com.gigaspaces.metadata.SpacePropertyDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.error.SpaceMongoDataSourceException;
+import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
+import com.mongodb.util.JSON;
 
 /**
  * @author Shadi Massalha
@@ -94,8 +99,10 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		if (bson == null)
 			return null;
 
-		if (spaceTypeDescriptor.supportsDynamicProperties())
+		if (spaceTypeDescriptor.supportsDynamicProperties()) {
+
 			return mapDocument(bson);
+		}
 
 		return mapPojo(bson);
 	}
@@ -116,9 +123,9 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 
 			if (_ID.equals(key)) {
 				doc.setProperty(spaceTypeDescriptor.getIdPropertyName(),
-						convert(data));
+						convertFrom(data));
 			} else {
-				doc.setProperty(key, convert(data));
+				doc.setProperty(key, convertFrom(data));
 			}
 
 		}
@@ -126,7 +133,7 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		return doc;
 	}
 
-	private Object convert(Object data) {
+	private Object convertFrom(Object data) {
 
 		if (data instanceof DBObject) {
 			DBObject convertedData = (DBObject) data;
@@ -151,6 +158,10 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 				}
 
 			} else {
+				if (data instanceof BasicDBList) {
+					Object[] a = ((BasicDBList) data).toArray();
+					return a;
+				}
 				return mapDocument((DBObject) data);
 			}
 		}
@@ -180,8 +191,28 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 
 				Method setter = setters.get(property);
 
+				Class<?> parameterType = setter.getParameterTypes()[0];
+
+				Object val1 = cast(parameterType, convertFrom(val));
+
+				if (setter.getParameterTypes()[0].isArray()
+						&& !(val1 instanceof byte[])) {
+
+					parameterType = setter.getParameterTypes()[0]
+							.getComponentType();
+
+					Object[] o = (Object[]) val1;
+
+					Object array = Array.newInstance(parameterType, o.length);
+
+					for (int i = 0; i < o.length; i++) {
+						Array.set(array, i, cast(parameterType, o[i]));
+					}
+					val1 = array;
+				}
+
 				ReflectionUtils.invokeMethod(setter, pojo,
-						new Object[] { convert(val) });
+						new Object[] { val1 });
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -195,6 +226,21 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		}
 
 		return pojo;
+	}
+
+	private Object cast(Class<?> type, Object value) {
+
+		if (value == null)
+			return value;
+
+		if (type == short.class)
+			return Long.valueOf(value.toString()).shortValue();
+		else if (type == char.class)
+			return value.toString().charAt(0);
+		else if (type == float.class)
+			return Double.valueOf(value.toString()).floatValue();
+
+		return value;
 	}
 
 	/**

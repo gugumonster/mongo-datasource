@@ -29,7 +29,7 @@ public class DataConversionUtils {
 
 		Class<?> type = value.getClass();
 
-		if (isPojo(value)) {
+		if (isPojo(value) && !type.isArray()) {
 			return convertToDBObject(value, type);
 		} else if (type.isEnum())
 			return value.toString();
@@ -92,7 +92,7 @@ public class DataConversionUtils {
 
 		pojoTypeGettersCache.put(type.getName(), mapTypeGetters);
 		pojoTypeSettersCache.put(type.getName(), mapTypeSetters);
-		
+
 		return mapTypeGetters;
 	}
 
@@ -107,15 +107,15 @@ public class DataConversionUtils {
 
 	public static boolean isPojo(Object value) {
 
-		return (value instanceof Serializable)
-				&& !(value instanceof String || value instanceof Byte
-						|| value instanceof Integer || value instanceof Long
-						|| value instanceof Short || value instanceof Double
-						|| value instanceof Float || value instanceof Character
-						|| value instanceof BigDecimal
-						|| value instanceof BigInteger
-						|| value instanceof Boolean || value instanceof UUID
-						|| value instanceof Date || value instanceof byte[]);
+		return /*
+				 * (value instanceof Serializable) &&
+				 */!(value instanceof String || value instanceof Byte
+				|| value instanceof Integer || value instanceof Long
+				|| value instanceof Short || value instanceof Double
+				|| value instanceof Float || value instanceof Character
+				|| value instanceof BigDecimal || value instanceof BigInteger
+				|| value instanceof Boolean || value instanceof UUID
+				|| value instanceof Date || value instanceof byte[]);
 	}
 
 }
