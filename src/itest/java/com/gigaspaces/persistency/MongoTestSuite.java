@@ -14,7 +14,7 @@ import com.gigaspaces.persistency.helper.EmbeddedMongoController;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
-		/*BasicMongoTest.class,
+		BasicMongoTest.class,
 		BasicQueriesMongoTest.class,
 		DifferentTypesQueryMongoTest.class,
 		InitialDataLoadMongoTest.class,
@@ -22,8 +22,9 @@ import com.gigaspaces.persistency.helper.EmbeddedMongoController;
 		MultiTypeMongoTest.class,
 		PojoWithPrimitiveTypesMongoTest.class,
 		ReadByIdsMongoTest.class,
-		WriteAndRemoveMongoTest.class,*/
-		ReadByIdWithPropertyAddedLaterMongoTest.class
+		WriteAndRemoveMongoTest.class,
+		ReadByIdWithPropertyAddedLaterMongoTest.class,
+		DataIteratorWithPropertyAddedLaterMongoTest.class
 })
 public class MongoTestSuite {
 
