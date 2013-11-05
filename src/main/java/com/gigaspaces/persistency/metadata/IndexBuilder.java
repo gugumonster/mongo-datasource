@@ -18,7 +18,6 @@ package com.gigaspaces.persistency.metadata;
 import java.util.Map;
 
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.metadata.index.AbstractSpaceIndex;
 import com.gigaspaces.metadata.index.SpaceIndex;
 import com.gigaspaces.metadata.index.SpaceIndexType;
 import com.gigaspaces.persistency.MongoClientWrapper;

@@ -25,10 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.regexp.recompile;
-import org.jacorb.idl.runtime.float_token;
 
-import com.gigaspaces.document.DocumentObjectConverter;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.internal.metadata.pojo.PojoPropertyInfo;
 import com.gigaspaces.internal.metadata.pojo.PojoTypeInfo;
@@ -39,7 +36,6 @@ import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.error.SpaceMongoDataSourceException;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 
 /**
  * @author Shadi Massalha
@@ -153,7 +149,6 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 				} else if (Character.class.getName().equals(key)) {
 					return new Character(value.toString().charAt(0));
 				} else {
-
 					return convertDBObjectToPojo(convertedData);
 				}
 
