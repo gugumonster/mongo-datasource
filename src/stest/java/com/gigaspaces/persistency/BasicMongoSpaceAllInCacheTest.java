@@ -34,4 +34,9 @@ public class BasicMongoSpaceAllInCacheTest extends AbstractSystemTestUnit {
 
 		AssertUtils.assertEquivalent("", issuePojos, pojos);
 	}
+
+	@Override
+	protected String getPUJar() {
+		return "/all-in-cache-0.0.1-SNAPSHOT.jar";
+	}
 }

@@ -14,10 +14,10 @@
 		<module>stest-model</module>
 
 		<module>mongodb-qa-mirror</module>
-		<module>mongodb-qa-space</module>
-
+		<module>all-in-cache</module>
+		<module>lru</module>
+		<module>partial-update</module>
 		<!-- <module>mongodb-qa-document-pojo</module> <module>mongodb-qa-initial-load</module> 
-			<module>mongodb-qa-load</module> <module>mongodb-qa-partial-update</module> 
-			<module>mongodb-qa-space-lru</module> -->
+			<module>mongodb-qa-load</module> -->
 	</modules>
 </project>

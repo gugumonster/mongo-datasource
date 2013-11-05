@@ -50,6 +50,6 @@ public class BasicMongoSpaceChangeTest extends AbstractSystemTestUnit {
 
 	@Override
 	protected String getPUJar() {		
-		return "/mongodb-qa-partial-update-0.0.1-SNAPSHOT.jar";
+		return "/partial-update-0.0.1-SNAPSHOT.jar";
 	}
 }

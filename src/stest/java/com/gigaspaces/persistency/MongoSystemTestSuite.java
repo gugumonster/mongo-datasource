@@ -11,7 +11,9 @@ import com.gigaspaces.persistency.helper.MongoDBController;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
-		BasicMongoSpaceAllInCacheTest.class
+		/*BasicMongoSpaceAllInCacheTest.class,
+		BasicMongoSpaceLRUTest.class,*/
+		BasicMongoSpacePartialUpdateTest.class
 })
 public class MongoSystemTestSuite {
 	

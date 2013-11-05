@@ -42,4 +42,9 @@ public class SmallTypeHierarcyMongoSpaceTest extends AbstractSystemTestUnit {
 	private void assertExpectedQueryResult(Object[] actual, Object... expected) {
 		AssertUtils.assertEquivalenceArrays("Read result", expected, actual);
 	}
+
+	@Override
+	protected String getPUJar() {		
+		return "/all-in-cache-0.0.1-SNAPSHOT.jar";
+	}
 }

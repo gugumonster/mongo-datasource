@@ -83,9 +83,7 @@ public abstract class AbstractSystemTestUnit {
 		return "/mongodb-qa-mirror-0.0.1-SNAPSHOT.jar";
 	}
 
-	protected String getPUJar() {
-		return "/mongodb-qa-space-0.0.1-SNAPSHOT.jar";
-	}
+	protected abstract String getPUJar();
 
 	private void deployMirrorService() {
 		File mirrorPuArchive = new File(getDeploymentJarPath(DEPLOY_DIR,
@@ -181,7 +179,6 @@ public abstract class AbstractSystemTestUnit {
 
 			}
 		}, 10 * 1000);
-
 	}
 
 	protected void repeat(IRepetitiveRunnable iRepetitiveRunnable,
