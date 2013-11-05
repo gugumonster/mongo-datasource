@@ -7,8 +7,8 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import com.gigaspaces.itest.model.IssuePojo;
 import com.gigaspaces.persistency.utils.AssertUtils;
+import com.gigaspaces.stest.model.IssuePojo;
 
 public class BasicMongoSpaceAllInCacheTest extends AbstractSystemTestUnit {
 

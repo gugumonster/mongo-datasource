@@ -6,15 +6,18 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
+	<properties>
+		<stest-deploy>${java.io.tmpdir}/mongodb-system-test-deploy</stest-deploy>
+	</properties>
+
 	<modules>
 		<module>stest-model</module>
-		<module>mongodb-qa-mirror</module>
-		<module>mongodb-qa-document-pojo</module>
-		<module>mongodb-qa-initial-load</module>
-		<module>mongodb-qa-load</module>
-		<module>mongodb-qa-partial-update</module>
-		<module>mongodb-qa-space</module>
-		<module>mongodb-qa-space-lru</module>
-	</modules>
 
+		<module>mongodb-qa-mirror</module>
+		<module>mongodb-qa-space</module>
+
+		<!-- <module>mongodb-qa-document-pojo</module> <module>mongodb-qa-initial-load</module> 
+			<module>mongodb-qa-load</module> <module>mongodb-qa-partial-update</module> 
+			<module>mongodb-qa-space-lru</module> -->
+	</modules>
 </project>

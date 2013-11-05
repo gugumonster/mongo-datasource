@@ -4,7 +4,7 @@
 	<groupId>com.gigaspaces.stest</groupId>
 	<artifactId>mongodb-qa-space</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-
+	
 	<repositories>
 		<repository>
 			<id>org.openspaces</id>
@@ -35,7 +35,7 @@
 		<!-- local repository dependency that will be packaged and installed -->
 		<dependency>
 			<groupId>com.gigaspaces.stest.model</groupId>
-			<artifactId>itest-model</artifactId>
+			<artifactId>stest-model</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
@@ -57,7 +57,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>com.gigaspaces.stest.model</groupId>
-									<artifactId>itest-model</artifactId>
+									<artifactId>stest-model</artifactId>
 									<version>0.0.1-SNAPSHOT</version>
 									<type>${project.packaging}</type>
 								</artifactItem>
@@ -94,7 +94,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.1</version>
 				<configuration>
-					<outputDirectory>c:/temp/mongodb-ds-deploy</outputDirectory>
+					<outputDirectory>${java.io.tmpdir}/mongodb-system-test-deploy</outputDirectory>
 				</configuration>
 			</plugin>
 		</plugins>

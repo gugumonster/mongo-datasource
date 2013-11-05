@@ -1,26 +1,22 @@
-/*
- * @(#)Issue.java   Sep 19, 2006
- *
- * Copyright 2006 GigaSpaces Technologies Inc.
- */
+package com.gigaspaces.stest.model;
 
-package com.gigaspaces.itest.model;
-
+import java.io.Serializable;
 import java.util.Date;
 
 import com.gigaspaces.annotation.pojo.SpaceClass;
 import com.gigaspaces.annotation.pojo.SpaceId;
 import com.gigaspaces.annotation.pojo.SpaceIndex;
-import com.gigaspaces.annotation.pojo.SpaceRouting;
 import com.gigaspaces.annotation.pojo.SpaceVersion;
 
 /**
  * A representation of a JIRA Issue (as POJO)
  */
 @SpaceClass
-public class MongoIssuePojo implements Issue {
+public class SerializableIssuePojo
+implements Issue, Serializable
+{
 	/** default serialization version uid */
-	private static final long serialVersionUID = 1L;
+	private static final long	serialVersionUID	= 1L;
 
 	/** unique key of this issue - required */
 	private Integer key;
@@ -32,56 +28,44 @@ public class MongoIssuePojo implements Issue {
 	private Date updated;
 	/** number of votes for this issue - default zero */
 	private Integer votes;
-	/** Priority1 of this issue - default trivial */
-	private Priority priority;
+	/** priority of this issue - default trivial */
+	private  Priority  priority;
 	/** votes string representation - used for regular expressions and alike */
 	private String votesRep;
 
 	private int version;
 
-	private byte[] payload;
-
-	public void setPayload(byte[] payload) {
-		this.payload = payload;
-	}
-
-	public byte[] getPayload() {
-		return payload;
-	}
 
 	/**
-	 * null-task default constructor; Doesn't generate UID.
+	 * null-task default constructor; Doesn't generate UID. 
 	 */
-	public MongoIssuePojo() {
-	}
+	public SerializableIssuePojo(){}
 
 	/**
 	 * Constructor with required fields. All other fields will be set with
 	 * defaults. Reporter will be set with the current System defined user.
 	 * 
-	 * @param key
-	 *            Issue unique key.
+	 * @param key Issue unique key.
 	 */
-	public MongoIssuePojo(Integer key) {
+	public SerializableIssuePojo(Integer key)
+	{
 		this(key, getCurrentSystemUser());
 	}
 
 	/**
-	 * Constructor with required fields. All other fields will be set with
-	 * defaults.
+	 * Constructor with required fields. All other fields will be
+	 * set with defaults.
 	 * 
-	 * @param key
-	 *            Issue unique key.
-	 * @param reporter
-	 *            name of the User whom reported this issue
-	 * @throws IllegalArgumentException
-	 *             if reporter is null.
+	 * @param key Issue unique key.
+	 * @param reporter name of the User whom reported this issue
+	 * @throws IllegalArgumentException if reporter is null.
 	 */
-	public MongoIssuePojo(Integer key, String reporter) {
+	public SerializableIssuePojo(Integer key, String reporter)
+	{
 		this.key = key;
 		this.reporter = new User(reporter);
 
-		// defaults
+		//defaults
 		long now = System.currentTimeMillis();
 		created = new Date(now);
 		updated = new Date(now);
@@ -90,45 +74,47 @@ public class MongoIssuePojo implements Issue {
 		votesRep = String.valueOf(votes);
 	}
 
+
 	/**
 	 * Returns the currently defined system user, mapped to the system property
 	 * "user.name".
 	 * 
 	 * @return user name; default "anonymous"
 	 */
-	private static String getCurrentSystemUser() {
+	private static String getCurrentSystemUser()
+	{
 		return System.getProperty("user.name", "anonymous");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#vote()
 	 */
-	public Priority vote() {
-		updated = new Date(System.currentTimeMillis()); // now
+	public Priority vote()
+	{
+		updated = new Date( System.currentTimeMillis() ); //now
 
 		++votes;
 		votesRep = String.valueOf(votes);
 		Priority votedPriority = Priority.TRIVIAL;
 		Priority previous = priority;
 
-		switch (votes) {
-		case 5:
-			votedPriority = Priority.MINOR;
-			break;
-		case 10:
-			votedPriority = Priority.MEDIUM;
-			break;
-		case 15:
-			votedPriority = Priority.MAJOR;
-			break;
-		case 20:
-			votedPriority = Priority.CRITICAL;
-			break;
-		case 25:
-			votedPriority = Priority.BLOCKER;
-			break;
+		switch (votes)
+		{
+			case 5:
+				votedPriority = Priority.MINOR;
+				break;
+			case 10:
+				votedPriority = Priority.MEDIUM;
+				break;
+			case 15:
+				votedPriority = Priority.MAJOR;
+				break;
+			case 20:
+				votedPriority = Priority.CRITICAL;
+				break;
+			case 25:
+				votedPriority = Priority.BLOCKER;
+				break;
 		}
 
 		if (votedPriority.ordinal() > priority.ordinal())
@@ -137,29 +123,24 @@ public class MongoIssuePojo implements Issue {
 		return previous;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.gigaspaces.common_data.issue.Issue#setPriority(com.gigaspaces.common_data
-	 * .issue.IssueMetaDataEntry.Priority)
+	/* (non-Javadoc)
+	 * @see com.gigaspaces.common_data.issue.Issue#setPriority(com.gigaspaces.common_data.issue.IssueMetaDataEntry.Priority)
 	 */
-	public void setPriority(Priority p) {
+	public void setPriority(Priority p)
+	{
 		priority = p;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#getPriority()
 	 */
-	public Priority getPriority() {
+	public Priority getPriority()
+	{
 		return priority;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#getCreated()
 	 */
 	@SpaceIndex
@@ -169,17 +150,13 @@ public class MongoIssuePojo implements Issue {
 
 	/**
 	 * Sets when this issue was created;
-	 * 
-	 * @param created
-	 *            when this issue was created - default now.
+	 * @param created	when this issue was created - default now.
 	 */
 	public void setCreated(Date created) {
 		this.created = created;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#getKey()
 	 */
 	@SpaceId
@@ -187,18 +164,14 @@ public class MongoIssuePojo implements Issue {
 		return key;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#setKey(java.lang.Integer)
 	 */
 	public void setKey(Integer key) {
 		this.key = key;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#getReporter()
 	 */
 	@SpaceIndex
@@ -208,17 +181,13 @@ public class MongoIssuePojo implements Issue {
 
 	/**
 	 * Sets the reporter of this issue.
-	 * 
-	 * @param reporter
-	 *            reporter of this issue.
+	 * @param reporter reporter of this issue.
 	 */
 	public void setReporter(User reporter) {
 		this.reporter = reporter;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#getUpdated()
 	 */
 	@SpaceIndex
@@ -228,45 +197,39 @@ public class MongoIssuePojo implements Issue {
 
 	/**
 	 * Sets when this issue was last updated.
-	 * 
-	 * @param updated
-	 *            when this issue was last updated.
+	 * @param updated when this issue was last updated.
 	 */
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.data.issue.Issue#getVotes()
 	 */
-	@SpaceRouting
+	@SpaceIndex
 	public Integer getVotes() {
 		return votes;
 	}
-
+	
 	/*
 	 * @see com.gigaspaces.data.issue.Issue#getVotesRep()
 	 */
 	@SpaceIndex
-	public String getVotesRep() {
+	public String getVotesRep()
+	{
 		return votesRep;
 	}
-
+	
 	/**
 	 * Sets a String representation of 'votes'.
-	 * 
-	 * @param votesRep
-	 *            votes rep.
+	 * @param votesRep votes rep.
 	 */
-	public void setVotesRep(String votesRep) {
+	public void setVotesRep(String votesRep)
+	{
 		this.votesRep = votesRep;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#setVotes(java.lang.Integer)
 	 */
 	public void setVotes(Integer votes) {
@@ -276,8 +239,7 @@ public class MongoIssuePojo implements Issue {
 
 	/**
 	 * POJO version attribute
-	 * 
-	 * @return the current version of this POJO.
+	 * @return	the current version of this POJO.
 	 */
 	@SpaceVersion
 	public int getVersion() {
@@ -286,13 +248,12 @@ public class MongoIssuePojo implements Issue {
 
 	/**
 	 * Sets the POJO version attribute
-	 * 
-	 * @param version
-	 *            the version of this POJO.
+	 * @param version	the version of this POJO.
 	 */
 	public void setVersion(int version) {
 		this.version = version;
 	}
+
 
 	//
 	// ---------- Object constructs ----------
@@ -300,11 +261,11 @@ public class MongoIssuePojo implements Issue {
 
 	/* @see java.lang.Object#toString() */
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		StringBuilder sb = new StringBuilder();
-		sb.append("\t KEY-" + getKey());
-		sb.append("\t reporter: "
-				+ (getReporter() == null ? "Unassigned" : getReporter()));
+		sb.append("\t KEY-" + getKey() );
+		sb.append("\t reporter: " + (getReporter() == null ? "Unassigned" : getReporter() ));
 		sb.append("\t votes: " + getVotes());
 		sb.append("\t priority: " + getPriority());
 		sb.append("\t created: " + getCreated());
@@ -314,84 +275,77 @@ public class MongoIssuePojo implements Issue {
 
 	/* @see java.lang.Object#hashCode() */
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		return getKey().hashCode();
 	}
 
 	/*
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof MongoIssuePojo))
+	public boolean equals(Object obj)
+	{
+		if ( !(obj instanceof SerializableIssuePojo) )
 			return false;
 
-		MongoIssuePojo otherIssue = (MongoIssuePojo) obj;
+		SerializableIssuePojo otherIssue = (SerializableIssuePojo)obj;
 
-		// verify key
+		//verify key
 		if (this.getKey() == null && otherIssue.getKey() != null)
 			return false;
-		else if (this.getKey() != null
-				&& !this.getKey().equals(otherIssue.getKey()))
+		else	if (this.getKey() != null && !this.getKey().equals(otherIssue.getKey()) )
 			return false;
 
-		// verify reporter
+		//verify reporter
 		if (this.getReporter() == null && otherIssue.getReporter() != null)
 			return false;
-		else if (this.getReporter() != null
-				&& !this.getReporter().equals(otherIssue.getReporter()))
+		else if (this.getReporter() != null && !this.getReporter().equals(otherIssue.getReporter()) )
 			return false;
 
-		// verify votes
+		//verify votes
 		if (this.getVotes() == null && otherIssue.getVotes() != null)
 			return false;
-		else if (this.getVotes() != null
-				&& !this.getVotes().equals(otherIssue.getVotes()))
+		else if (this.getVotes() != null && !this.getVotes().equals(otherIssue.getVotes()) )
 			return false;
 
-		// verify priority
+		//verify priority
 		if (this.getPriority() == null && otherIssue.getPriority() != null)
 			return false;
-		else if (this.getPriority() != null
-				&& !this.getPriority().equals(otherIssue.getPriority()))
+		else if (this.getPriority() != null	&& !this.getPriority().equals(otherIssue.getPriority()) )
 			return false;
 
-		// verify created
+		//verify created
 		if (this.getCreated() == null && otherIssue.getCreated() != null)
 			return false;
-		else if (this.getCreated() != null
-				&& !this.getCreated().equals(otherIssue.getCreated()))
+		else if (this.getCreated() != null && !this.getCreated().equals(otherIssue.getCreated()) )
 			return false;
 
-		// verify updated
+		//verify updated
 		if (this.getUpdated() == null && otherIssue.getUpdated() != null)
 			return false;
-		else if (this.getUpdated() != null
-				&& !this.getUpdated().equals(otherIssue.getUpdated()))
+		else if (this.getUpdated() != null && !this.getUpdated().equals(otherIssue.getUpdated()) )
 			return false;
-
-		// verify votesRep
+		
+		//verify votesRep
 		if (this.getVotesRep() == null && otherIssue.getVotesRep() != null)
 			return false;
-		else if (this.getVotesRep() != null
-				&& !this.getVotesRep().equals(otherIssue.getVotesRep()))
+		else if (this.getVotesRep() != null && !this.getVotesRep().equals(otherIssue.getVotesRep()) )
 			return false;
 
-		// all properties equal
+		//all properties equal
 		return true;
 	}
 
 	/**
 	 * Compares to Issue by their key ordering.
-	 * 
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(Issue otherIssue) {
+	public int compareTo(Issue otherIssue)
+	{
 		return this.getKey().compareTo(otherIssue.getKey());
 	}
 
@@ -401,35 +355,34 @@ public class MongoIssuePojo implements Issue {
 	 * @see #deepClone()
 	 */
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	protected Object clone() throws CloneNotSupportedException
+	{
 		return super.clone();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#shallowClone()
 	 */
-	public Issue shallowClone() {
-		try {
-			Issue shallow = (Issue) clone();
+	public Issue shallowClone()
+	{
+		try{
+			Issue shallow = (Issue)clone();
 			return shallow;
 
-		} catch (CloneNotSupportedException e) {
-			// can't happen
+		}catch (CloneNotSupportedException e){
+			//can't happen
 		}
 
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see com.gigaspaces.common_data.issue.Issue#deepClone()
 	 */
-	public Issue deepClone() {
-		try {
-			MongoIssuePojo deep = (MongoIssuePojo) clone();
+	public Issue deepClone()
+	{
+		try{
+			SerializableIssuePojo deep = (SerializableIssuePojo)clone();
 			deep.key = new Integer(key);
 			deep.reporter = new User(reporter.getUsername());
 			deep.votes = new Integer(votes);
@@ -437,8 +390,8 @@ public class MongoIssuePojo implements Issue {
 
 			return deep;
 
-		} catch (CloneNotSupportedException e) {
-			// can't happen
+		}catch (CloneNotSupportedException e){
+			//can't happen
 		}
 
 		return null;

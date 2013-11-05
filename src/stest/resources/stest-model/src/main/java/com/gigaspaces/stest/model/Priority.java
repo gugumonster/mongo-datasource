@@ -1,4 +1,4 @@
-package com.gigaspaces.itest.model;
+package com.gigaspaces.stest.model;
 
 /**
  * Priority of this Issue; default trivial. Priority increases at vote-levels.

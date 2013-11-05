@@ -14,9 +14,9 @@ import org.openspaces.core.TakeMultipleException;
 
 import com.gigaspaces.client.WriteModifiers;
 import com.gigaspaces.framework.ThreadBarrier;
-import com.gigaspaces.itest.model.Issue;
-import com.gigaspaces.itest.model.MongoIssuePojo;
-import com.gigaspaces.itest.model.Priority;
+import com.gigaspaces.stest.model.Issue;
+import com.gigaspaces.stest.model.MongoIssuePojo;
+import com.gigaspaces.stest.model.Priority;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 

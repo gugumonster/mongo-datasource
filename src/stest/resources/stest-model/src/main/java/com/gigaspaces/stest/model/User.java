@@ -1,4 +1,4 @@
-package com.gigaspaces.itest.model;
+package com.gigaspaces.stest.model;
 
 import java.io.Serializable;
 

@@ -1,6 +1,5 @@
 package com.gigaspaces.persistency;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.AfterClass;
@@ -34,7 +33,7 @@ public class MongoTestSuite {
 	private static final EmbeddedMongoController mongoController = new EmbeddedMongoController();
 
 	@BeforeClass
-	public static void beforeSuite() throws IOException {
+	public static void beforeSuite()  {
 		GSLogConfigLoader.getLoader();
 		isSuiteMode = true;
 		mongoController.initMongo();

@@ -8,50 +8,38 @@ import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
 import de.flapdoodle.embed.mongo.distribution.Version;
 
-public class EmbeddedMongoController {
+public class MongoDBController {
 
 	private static final String LOCALHOST = "localhost";
-	private int _port = 12345;
+	private static final String QA_DB = "qadb";
+	private static final int PORT = 27017;
 	private MongodProcess mongodProcess;
+
 	private MongoClient client;
 
-	public void initMongo() {
-
+	public void start() {
 		try {
 
 			MongodStarter starter = MongodStarter.getDefaultInstance();
 
 			MongodExecutable mognoExecutable = starter
-					.prepare(new MongodConfig(Version.V2_2_3, _port, false));
+					.prepare(new MongodConfig(Version.Main.PRODUCTION, PORT,
+							false));
 
 			mongodProcess = mognoExecutable.start();
 
-			client = new MongoClient(LOCALHOST, _port);
+			client = new MongoClient(LOCALHOST, PORT);
+			
+			client.dropDatabase(QA_DB);
 
+			client.getDB(QA_DB);
+			
 		} catch (Throwable e) {
 			throw new AssertionError(e);
 		}
 	}
 
-	public void stopMongo() {
-
-		client.close();
-
+	public void stop() {
 		mongodProcess.stop();
-	}
-
-	public int getPort() {
-
-		return _port;
-	}
-
-	public void createDb(String dbName) {
-
-		client.getDB(dbName);
-	}
-
-	public void dropDb(String dbName) {
-
-		client.dropDatabase(dbName);
 	}
 }

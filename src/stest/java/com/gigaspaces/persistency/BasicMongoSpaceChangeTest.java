@@ -5,9 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.gigaspaces.client.WriteModifiers;
-import com.gigaspaces.itest.model.IssuePojo;
-import com.gigaspaces.itest.model.Priority;
 import com.gigaspaces.persistency.utils.AssertUtils;
+import com.gigaspaces.stest.model.IssuePojo;
+import com.gigaspaces.stest.model.Priority;
 
 public class BasicMongoSpaceChangeTest extends AbstractSystemTestUnit {
 

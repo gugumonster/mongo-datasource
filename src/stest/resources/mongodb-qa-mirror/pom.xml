@@ -31,13 +31,6 @@
 			<artifactId>antlr4-runtime</artifactId>
 			<version>4.0</version>
 		</dependency>
-
-		<!-- local repository dependency that will be packaged and installed -->
-		<!-- <dependency> -->
-		<!-- <groupId>com.gigaspaces.stest.model</groupId> -->
-		<!-- <artifactId>itest-model</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- </dependency> -->
 	</dependencies>
 
 	<build>
@@ -55,12 +48,6 @@
 						</goals>
 						<configuration>
 							<artifactItems>
-								<!-- <artifactItem> -->
-								<!-- <groupId>com.gigaspaces.stest.model</groupId> -->
-								<!-- <artifactId>itest-model</artifactId> -->
-								<!-- <version>0.0.1-SNAPSHOT</version> -->
-								<!-- <type>${project.packaging}</type> -->
-								<!-- </artifactItem> -->
 								<artifactItem>
 									<groupId>com.gigaspaces</groupId>
 									<artifactId>mongo-datasource</artifactId>
@@ -94,7 +81,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.1</version>
 				<configuration>
-					<outputDirectory>c:/temp/mongodb-ds-deploy</outputDirectory>
+					<outputDirectory>${java.io.tmpdir}/mongodb-system-test-deploy</outputDirectory>
 				</configuration>
 			</plugin>
 		</plugins>

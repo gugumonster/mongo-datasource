@@ -1,95 +1,78 @@
 package com.gigaspaces.persistency;
 
 import java.io.File;
-import java.net.UnknownHostException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openspaces.admin.Admin;
 import org.openspaces.admin.AdminFactory;
-import org.openspaces.admin.gsa.GridServiceAgent;
 import org.openspaces.admin.pu.ProcessingUnit;
 import org.openspaces.admin.pu.ProcessingUnitDeployment;
 import org.openspaces.core.GigaSpace;
 
 import com.gigaspaces.client.ClearModifiers;
 import com.gigaspaces.client.CountModifiers;
-import com.gigaspaces.persistency.utils.CommandLineProcess;
 import com.gigaspaces.persistency.utils.IRepetitiveRunnable;
 import com.j_spaces.core.IJSpace;
 import com.j_spaces.core.admin.StatisticsAdmin;
-import com.j_spaces.core.client.FinderException;
-import com.j_spaces.core.client.SpaceFinder;
 import com.j_spaces.core.filters.ReplicationStatistics.ChannelState;
 import com.j_spaces.core.filters.ReplicationStatistics.OutgoingChannel;
 import com.j_spaces.core.filters.ReplicationStatistics.OutgoingReplication;
-import com.mongodb.MongoClient;
 
 //TODO: support linux gigaspace
-@SuppressWarnings("deprecation")
 public abstract class AbstractSystemTestUnit {
 
-	protected final static Admin admin = new AdminFactory().addGroup(
-			getTestGroup()).createAdmin();;
+	private static final String QA_GROUP = "qa_group";
+	private final static String DEPLOY_DIR = "/mongodb-system-test-deploy";
 
-			
+	protected final Admin admin = new AdminFactory().addGroup(QA_GROUP)
+			.createAdmin();
+
 	protected GigaSpace gigaSpace;
-	protected ProcessingUnit pu;
-
-	protected static CommandLineProcess gsAgent;
-	protected static CommandLineProcess mongod;
-
-	private static String gs_home = "c:/temp/gigaspaces-xap-premium-9.6.0-ga";
-	private static String mongo_home = "c:/mongodb";
-	private static String deploy_path = "c:/temp/mongodb-ds-deploy";
-
-	static final String QA_DB = "qadb";
-	static final String GS_AGENT = "/bin/gs-agent.bat";
-	static final String MONGO_D = "/bin/mongod.exe";
-
-	@BeforeClass
-	public static void init() {
-		startMongoDB();
-
-		startGSAgent();
-
-		admin.getGridServiceManagers().waitForAtLeastOne();
-
-	}
+	protected ProcessingUnit testPU;
+	protected ProcessingUnit mirrorServicePU;
 
 	@Before
 	public void start() {
-		deploy();
-	}
 
-	private static void dropDB() {
-		MongoClient client;
+		if (hasMirrorService())
+			deployMirrorService();
+
+		File puArchive = new File(getDeploymentJarPath(DEPLOY_DIR, getPUJar()));
+
+		ProcessingUnitDeployment deployment = new ProcessingUnitDeployment(
+				puArchive);
 
 		try {
-			client = new MongoClient();
 
-			client.dropDatabase(QA_DB);
+			testPU = admin.getGridServiceManagers().deploy(deployment);
 
-		} catch (UnknownHostException e) {
-			throw new AssertionError(e);
+			testPU.waitFor(4);
+
+			gigaSpace = testPU.getSpace().getGigaSpace();
+		} catch (Exception ex) {
+			throw new AssertionError(ex);
 		}
-
 	}
 
-	protected final static String getGSAPath() {
-		return gs_home + GS_AGENT;
+	@After
+	public void stop() {
+
+		testPU.undeployAndWait();
+
+		mirrorServicePU.undeployAndWait();
 	}
 
-	protected final static String getMongoDBPath() {
-		return mongo_home + MONGO_D;
-	}
+	@Test
+	public abstract void test();
 
-	protected String getDeploymentJarPath() {
-		return deploy_path + getPUJar();
+	protected String getDeploymentJarPath(String dirName, String jarName) {
+		String tmp = System.getProperty("java.io.tmpdir");
+
+		return FilenameUtils.normalize(tmp + dirName + jarName);
 	}
 
 	protected boolean hasMirrorService() {
@@ -104,105 +87,27 @@ public abstract class AbstractSystemTestUnit {
 		return "/mongodb-qa-space-0.0.1-SNAPSHOT.jar";
 	}
 
-	protected IJSpace findSpace(String instanceId) throws FinderException {
-		return (IJSpace) SpaceFinder
-				.find(String
-						.format("jini://*/*/qa-space?cluster_schema=partitioned-sync2backup&groups=%s&total_members=2,1&id=%s",
-								getTestGroup(), instanceId));
-	}
-
-	protected static void startGSAgent() {
-		gsAgent = new CommandLineProcess(getGSAPath());
-
-		gsAgent.addEnvironmentVariable("LOOKUPGROU" + "PS", getTestGroup());
-
-		new Thread(gsAgent).start();
-	}
-
-	protected static void startMongoDB() {
-
-		mongod = new CommandLineProcess(getMongoDBPath());
-
-		Thread t = new Thread(mongod);
-
-		t.start();
-	}
-
-	protected static void stopMongoDB() {
-		mongod.stop();
-	}
-
-	@Test
-	public abstract void test();
-
-	protected void deploy() {
-
-		if (hasMirrorService())
-			deployMirrorService();
-
-		File puArchive = new File(getDeploymentJarPath());
-
-		ProcessingUnitDeployment deployment = new ProcessingUnitDeployment(
-				puArchive);
-
-		try {
-
-			pu = admin.getGridServiceManagers().deploy(deployment);
-
-			pu.waitFor(4);
-
-			gigaSpace = pu.getSpace().getGigaSpace();
-		} catch (Exception ex) {
-			throw new AssertionError(ex);
-		}
-	}
-
 	private void deployMirrorService() {
-		File mirrorPuArchive = new File(deploy_path + getMirrorService());
+		File mirrorPuArchive = new File(getDeploymentJarPath(DEPLOY_DIR,
+				getMirrorService()));
 
 		ProcessingUnitDeployment deployment = new ProcessingUnitDeployment(
 				mirrorPuArchive);
 
 		try {
 
-			pu = admin.getGridServiceManagers().deploy(deployment);
+			mirrorServicePU = admin.getGridServiceManagers().deploy(deployment);
 
-			pu.waitFor(1);
-			
+			mirrorServicePU.waitFor(1);
+
 		} catch (Exception ex) {
 			throw new AssertionError(ex);
 		}
 
 	}
 
-	public static String getTestGroup() {
-		return "qa_group";
-	}
-
-	@After
-	public void stop() {
-
-		pu.undeployAndWait();
-
-	}
-
-	@AfterClass
-	public static void destroy() {
-
-		for (GridServiceAgent gsa : admin.getGridServiceAgents()) {
-			gsa.shutdown();
-		}
-
-		gsAgent.stop();
-
-		// dropDB();
-
-		// mongod.stop();
-	}
-
-	protected void say(String string) {
-		// TODO Auto-generated method stub
-
+	protected void say(String message) {
+		System.out.println(message);
 	}
 
 	protected void waitForActiveReplicationChannelWithMirror(final IJSpace space)

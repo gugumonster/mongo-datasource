@@ -3,11 +3,11 @@ package com.gigaspaces.persistency;
 import junit.framework.Assert;
 
 import com.gigaspaces.document.SpaceDocument;
-import com.gigaspaces.itest.model.TestDataTypeWithDynamicProps;
-import com.gigaspaces.itest.model.TestDataTypeWithDynamicPropsDocument;
-import com.gigaspaces.itest.model.TestDataTypeWithDynamicPropsPojo;
-import com.gigaspaces.itest.model.TestDataTypeWithDynamicPropsUtils;
 import com.gigaspaces.persistency.metadata.MongoDocumentObjectConverter;
+import com.gigaspaces.stest.model.TestDataTypeWithDynamicProps;
+import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsDocument;
+import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsPojo;
+import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsUtils;
 
 public class DocumentPojoWithDynamicPropsMongoSpaceTest extends
 		AbstractSystemTestUnit {

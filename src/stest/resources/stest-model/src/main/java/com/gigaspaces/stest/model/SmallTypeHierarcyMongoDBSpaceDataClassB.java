@@ -1,4 +1,4 @@
-package com.gigaspaces.itest.model;
+package com.gigaspaces.stest.model;
 
 import com.gigaspaces.annotation.pojo.SpaceClass;
 import com.gigaspaces.annotation.pojo.SpaceProperty;
