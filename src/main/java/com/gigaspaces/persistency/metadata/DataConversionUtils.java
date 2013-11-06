@@ -16,11 +16,24 @@ import com.gigaspaces.internal.utils.ReflectionUtils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
+/**
+ * @author Shadi Massalha
+ * 
+ *         helper utility class in data conversion from mongoDB driver data type
+ *         to SpaceDocument or Pojo
+ */
 public class DataConversionUtils {
 
 	private static final Map<String, Map<String, Method>> pojoTypeGettersCache = new ConcurrentHashMap<String, Map<String, Method>>();
 	private static final Map<String, Map<String, Method>> pojoTypeSettersCache = new ConcurrentHashMap<String, Map<String, Method>>();
 
+	/**
+	 * 
+	 * convert from Object to ObjectDB
+	 * 
+	 * @param value - is pojo or enum or spetial handled java type
+	 * @return
+	 */
 	public static Object convert(Object value) {
 
 		if (value == null)
@@ -60,8 +73,7 @@ public class DataConversionUtils {
 		DBObject pojo = new BasicDBObject("__type", type.getName());
 
 		for (String property : getters.keySet()) {
-			System.out.println("++++++++++++++++++++++++++++++"
-					+ getters.get(property).toGenericString());
+			
 			Object val = ReflectionUtils.invokeMethod(getters.get(property),
 					value);
 
@@ -108,15 +120,14 @@ public class DataConversionUtils {
 
 	public static boolean isPojo(Object value) {
 
-		return /*
-				 * (value instanceof Serializable) &&
-				 */!(value instanceof String || value instanceof Byte
+		return !(value instanceof String || value instanceof Byte
 				|| value instanceof Integer || value instanceof Long
 				|| value instanceof Short || value instanceof Double
 				|| value instanceof Float || value instanceof Character
 				|| value instanceof BigDecimal || value instanceof BigInteger
 				|| value instanceof Boolean || value instanceof UUID
-				|| value instanceof Date || value instanceof byte[]);
+				|| value instanceof Date || value instanceof byte[]
+				|| value.getClass().isEnum());
 	}
 
 }

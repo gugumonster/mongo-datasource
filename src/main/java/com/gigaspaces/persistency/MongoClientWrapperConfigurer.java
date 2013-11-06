@@ -139,7 +139,7 @@ public class MongoClientWrapperConfigurer {
 		if (options != null)
 			constructorId += 4;
 
-		if (StringUtils.hasLength(host))
+		if (StringUtils.hasLength(host) && !LOCALHOST.equals(host))
 			constructorId += 8;
 
 		if (port > 1024 && port != 27017)
@@ -165,6 +165,8 @@ public class MongoClientWrapperConfigurer {
 			return new MongoClient(seeds);
 		case 3:
 			return new MongoClient(seeds, credentials);
+		case 4:
+			return new MongoClient(LOCALHOST, options);
 		case 5:
 			return new MongoClient(seeds, options);
 		case 7:
