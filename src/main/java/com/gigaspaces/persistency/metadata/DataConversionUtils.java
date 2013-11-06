@@ -60,7 +60,8 @@ public class DataConversionUtils {
 		DBObject pojo = new BasicDBObject("__type", type.getName());
 
 		for (String property : getters.keySet()) {
-
+			System.out.println("++++++++++++++++++++++++++++++"
+					+ getters.get(property).toGenericString());
 			Object val = ReflectionUtils.invokeMethod(getters.get(property),
 					value);
 
@@ -81,7 +82,8 @@ public class DataConversionUtils {
 				continue;
 			}
 
-			if (property.getGetterMethod() == null) {
+			if (!(property.getGetterMethod() == null && property
+					.getSetterMethod() == null)) {
 				continue;
 			}
 

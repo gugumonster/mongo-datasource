@@ -23,6 +23,7 @@ import com.gigaspaces.internal.metadata.pojo.PojoPropertyInfo;
 import com.gigaspaces.internal.metadata.pojo.PojoTypeInfo;
 import com.gigaspaces.internal.metadata.pojo.PojoTypeInfoRepository;
 import com.gigaspaces.internal.utils.ReflectionUtils;
+import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.mongodb.DBObject;
 
 /**
@@ -89,11 +90,11 @@ public class MetadataUtils {
 		try {
 			pojo = clazz.newInstance();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SpaceMongoException("can not create instance of class "
+					+ clazz, e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SpaceMongoException("can not create instance of class "
+					+ clazz, e);
 		}
 
 		return pojo;

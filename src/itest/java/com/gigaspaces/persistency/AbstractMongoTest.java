@@ -58,7 +58,7 @@ public abstract class AbstractMongoTest {
 			MongoClientWrapper _dataSourceClient2) {
 
 		MongoSpaceDataSource dataSource = new MongoSpaceDataSourceConfigurer()
-				.mongoClientPool(_dataSourceClient2).create();
+				.mongoClientWrapper(_dataSourceClient2).create();
 
 		return dataSource;
 	}
@@ -67,7 +67,7 @@ public abstract class AbstractMongoTest {
 			MongoClientWrapper client) {
 
 		MongoSpaceSynchronizationEndpoint syncInterceptor = new MongoSpaceSynchronizationEndpointConfigurer()
-				.mongoClientPool(client).create();
+				.mongoClientWrapper(client).create();
 
 		return syncInterceptor;
 	}

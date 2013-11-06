@@ -44,6 +44,7 @@ import com.mongodb.QueryBuilder;
  * 
  * 
  * @author Shadi Massalha
+ * 
  */
 public class MongoSpaceDataSource extends SpaceDataSource {
 
@@ -54,15 +55,12 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	private MongoClientWrapper mongoClient;
 
-	// private final MetadataManager metadataManager;
-
 	public MongoSpaceDataSource(MongoClientWrapper mongoClient) {
 
 		if (mongoClient == null)
 			throw new IllegalArgumentException(
 					"mongoClient must be set and initiated");
-
-		// this.metadataManager = new MetadataManager(mongoClient);
+		
 		this.mongoClient = mongoClient;
 	}
 

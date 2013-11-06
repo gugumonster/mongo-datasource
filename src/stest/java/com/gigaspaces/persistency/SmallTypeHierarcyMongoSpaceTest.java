@@ -23,14 +23,14 @@ public class SmallTypeHierarcyMongoSpaceTest extends AbstractSystemTestUnit {
 		gigaSpace.write(typeA);
 		gigaSpace.write(typeB);
 		gigaSpace.write(typeC);
-		waitForEmptyReplicationBacklogAndClearMemory(gigaSpace);
-
+		waitForEmptyReplicationBacklog(gigaSpace);
+		
 		SmallTypeHierarcyMongoDBSpaceDataClassA[] as = gigaSpace
 				.readMultiple(new SmallTypeHierarcyMongoDBSpaceDataClassA());
-		clearMemory(gigaSpace);
+		//clearMemory(gigaSpace);
 		SmallTypeHierarcyMongoDBSpaceDataClassB[] bs = gigaSpace
 				.readMultiple(new SmallTypeHierarcyMongoDBSpaceDataClassB());
-		clearMemory(gigaSpace);
+		//clearMemory(gigaSpace);
 		SmallTypeHierarcyMongoDBSpaceDataClassC[] cs = gigaSpace
 				.readMultiple(new SmallTypeHierarcyMongoDBSpaceDataClassC());
 
@@ -43,8 +43,13 @@ public class SmallTypeHierarcyMongoSpaceTest extends AbstractSystemTestUnit {
 		AssertUtils.assertEquivalenceArrays("Read result", expected, actual);
 	}
 
+	// @Override
+	// protected String getMirrorService() {
+	// return null;
+	// }
+
 	@Override
-	protected String getPUJar() {		
+	protected String getPUJar() {
 		return "/all-in-cache-0.0.1-SNAPSHOT.jar";
 	}
 }

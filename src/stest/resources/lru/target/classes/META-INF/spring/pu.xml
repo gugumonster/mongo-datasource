@@ -53,7 +53,7 @@
 
 	<bean id="spaceDataSource"
 		class="com.gigaspaces.persistency.MongoSpaceDataSourceBeanFactory">
-		<property name="mongoClientPool" ref="mongoClient" />
+		<property name="mongoClientWrapper" ref="mongoClient" />
 	</bean>
 	<!-- Defines a local Jini transaction manager. -->
 	<os-core:distributed-tx-manager id="transactionManager" />

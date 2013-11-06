@@ -34,6 +34,7 @@ public class GSAgentController {
 		thread.start();
 
 		admin.getGridServiceManagers().waitForAtLeastOne();
+
 	}
 
 	private String combinePath() {

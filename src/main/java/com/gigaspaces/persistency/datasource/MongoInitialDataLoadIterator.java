@@ -27,7 +27,7 @@ import com.mongodb.DBObject;
 public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 	private DBCursor currenCursor;
-	private MongoClientWrapper mongoClientPool;
+	private MongoClientWrapper mongoClientWrapper;
 	private Iterator<SpaceTypeDescriptor> types;
 	private SpaceTypeDescriptor spaceTypeDescriptor;
 	private DefaultMongoToPojoMapper pojoMapper;
@@ -36,7 +36,7 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 		if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null");
 
-		this.mongoClientPool = client;
+		this.mongoClientWrapper = client;
 		this.types = client.getSortedTypes().iterator();
 		this.currenCursor = nextDataIterator();
 
@@ -75,7 +75,7 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 		spaceTypeDescriptor = types.next();
 		this.pojoMapper = new DefaultMongoToPojoMapper(spaceTypeDescriptor);
-		DBCursor cursor = mongoClientPool.getCollection(
+		DBCursor cursor = mongoClientWrapper.getCollection(
 				spaceTypeDescriptor.getTypeName()).find();
 
 		return cursor;

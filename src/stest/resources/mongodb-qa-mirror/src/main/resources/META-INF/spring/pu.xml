@@ -24,7 +24,7 @@
 
 	<bean id="spaceSynchronizationEndpoint"
 		class="com.gigaspaces.persistency.MongoSpaceSynchronizationEndpointBeanFactory">
-		<property name="mongoClientPool" ref="mongoClient" />
+		<property name="mongoClientWrapper" ref="mongoClient" />
 	</bean>
 
 	<bean id="seeds" class="java.util.ArrayList">

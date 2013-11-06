@@ -59,6 +59,7 @@ import com.mongodb.WriteResult;
 /**
  * @author Shadi Massalha
  * 
+ *         mongodb driver client wrapper
  */
 public class MongoClientWrapper {
 
@@ -197,7 +198,7 @@ public class MongoClientWrapper {
 	 */
 	public void performBatch(List<BatchUnit> rows) {
 		if (logger.isTraceEnabled()) {
-			logger.trace("MongoClientPool.performBatch(" + rows + ")");
+			logger.trace("MongoClientWrapper.performBatch(" + rows + ")");
 			logger.trace("Batch size to be performed is " + rows.size());
 		}
 

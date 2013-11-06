@@ -51,6 +51,7 @@ public class MongoClientWrapperConfigurer {
 
 	public MongoClientWrapperConfigurer seeds(List<ServerAddress> seeds) {
 		this.seeds = seeds;
+		
 		return this;
 	}
 
@@ -77,12 +78,12 @@ public class MongoClientWrapperConfigurer {
 
 	public MongoClientWrapperConfigurer uri(MongoClientURI uri) {
 		this.uri = uri;
-		new MongoClientURI("");
+		
 		return this;
 	}
 
 	public MongoClientWrapperConfigurer options(MongoClientOptions options) {
-		this.options = options;
+		this.options = options;		
 		return this;
 	}
 
@@ -138,7 +139,7 @@ public class MongoClientWrapperConfigurer {
 		if (options != null)
 			constructorId += 4;
 
-		if (StringUtils.hasLength(host) && !LOCALHOST.equals(host))
+		if (StringUtils.hasLength(host))
 			constructorId += 8;
 
 		if (port > 1024 && port != 27017)
@@ -156,7 +157,7 @@ public class MongoClientWrapperConfigurer {
 	private MongoClient createMongoClient() throws UnknownHostException {
 
 		int constructorId = getConstructorId();
-
+		
 		switch (constructorId) {
 		case 0:
 			return new MongoClient();

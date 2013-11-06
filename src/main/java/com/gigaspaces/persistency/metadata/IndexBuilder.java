@@ -84,8 +84,8 @@ public class IndexBuilder {
 
 		DBObject option = new BasicDBObject();
 
-		if (idx.isUnique())
-			option.put("unique", idx.isUnique());
+	//	if (idx.isUnique())
+	//		option.put("unique", idx.isUnique());
 
 		return option;
 	}

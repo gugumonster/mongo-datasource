@@ -26,7 +26,7 @@ public class IssuePojo implements Issue {
 	/** number of votes for this issue - default zero */
 	private Integer votes;
 	/** Priority1 of this issue - default trivial */
-	private Priority Priority1;
+	private Priority Priority;
 	/** votes string representation - used for regular expressions and alike */
 	private String votesRep;
 
@@ -68,7 +68,7 @@ public class IssuePojo implements Issue {
 		long now = System.currentTimeMillis();
 		created = new Date(now);
 		updated = new Date(now);
-		Priority1 = Priority1.TRIVIAL;
+		Priority = Priority.TRIVIAL;
 		votes = 0;
 		votesRep = String.valueOf(votes);
 	}
@@ -93,29 +93,29 @@ public class IssuePojo implements Issue {
 
 		++votes;
 		votesRep = String.valueOf(votes);
-		Priority votedPriority1 = Priority1.TRIVIAL;
-		Priority previous = Priority1;
+		Priority votedPriority1 = Priority.TRIVIAL;
+		Priority previous = Priority;
 
 		switch (votes) {
 		case 5:
-			votedPriority1 = Priority1.MINOR;
+			votedPriority1 = Priority.MINOR;
 			break;
 		case 10:
-			votedPriority1 = Priority1.MEDIUM;
+			votedPriority1 = Priority.MEDIUM;
 			break;
 		case 15:
-			votedPriority1 = Priority1.MAJOR;
+			votedPriority1 = Priority.MAJOR;
 			break;
 		case 20:
-			votedPriority1 = Priority1.CRITICAL;
+			votedPriority1 = Priority.CRITICAL;
 			break;
 		case 25:
-			votedPriority1 = Priority1.BLOCKER;
+			votedPriority1 = Priority.BLOCKER;
 			break;
 		}
 
-		if (votedPriority1.ordinal() > Priority1.ordinal())
-			Priority1 = votedPriority1;
+		if (votedPriority1.ordinal() > Priority.ordinal())
+			Priority = votedPriority1;
 
 		return previous;
 	}
@@ -128,7 +128,7 @@ public class IssuePojo implements Issue {
 	 * .issue.IssueMetaDataEntry.Priority1)
 	 */
 	public void setPriority(Priority p) {
-		Priority1 = p;
+		Priority = p;
 	}
 
 	/*
@@ -137,7 +137,7 @@ public class IssuePojo implements Issue {
 	 * @see com.gigaspaces.common_data.issue.Issue#getPriority1()
 	 */
 	public Priority getPriority() {
-		return Priority1;
+		return Priority;
 	}
 
 	/*
