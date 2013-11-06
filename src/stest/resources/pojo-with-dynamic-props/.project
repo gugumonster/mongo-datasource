@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>mongodb-qa-load</name>
+	<name>document-pojo-with-dynamic-props</name>
 	<comment></comment>
 	<projects>
 	</projects>

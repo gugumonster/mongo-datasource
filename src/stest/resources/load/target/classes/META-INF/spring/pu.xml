@@ -37,8 +37,7 @@
 	<os-core:space id="space" url="/./qa-space" mirror="true"
 		schema="persistent" space-data-source="spaceDataSource">
 		<os-core:properties>
-			<props>
-				<prop key="space-config.engine.memory_usage.enabled">true</prop>
+			<props>				
 				<prop key="space-config.engine.cache_policy">0</prop>
 				<prop key="space-config.engine.cache_size">10000</prop>
 				<prop key="cluster-config.cache-loader.central-data-source">true</prop>
@@ -51,11 +50,6 @@
 	<os-core:giga-space id="gigaSpace" space="space"
 		tx-manager="transactionManager" />
 
-	<!-- <bean id="spaceSynchronizationEndpoint" -->
-	<!-- class="com.gigaspaces.persistency.MongoSpaceSynchronizationEndpointBeanFactory"> -->
-	<!-- <property name="mongoClientPool" ref="mongoClient" /> -->
-	<!-- </bean> -->
-
 	<bean id="spaceDataSource"
 		class="com.gigaspaces.persistency.MongoSpaceDataSourceBeanFactory">
 		<property name="mongoClientPool" ref="mongoClient" />
@@ -63,19 +57,10 @@
 	<!-- Defines a local Jini transaction manager. -->
 	<os-core:distributed-tx-manager id="transactionManager" />
 
-	<bean id="seeds" class="java.util.ArrayList">
-		<constructor-arg>
-			<list>
-				<bean class="com.mongodb.ServerAddress">
-					<constructor-arg name="host" value="localhost" />
-				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientWapperBeanFactory">
-		
-		<property name="seeds" ref="seeds" />		
 
+	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientWapperBeanFactory">
 		<property name="db" value="qadb" />
+		<property name="host" value="localhost" />
+		<property name="port" value="27017" />
 	</bean>
 </beans>

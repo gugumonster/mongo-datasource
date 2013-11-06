@@ -15,8 +15,12 @@ import com.gigaspaces.persistency.helper.MongoDBController;
  * BasicMongoSpaceAllInCacheTest.class, BasicMongoSpaceLRUTest.class,
  * 
  * BasicMongoSpacePartialUpdateTest.class
- */
-SpaceMongoInitalLoadTest.class })
+ * 
+ * SpaceMongoInitalLoadTest.class
+ 
+SpaceMongoLoadTest.class*/
+		
+DocumentPojoWithDynamicPropsMongoSpaceTest.class})
 public class MongoSystemTestSuite {
 
 	private static final GSAgentController GS_AGENT_CONTROLLER = new GSAgentController();

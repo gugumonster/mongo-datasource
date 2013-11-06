@@ -79,14 +79,10 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 		}
 	}
 
-	@Override
-	protected String getMirrorService() {
-		return "/mongodb-qa-mirror-0.0.1-SNAPSHOT.jar";
-	}
 
 	@Override
 	protected String getPUJar() {
-		return "/mongodb-qa-load-0.0.1-SNAPSHOT.jar";
+		return "/load-0.0.1-SNAPSHOT.jar";
 	}
 
 	private void test(final GigaSpace gigaSpace) throws Throwable {
