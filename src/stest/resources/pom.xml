@@ -17,7 +17,8 @@
 		<module>all-in-cache</module>
 		<module>lru</module>
 		<module>partial-update</module>
-		<!-- <module>mongodb-qa-document-pojo</module> <module>mongodb-qa-initial-load</module> 
+		<module>initial-load</module> 
+		<!-- <module>mongodb-qa-document-pojo</module> 
 			<module>mongodb-qa-load</module> -->
 	</modules>
 </project>
