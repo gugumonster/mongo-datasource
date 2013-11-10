@@ -12,13 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
+ *******************************************************************************//*
 package com.gigaspaces.persistency.metadata;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,16 +35,17 @@ import com.gigaspaces.internal.utils.ReflectionUtils;
 import com.gigaspaces.metadata.SpacePropertyDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.error.SpaceMongoDataSourceException;
+import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
 
-/**
+*//**
  * @author Shadi Massalha
  * 
  *         Implementation of {@link Mapper} this class map mongoDB types to POJO
  *         one.
  * 
- */
+ *//*
 public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		Mapper<DBObject, Object> {
 
@@ -85,12 +87,12 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		}
 	}
 
-	/*
+	
 	 * (non-Javadoc)
 	 * 
 	 * @see com.gigaspaces.persistency.metadata.Mapper#maps(java.lang.Object)
-	 */
-	public synchronized Object maps(DBObject bson) {
+	 
+	public Object maps(DBObject bson) {
 
 		if (bson == null)
 			return null;
@@ -103,13 +105,13 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		return mapPojo(bson);
 	}
 
-	/**
+	*//**
 	 * maps mongoDB {@link DBObject} to {@link SpaceDocument}
 	 * 
 	 * @param bson
 	 *            - mongoDB BSON data structure
 	 * @return - {@link SpaceDocument}
-	 */
+	 *//*
 	private Object mapDocument(DBObject bson) {
 		SpaceDocument doc = new SpaceDocument(spaceTypeDescriptor.getTypeName());
 
@@ -125,7 +127,7 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 			}
 
 		}
-
+		
 		return doc;
 	}
 
@@ -157,6 +159,7 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 					Object[] a = ((BasicDBList) data).toArray();
 					return a;
 				}
+
 				return mapDocument((DBObject) data);
 			}
 		}
@@ -164,10 +167,11 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		return data;
 	}
 
-	/**
+	*//**
 	 * @param json
 	 * @return
-	 */
+	 *//*
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object convertDBObjectToPojo(DBObject json) {
 		Object pojo = null;
 
@@ -190,7 +194,9 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 
 				Object val1 = cast(parameterType, convertFrom(val));
 
-				if (setter.getParameterTypes()[0].isArray()
+				if ((parameterType.isArray()
+						|| Collection.class.isAssignableFrom(parameterType) || Map.class
+							.isAssignableFrom(parameterType))
 						&& !(val1 instanceof byte[])) {
 
 					parameterType = setter.getParameterTypes()[0]
@@ -204,20 +210,23 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 						Array.set(array, i, cast(parameterType, o[i]));
 					}
 					val1 = array;
+				} else if (parameterType.isEnum()) {
+					val1 = Enum.valueOf((Class<Enum>) parameterType,
+							val1.toString());
 				}
 
 				ReflectionUtils.invokeMethod(setter, pojo,
 						new Object[] { val1 });
 			}
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SpaceMongoException(
+					"DefaultMongoToPojoMapper.convertDBObjectToPojo()", e);
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SpaceMongoException(
+					"DefaultMongoToPojoMapper.convertDBObjectToPojo()", e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SpaceMongoException(
+					"DefaultMongoToPojoMapper.convertDBObjectToPojo()", e);
 		}
 
 		return pojo;
@@ -238,10 +247,10 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		return value;
 	}
 
-	/**
+	*//**
 	 * @param type
 	 * @return
-	 */
+	 *//*
 	private Map<String, Method> cachePojo(Class<?> type) {
 		PojoTypeInfo typeInfo = PojoTypeInfoRepository.getPojoTypeInfo(type);
 
@@ -278,14 +287,14 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 			mapFixedProperties(bson, pojo);
 
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			// TODO: shadi throw exception
+			throw new SpaceMongoException("DefaultMongoToPojoMapper.mapPojo()",
+					e);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
-			// TODO: shadi throw exception
+			throw new SpaceMongoException("DefaultMongoToPojoMapper.mapPojo()",
+					e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			// TODO: shadi throw exception
+			throw new SpaceMongoException("DefaultMongoToPojoMapper.mapPojo()",
+					e);
 		}
 
 		return pojo;
@@ -351,3 +360,4 @@ public class DefaultMongoToPojoMapper extends MetadataUtils implements
 		return type.newInstance();
 	}
 }
+*/

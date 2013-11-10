@@ -123,7 +123,7 @@ public class MongoClientWrapperConfigurer {
 
 		if (StringUtils.hasLength(user) || StringUtils.hasLength(password))
 			return new MongoClientWrapper(client, db, user, password);
-
+	
 		return new MongoClientWrapper(client, db);
 	}
 

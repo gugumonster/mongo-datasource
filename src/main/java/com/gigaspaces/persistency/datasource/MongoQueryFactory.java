@@ -17,27 +17,36 @@ package com.gigaspaces.persistency.datasource;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStream;
 
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.json.Json;
 import com.gigaspaces.datasource.DataSourceQuery;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.metadata.DataConversionUtils;
+import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitor;
 import com.gigaspaces.persistency.parser.SQL2MongoLexer;
 import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
-import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 
+/**
+ * @author Shadi Massalha
+ *
+ */
 public class MongoQueryFactory {
 
 	private static final String PARAM_PLACEHOLDER = "'%{}'";
-	private static final Map<SpaceTypeDescriptor, Map<String, StringBuilder>> cachedQuery = new HashMap<SpaceTypeDescriptor, Map<String, StringBuilder>>();
+	private static final Map<SpaceTypeDescriptor, Map<String, StringBuilder>> cachedQuery = new ConcurrentHashMap<SpaceTypeDescriptor, Map<String, StringBuilder>>();
 
-	public synchronized static DBObject create(DataSourceQuery sql) {
+	public static DocumentBuilder create(DataSourceQuery sql) {
 		Map<String, StringBuilder> b = cachedQuery.get(sql.getTypeDescriptor());
 
 		if (b == null) {
@@ -56,23 +65,25 @@ public class MongoQueryFactory {
 			b.put(q, sb);
 		}
 
-		DBObject qResult = bind(sb, sql.getAsSQLQuery().getQueryParameters());
+		DocumentBuilder qResult = bind(sb, sql.getAsSQLQuery()
+				.getQueryParameters(), sql.getTypeDescriptor());
 
 		replaceIdProperty(qResult, sql.getTypeDescriptor());
 
 		return qResult;
 	}
 
-	private static void replaceIdProperty(DBObject qResult,
+	private static void replaceIdProperty(DocumentBuilder qResult,
 			SpaceTypeDescriptor typeDescriptor) {
 
-		if (qResult.containsField(typeDescriptor.getIdPropertyName())) {
+		if (qResult.asDocument().contains(typeDescriptor.getIdPropertyName())) {
 
-			Object value = qResult.get(typeDescriptor.getIdPropertyName());
+			Object value = qResult.asDocument()
+					.get(typeDescriptor.getIdPropertyName()).getValueAsObject();
 
-			qResult.put("_id", value);
+			qResult.remove(typeDescriptor.getIdPropertyName());
 
-			qResult.removeField(typeDescriptor.getIdPropertyName());
+			qResult.add("_id", value);
 		}
 
 	}
@@ -93,18 +104,25 @@ public class MongoQueryFactory {
 		return new StringBuilder(visitor.getQuery().toString());
 	}
 
-	public static DBObject bind(StringBuilder sb, Object[] parameters) {
+	public static DocumentBuilder bind(StringBuilder sb, Object[] parameters,
+			SpaceTypeDescriptor spaceTypeDescriptor) {
 
 		StringBuilder sb1 = new StringBuilder(sb.toString());
 
-		DBObject query = (DBObject) JSON.parse(sb1.toString());
+		SpaceDocumentMapper<Document> mapper = new AsyncSpaceDocumentMapper(
+				spaceTypeDescriptor);
+
+		DocumentBuilder query = BuilderFactory
+				.start(Json.parse(sb1.toString()));
 
 		if (parameters != null) {
 
 			int index = 0;
-			for (String field : query.keySet()) {
+			for (Element e : query.asDocument().getElements()) {
 
-				Object ph = query.get(field);
+				String field = e.getName();
+
+				Object ph = query.asDocument().get(field).getValueAsObject();
 
 				if (index >= parameters.length)
 					return query;
@@ -112,7 +130,8 @@ public class MongoQueryFactory {
 				if (ph instanceof String) {
 
 					if (PARAM_PLACEHOLDER.equals(ph)) {
-						query.put(field, DataConversionUtils.convert(parameters[index++]));
+						query.remove(field);
+						query.add(field, mapper.toObject(parameters[index++]));
 					}
 				}
 			}

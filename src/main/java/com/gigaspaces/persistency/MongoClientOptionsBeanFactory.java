@@ -28,9 +28,20 @@ import com.mongodb.MongoClientOptions.Builder;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 
+/**
+ * 
+ * Bean Factory which provide setter methods for
+ * {@link MongoClientOptions.Builder } which is the class builder of mongodb
+ * driver options class {@link MongoClientOptions }
+ * 
+ * @see <a
+ *      href="http://api.mongodb.org/java/current/com/mongodb/MongoClientOptions.Builder.html">MongoClientOptions.Builder</a>
+ *      
+ * @author Shadi Massalha
+ * 
+ */
 public class MongoClientOptionsBeanFactory implements
-		FactoryBean<MongoClientOptions>, InitializingBean,
-		DisposableBean {
+		FactoryBean<MongoClientOptions>, InitializingBean, DisposableBean {
 
 	private MongoClientOptions options;
 

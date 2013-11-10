@@ -21,5 +21,4 @@ public class MongoDocumentObjectConverter extends DocumentObjectConverter {
 		return super
 				.fromDocumentIfNeeded(object, documentSupport, expectedType);
 	}
-
 }

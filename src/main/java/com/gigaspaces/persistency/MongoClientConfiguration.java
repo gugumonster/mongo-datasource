@@ -8,10 +8,15 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
 /**
+ * 
+ * configuration interface that define all mongodb client configuration options
+ * combinations.
+ * 
+ * TODO: documentation with link for mongo driver API
+ * 
  * @author Shadi Massalha
  * 
- *         configuration interface that define all mongodb client configuration
- *         options combinations.
+ * 
  */
 public interface MongoClientConfiguration {
 

@@ -41,9 +41,9 @@ import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
 import com.gigaspaces.persistency.error.SpaceMongoDataSourceException;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.metadata.BatchUnit;
-import com.gigaspaces.persistency.metadata.DefaultPojoToMongoMapper;
 import com.gigaspaces.persistency.metadata.IndexBuilder;
-import com.gigaspaces.persistency.metadata.Mapper;
+import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.SpaceDocumentMapperImpl;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
@@ -61,6 +61,7 @@ import com.mongodb.WriteResult;
  * 
  *         mongodb driver client wrapper
  */
+// TODO: check this implementation
 public class MongoClientWrapper {
 
 	private static final String ERROR_OCCURS_WHILE_TRY_DESERIALIZE_OBJECT = "error occurs while try deserialize object: ";
@@ -77,7 +78,7 @@ public class MongoClientWrapper {
 
 	// TODO: shadi must add documentation
 	private static final Map<String, SpaceTypeDescriptorHolder> types = new ConcurrentHashMap<String, SpaceTypeDescriptorHolder>();
-	private static final Map<String, Mapper<SpaceDocument, DBObject>> _mappingCache = new ConcurrentHashMap<String, Mapper<SpaceDocument, DBObject>>();
+	private static final Map<String, SpaceDocumentMapper<DBObject>> _mappingCache = new ConcurrentHashMap<String, SpaceDocumentMapper<DBObject>>();
 
 	private char[] password = new char[0];
 	private String user;
@@ -87,7 +88,7 @@ public class MongoClientWrapper {
 
 		this.client = client;
 		this.dbName = db;
-		this.indexBuilder = new IndexBuilder(this);
+		//this.indexBuilder = new IndexBuilder(this);
 	}
 
 	public MongoClientWrapper(MongoClient client, String db, String user,
@@ -156,8 +157,6 @@ public class MongoClientWrapper {
 
 			indexBuilder.ensureIndexes(spaceTypeDescriptor);
 
-			// pool.cacheSpaceTypeDesciptor(spaceTypeDescriptor, this);
-
 		} catch (IOException e) {
 			logger.error(e);
 
@@ -170,7 +169,7 @@ public class MongoClientWrapper {
 	/**
 	 * @return mongodb DB object
 	 */
-	public synchronized DB getConnection() {
+	public DB getConnection() {
 		DB db = client.getDB(dbName);
 
 		if (StringUtils.hasLength(user))
@@ -184,7 +183,7 @@ public class MongoClientWrapper {
 	 *            - name of the requested mongodb collection
 	 * @return
 	 */
-	public synchronized DBCollection getCollection(String collectionName) {
+	public DBCollection getCollection(String collectionName) {
 
 		DB db = getConnection();
 
@@ -203,8 +202,6 @@ public class MongoClientWrapper {
 		}
 
 		int length = rows.size();
-		// TODO: check conccurency
-		// synchronized (batchSynchLock) {
 
 		for (int i = 0; i < length; i++) {
 			BatchUnit batchUnit = rows.get(i);
@@ -213,10 +210,11 @@ public class MongoClientWrapper {
 			SpaceTypeDescriptorHolder spaceTypeDescriptor = types.get(batchUnit
 					.getTypeName());
 
-			Mapper<SpaceDocument, DBObject> mapper = getMapper(spaceTypeDescriptor
+			SpaceDocumentMapper<DBObject> mapper = getMapper(spaceTypeDescriptor
 					.getTypeDescriptor());
 
-			DBObject obj = mapper.maps(spaceDoc);
+			// DBObject obj = mapper.maps(spaceDoc);
+			DBObject obj = mapper.toDBObject(spaceDoc);
 
 			DBCollection col = getCollection(batchUnit.getTypeName());
 
@@ -224,11 +222,15 @@ public class MongoClientWrapper {
 
 			case WRITE:
 			case UPDATE:
+
+				col.save(obj);
+				break;
 			case PARTIAL_UPDATE: // TODO: add partial update and change api
 									// support and wiki documentaion
 			case CHANGE:// TODO: add partial update and change api support and
 						// wiki documentaion
-				col.save(obj);
+				col.update(new BasicDBObject("_id", obj.get("_id")),
+						removeNulls(obj));
 				break;
 			// case REMOVE_BY_UID: // TODO: not supported by cassandra
 			// implementation
@@ -245,22 +247,46 @@ public class MongoClientWrapper {
 		// }
 	}
 
-	protected Mapper<SpaceDocument, DBObject> getMapper(
+	private DBObject removeNulls(DBObject obj) {
+		BasicDBObject result = new BasicDBObject();
+
+		for (String key : obj.keySet()) {
+
+			if ("_id".equals(key))
+				continue;
+
+			Object value = obj.get(key);
+
+			if (value == null)
+				continue;
+
+			if (value instanceof DBObject)
+				result.append("$set", new BasicDBObject(key,
+						removeNulls((DBObject) value)));
+			else
+				result.append("$set", new BasicDBObject(key, value));
+
+		}
+
+		return result;
+	}
+
+	protected SpaceDocumentMapper<DBObject> getMapper(
 			SpaceTypeDescriptor spaceTypeDescriptor) {
 
-		Mapper<SpaceDocument, DBObject> mapper = _mappingCache
+		SpaceDocumentMapper<DBObject> mapper = _mappingCache
 				.get(spaceTypeDescriptor.getTypeName());
 
 		if (mapper == null) {
-			mapper = new DefaultPojoToMongoMapper(spaceTypeDescriptor);
+			// mapper = new DefaultPojoToMongoMapper(spaceTypeDescriptor);
+			mapper = new SpaceDocumentMapperImpl(spaceTypeDescriptor);
 			_mappingCache.put(spaceTypeDescriptor.getTypeName(), mapper);
 		}
 
 		return mapper;
 	}
 
-	public synchronized void cacheSpaceTypeDesciptor(
-			SpaceTypeDescriptor spaceTypeDescriptor) {
+	public void cacheSpaceTypeDesciptor(SpaceTypeDescriptor spaceTypeDescriptor) {
 
 		if (spaceTypeDescriptor == null)
 			throw new IllegalArgumentException(
@@ -276,7 +302,7 @@ public class MongoClientWrapper {
 		types.put(spaceTypeDescriptor.getTypeName(), holder);
 	}
 
-	public synchronized void close() {
+	public void close() {
 
 		client.close();
 	}

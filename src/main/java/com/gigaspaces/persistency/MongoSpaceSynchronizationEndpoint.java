@@ -15,6 +15,8 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
+import java.io.IOException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -37,9 +39,9 @@ public class MongoSpaceSynchronizationEndpoint extends
 	private static final Log logger = LogFactory
 			.getLog(MongoSpaceSynchronizationEndpoint.class);
 
-	private MongoClientWrapper client;
+	private MongoClientWrapperV1 client;
 
-	public MongoSpaceSynchronizationEndpoint(MongoClientWrapper client) {
+	public MongoSpaceSynchronizationEndpoint(MongoClientWrapperV1 client) {
 		
 		if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null.");
@@ -89,7 +91,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 		doSynchronization(dataSyncOperations);
 	}
 
-	public void close() {
+	public void close() throws IOException {
 		if (logger.isDebugEnabled())
 			logger.trace("MongoSpaceSynchronizationEndpoint.close()");
 

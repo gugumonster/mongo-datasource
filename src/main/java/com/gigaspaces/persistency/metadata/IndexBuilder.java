@@ -28,11 +28,15 @@ import com.mongodb.DBObject;
 
 public class IndexBuilder {
 
-	private MongoClientWrapper pool;
+	private MongoClientWrapper client;
 
 	public IndexBuilder(MongoClientWrapper pool) {
-		this.pool = pool;
+		this.client = pool;
 	}
+
+	// public IndexBuilder(MongoClientWrapperV1 mongoClientWrapperV1) {
+	// // TODO Auto-generated constructor stub
+	// }
 
 	public void ensureIndexes(SpaceTypeDescriptor spaceTypeDescriptor) {
 
@@ -61,7 +65,7 @@ public class IndexBuilder {
 	private void createIndex(String typeSimpleName, String routing,
 			SpaceIndexType type, DBObject option) {
 
-		DBCollection c = pool.getCollection(typeSimpleName);
+		DBCollection c = client.getCollection(typeSimpleName);
 
 		DBObject keys;
 
@@ -84,8 +88,8 @@ public class IndexBuilder {
 
 		DBObject option = new BasicDBObject();
 
-	//	if (idx.isUnique())
-	//		option.put("unique", idx.isUnique());
+		// if (idx.isUnique())
+		// option.put("unique", idx.isUnique());
 
 		return option;
 	}

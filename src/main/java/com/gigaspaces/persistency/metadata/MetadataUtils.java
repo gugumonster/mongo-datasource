@@ -12,12 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
+ *******************************************************************************//*
 package com.gigaspaces.persistency.metadata;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.gigaspaces.internal.metadata.pojo.PojoPropertyInfo;
 import com.gigaspaces.internal.metadata.pojo.PojoTypeInfo;
@@ -26,15 +27,13 @@ import com.gigaspaces.internal.utils.ReflectionUtils;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.mongodb.DBObject;
 
-/**
+*//**
  * @author Shadi Massalha
  * 
- */
+ *//*
 public class MetadataUtils {
 
-	private static final Map<String, Map<String, Method>> cacheType = new HashMap<String, Map<String, Method>>();
-	private static final Object typeSynchLock = new Object();
-	private static final Object setterSynchLock = new Object();
+	private static final Map<String, Map<String, Method>> cacheType = new ConcurrentHashMap<String, Map<String, Method>>();
 
 	public Object BSONtoPojo(Class<?> clazz, DBObject bson) {
 
@@ -104,9 +103,7 @@ public class MetadataUtils {
 
 		Method setter = null;
 
-		synchronized (setterSynchLock) {
-			setter = setters.get(key);
-		}
+		setter = setters.get(key);
 
 		return setter;
 	}
@@ -114,15 +111,13 @@ public class MetadataUtils {
 	protected Map<String, Method> getClassMapper(Class<?> clazz) {
 		Map<String, Method> setters = null;
 
-		synchronized (typeSynchLock) {
-			setters = cacheType.get(clazz.getName());
+		setters = cacheType.get(clazz.getName());
 
-			if (setters == null) {
+		if (setters == null) {
 
-				setters = new HashMap<String, Method>();
+			setters = new HashMap<String, Method>();
 
-				initFields(clazz, setters);
-			}
+			initFields(clazz, setters);
 		}
 
 		return setters;
@@ -145,3 +140,4 @@ public class MetadataUtils {
 	}
 
 }
+*/

@@ -15,11 +15,21 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoIterator;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.builder.QueryBuilder;
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.datasource.DataIteratorAdapter;
 import com.gigaspaces.datasource.DataSourceIdQuery;
@@ -30,13 +40,15 @@ import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.datasource.DefaultMongoDataIterator;
 import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
 import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
-import com.gigaspaces.persistency.metadata.DataConversionUtils;
-import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.QueryBuilder;
+import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.SpaceDocumentMapperImpl;
+//import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
+//import com.mongodb.BasicDBObject;
+//import com.mongodb.DBCollection;
+//import com.mongodb.DBCursor;
+//import com.mongodb.DBObject;
+//import com.mongodb.QueryBuilder;
 
 /**
  * 
@@ -46,6 +58,7 @@ import com.mongodb.QueryBuilder;
  * @author Shadi Massalha
  * 
  */
+// TODO: check this implementation
 public class MongoSpaceDataSource extends SpaceDataSource {
 
 	private static final String _ID = "_id";
@@ -53,14 +66,14 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 	private static final Log logger = LogFactory
 			.getLog(MongoSpaceDataSource.class);
 
-	private MongoClientWrapper mongoClient;
+	private MongoClientWrapperV1 mongoClient;
 
-	public MongoSpaceDataSource(MongoClientWrapper mongoClient) {
+	public MongoSpaceDataSource(MongoClientWrapperV1 mongoClient) {
 
 		if (mongoClient == null)
 			throw new IllegalArgumentException(
 					"mongoClient must be set and initiated");
-		
+
 		this.mongoClient = mongoClient;
 	}
 
@@ -83,17 +96,20 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceDataSource.getById(" + idQuery + ")");
 
-		DBObject q = new BasicDBObject(_ID, DataConversionUtils.convert(idQuery.getId()));
-
-		DBCollection c = mongoClient.getCollection(idQuery.getTypeDescriptor()
-				.getTypeName());
-
-		DBObject cursor = c.findOne(q);
-
-		DefaultMongoToPojoMapper mapper = new DefaultMongoToPojoMapper(
+		SpaceDocumentMapper<Document> mapper = new AsyncSpaceDocumentMapper(
 				idQuery.getTypeDescriptor());
 
-		return mapper.maps(cursor);
+		DocumentBuilder q = BuilderFactory.start().add(_ID,
+				mapper.toObject(idQuery.getId()));
+		// DBObject q = new BasicDBObject(_ID,
+		// mapper.toObject(idQuery.getId()));
+
+		MongoCollection c = mongoClient.getCollection(idQuery
+				.getTypeDescriptor().getTypeName());
+
+		Document cursor = c.findOne(q);
+
+		return mapper.toDocument(cursor);
 	}
 
 	@Override
@@ -107,20 +123,22 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public DataIterator<Object> getDataIteratorByIds(DataSourceIdsQuery arg0) {
-
-		QueryBuilder q = QueryBuilder.start();
+		
+		List<DocumentAssignable> ors = new ArrayList<DocumentAssignable>();
 
 		for (Object id : arg0.getIds()) {
 
-			q.or(new BasicDBObject(_ID, id));
+			ors.add(BuilderFactory.start().add(_ID, id));
+
+			// q.or(new BasicDBObject(_ID, id));
 		}
 
-		DBObject q1 = q.get();
+		Document q1 = QueryBuilder.or(ors.toArray(new DocumentAssignable[0]));
 
-		DBCollection c = mongoClient.getCollection(arg0.getTypeDescriptor()
+		MongoCollection c = mongoClient.getCollection(arg0.getTypeDescriptor()
 				.getTypeName());
 
-		DBCursor cursor = c.find(q1);
+		MongoIterator<Document> cursor = c.find(q1);
 
 		return new DefaultMongoDataIterator(cursor, arg0.getTypeDescriptor());
 
@@ -141,7 +159,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		return false;
 	}
 
-	public void close() {
+	public void close() throws IOException {
 
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceDataSource.close()");

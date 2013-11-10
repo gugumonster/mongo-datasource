@@ -17,22 +17,29 @@ package com.gigaspaces.persistency.datasource;
 
 import java.util.Iterator;
 
+import com.allanbank.mongodb.MongoIterator;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.MongoClientWrapper;
-import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.gigaspaces.persistency.MongoClientWrapperV1;
+import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 
+/**
+ * @author Shadi Massalha
+ * 
+ */
 public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
-	private DBCursor currenCursor;
-	private MongoClientWrapper mongoClientWrapper;
+	private MongoIterator<Document> currenCursor;
+	private MongoClientWrapperV1 mongoClientWrapper;
 	private Iterator<SpaceTypeDescriptor> types;
 	private SpaceTypeDescriptor spaceTypeDescriptor;
-	private DefaultMongoToPojoMapper pojoMapper;
 
-	public MongoInitialDataLoadIterator(MongoClientWrapper client) {
+	private SpaceDocumentMapper<Document> pojoMapper;
+
+	public MongoInitialDataLoadIterator(MongoClientWrapperV1 client) {
 		if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null");
 
@@ -51,9 +58,9 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 	}
 
 	public Object next() {
-		DBObject obj = currenCursor.next();
+		Document obj = currenCursor.next();
 
-		Object pojo = pojoMapper.maps(obj);
+		Object pojo = pojoMapper.toDocument(obj);
 
 		return pojo;
 	}
@@ -68,15 +75,17 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 			currenCursor.close();
 	}
 
-	private DBCursor nextDataIterator() {
+	private MongoIterator<Document> nextDataIterator() {
 
 		if (!types.hasNext())
 			return null;
 
 		spaceTypeDescriptor = types.next();
-		this.pojoMapper = new DefaultMongoToPojoMapper(spaceTypeDescriptor);
-		DBCursor cursor = mongoClientWrapper.getCollection(
-				spaceTypeDescriptor.getTypeName()).find();
+		this.pojoMapper = new AsyncSpaceDocumentMapper(spaceTypeDescriptor);
+		
+		MongoIterator<Document> cursor = mongoClientWrapper.getCollection(
+				spaceTypeDescriptor.getTypeName())
+				.find(BuilderFactory.start());
 
 		return cursor;
 	}

@@ -18,30 +18,36 @@ package com.gigaspaces.persistency.datasource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoIterator;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.datasource.DataSourceQuery;
-import com.gigaspaces.persistency.MongoClientWrapper;
+import com.gigaspaces.persistency.MongoClientWrapperV1;
 import com.gigaspaces.persistency.error.UnSupportedQueryException;
-import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 
 /**
  * @author Shadi Massalha
  * 
  */
+// TODO: check this implementation
 public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	private static final Log logger = LogFactory
 			.getLog(MongoSqlQueryDataIterator.class);
 
-	private MongoClientWrapper client;
+	private MongoClientWrapperV1 client;
 	private DataSourceQuery query;
-	private DBCursor cursor;
-	private DefaultMongoToPojoMapper pojoMapper;
+	private MongoIterator<Document> cursor;
+	// private DefaultMongoToPojoMapper pojoMapper;
+	private SpaceDocumentMapper<Document> pojoMapper;
 
-	public MongoSqlQueryDataIterator(MongoClientWrapper client, DataSourceQuery query) {
+	public MongoSqlQueryDataIterator(MongoClientWrapperV1 client,
+			DataSourceQuery query) {
 		if (client == null)
 			throw new IllegalArgumentException("");
 
@@ -53,8 +59,14 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 		this.client = client;
 		this.query = query;
-		this.pojoMapper = new DefaultMongoToPojoMapper(
+		/*
+		 * this.pojoMapper = new DefaultMongoToPojoMapper(
+		 * query.getTypeDescriptor());
+		 */
+
+		this.pojoMapper = new AsyncSpaceDocumentMapper(
 				query.getTypeDescriptor());
+
 	}
 
 	public boolean hasNext() {
@@ -67,21 +79,26 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	public Object next() {
 
-		Object result = pojoMapper.maps(cursor.next());
+		// Object result = pojoMapper.maps(cursor.next());
+		Object result = pojoMapper.toDocument(cursor.next());
 
 		return result;
 	}
 
 	private void init() {
-		DBCollection collection = client.getCollection(query.getTypeDescriptor()
-				.getTypeName());
+		MongoCollection collection = client.getCollection(query
+				.getTypeDescriptor().getTypeName());
 
-		DBObject q = null;
+		DocumentBuilder q = BuilderFactory.start();
 
 		logger.debug(query);
 
 		if (query.supportsAsSQLQuery())
 			q = MongoQueryFactory.create(query);
+		else if (query.supportsTemplateAsDocument())
+			q = BuilderFactory.start(new AsyncSpaceDocumentMapper(query
+					.getTypeDescriptor()).toDBObject(query
+					.getTemplateAsDocument()));
 
 		cursor = collection.find(q);
 

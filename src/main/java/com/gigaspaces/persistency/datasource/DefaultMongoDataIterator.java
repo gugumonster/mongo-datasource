@@ -15,46 +15,52 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.datasource;
 
+import com.allanbank.mongodb.MongoIterator;
+import com.allanbank.mongodb.bson.Document;
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 
+/**
+ * @author Shadi Massalha
+ *
+ */
 public class DefaultMongoDataIterator implements DataIterator<Object> {
 
-	private DBCursor cursor;
-	private DefaultMongoToPojoMapper mapper;
+	private MongoIterator<Document> iterator;
 
-	public DefaultMongoDataIterator(DBCursor cursor,
+	private SpaceDocumentMapper<Document> mapper;
+
+	public DefaultMongoDataIterator(MongoIterator<Document> iteraor,
 			SpaceTypeDescriptor spaceTypeDescriptor) {
-		if (cursor == null)
+		if (iteraor == null)
 			throw new NullPointerException("mongo cursor can not be null");
 
 		if (spaceTypeDescriptor == null)
 			throw new IllegalArgumentException(
 					"spaceTypeDescriptor can not be null");
 
-		this.cursor = cursor;
-		this.mapper = new DefaultMongoToPojoMapper(spaceTypeDescriptor);
+		this.iterator = iteraor;
+		this.mapper = new AsyncSpaceDocumentMapper(spaceTypeDescriptor);
 	}
 
 	public boolean hasNext() {
-		return cursor.hasNext();
+		return iterator.hasNext();
 	}
 
 	public Object next() {
-		DBObject bson = cursor.next();
+		Document bson = iterator.next();
 
-		return mapper.maps(bson);
+		return mapper.toDocument(bson);
 	}
 
 	public void remove() {
-		cursor.remove();
+		iterator.remove();
 	}
 
 	public void close() {
-		cursor.close();
+		iterator.close();
 	}
 
 }
