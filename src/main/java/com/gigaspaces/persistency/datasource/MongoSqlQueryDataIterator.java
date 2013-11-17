@@ -34,7 +34,6 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
  * @author Shadi Massalha
  * 
  */
-// TODO: check this implementation
 public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	private static final Log logger = LogFactory
@@ -43,7 +42,6 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 	private MongoClientWrapperV1 client;
 	private DataSourceQuery query;
 	private MongoIterator<Document> cursor;
-	// private DefaultMongoToPojoMapper pojoMapper;
 	private SpaceDocumentMapper<Document> pojoMapper;
 
 	public MongoSqlQueryDataIterator(MongoClientWrapperV1 client,
@@ -59,11 +57,6 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 		this.client = client;
 		this.query = query;
-		/*
-		 * this.pojoMapper = new DefaultMongoToPojoMapper(
-		 * query.getTypeDescriptor());
-		 */
-
 		this.pojoMapper = new AsyncSpaceDocumentMapper(
 				query.getTypeDescriptor());
 
@@ -79,7 +72,6 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	public Object next() {
 
-		// Object result = pojoMapper.maps(cursor.next());
 		Object result = pojoMapper.toDocument(cursor.next());
 
 		return result;

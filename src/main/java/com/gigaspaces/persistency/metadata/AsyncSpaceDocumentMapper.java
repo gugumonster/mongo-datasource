@@ -10,26 +10,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.UUID;
 
-//import org.bson.types.ObjectId;
-
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.builder.ArrayBuilder;
-import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.bson.element.ArrayElement;
-import com.allanbank.mongodb.bson.element.ObjectId;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.internal.reflection.ISetterMethod;
 import com.gigaspaces.metadata.SpaceDocumentSupport;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.error.SpaceMongoException;
-//import com.mongodb.BasicDBList;
-//import com.mongodb.BasicDBObject;
-//import com.mongodb.DBObject;
+import com.allanbank.mongodb.bson.builder.ArrayBuilder;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.bson.Document;
 
 public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
@@ -383,7 +377,6 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 		return toDBObjectPojo(document);
 	}
 
-
 	private Document toDBObjectDocument(SpaceDocument document) {
 		DocumentBuilder bson = BuilderFactory.start();
 
@@ -477,17 +470,13 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 		return document.add(TYPE, property.getClass().getName())
 				.add(VALUE, property.toString()).build();
-		// return new BasicDBObject(TYPE, property.getClass().getName()).append(
-		// VALUE, property.toString());
 	}
 
 	private Element[] toMap(Object property) {
 
-		// BasicDBList list = new BasicDBList();
 		ArrayBuilder builder = BuilderFactory.startArray();
 		@SuppressWarnings("rawtypes")
 		Map map = (Map) property;
-		int index = 0;
 
 		builder.add(property.getClass().getName());
 
@@ -505,12 +494,9 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 		@SuppressWarnings("rawtypes")
 		Collection collection = (Collection) property;
 
-		int index = 0;
-		// list.add(index++, property.getClass().getName());
 		builder.add(property.getClass().getName());
 
 		for (Object e : collection) {
-			// list.add(index++, toObject(e));
 			builder.add(toObject(e));
 		}
 
@@ -520,12 +506,13 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 	private Element[] toArray(Object property) {
 		ArrayBuilder builder = BuilderFactory.startArray();
 
-		Object[] array = (Object[]) property;
+		int length = Array.getLength(property);
 
 		builder.add(property.getClass().getName());
 
-		for (int i = 0; i < array.length; i++) {
-			builder.add(toObject(array[i]));
+		for (int i = 0; i < length; i++) {
+			Object obj = toObject(Array.get(property, i));
+			builder.add(obj);
 		}
 
 		return builder.build();
@@ -565,8 +552,5 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 		return document.add(TYPE, property.getClass().getName())
 				.add(VALUE, property.toString()).build();
-
-		// return new BasicDBObject(TYPE, property.getClass().getName()).append(
-		// VALUE, property.toString());
 	}
 }

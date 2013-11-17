@@ -28,14 +28,8 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
 
-public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
+public class CopyOfSQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 		implements SQL2MongoVisitor<T> {
-
-	private static final String RLIKE = "rlike()";
-
-	private static final String LIKE = "like()";
-
-	private static final String PARAMETER_PLACEHOLDER = "'%{}'";
 
 	private DBObject query;
 
@@ -45,7 +39,7 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 	LinkedList<DBObject> ands = new LinkedList<DBObject>();
 	LinkedList<DBObject> ors = new LinkedList<DBObject>();
 
-	public SQL2MongoBaseVisitor() {
+	public CopyOfSQL2MongoBaseVisitor() {
 		this.query = new BasicDBObject();
 	}
 
@@ -115,26 +109,25 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 		String val = ctx.getChild(0).getText();
 
 		atom.and(id);
-		
+
 		if ("is".equals(op)) {
 			buildIsExpression(val, atom);
 		} else if ("like".equals(op)) {
-			// buildLikeExpression(val, atom);
-			atom.regex(Pattern.compile(LIKE));
+			buildLikeExpression(val, atom);
 		} else if ("rlike".equals(op)) {
-			atom.regex(Pattern.compile(RLIKE));
+			atom.regex(Pattern.compile(val));
 		} else if ("!=".equals(op)) {
-			atom.notEquals(PARAMETER_PLACEHOLDER /* evaluate(val) */);
+			atom.notEquals(evaluate(val));
 		} else if ("=".equals(op)) {
 			atom.is(evaluate(val));
 		} else if (">=".equals(op)) {
-			atom.greaterThanEquals(PARAMETER_PLACEHOLDER/* evaluate(val) */);
+			atom.greaterThanEquals(evaluate(val));
 		} else if ("<=".equals(op)) {
-			atom.lessThanEquals(PARAMETER_PLACEHOLDER /* evaluate(val) */);
+			atom.lessThanEquals(evaluate(val));
 		} else if ("<".equals(op)) {
-			atom.lessThan(PARAMETER_PLACEHOLDER /* val */);
+			atom.lessThan(evaluate(val));
 		} else if (">".equals(op)) {
-			atom.greaterThan(PARAMETER_PLACEHOLDER /* val */);
+			atom.greaterThan(evaluate(val));
 		}
 
 		return r;
@@ -148,13 +141,13 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 	 * @return Object instance type
 	 */
 	private Object evaluate(String val) {
-
-		if (val == null || val.isEmpty())
+		
+		if(val == null || val.isEmpty())
 			return null;
-
-		if (val.equals("?"))
-			return PARAMETER_PLACEHOLDER;
-
+		
+		if(val.equals("?"))
+			return "'%{}'";
+		
 		boolean isValue = val.matches("'[^']*'");
 		// test if value is String
 		if (isValue) {

@@ -141,7 +141,7 @@ public class MongoClientWrapperV1 {
 
 			builder.add(TYPE_DESCRIPTOR_FIELD_NAME, bos.toByteArray());
 
-			int wr = m.save(builder.build());
+			int wr = m.save(builder);
 			// WriteResult wr = m.save(obj, WriteConcern.SAFE);
 
 			if (logger.isTraceEnabled())
@@ -295,7 +295,7 @@ public class MongoClientWrapperV1 {
 			}
 		}
 
-		return total;
+		return (total < 0) ? -1 * total : total;
 	}
 
 	private Document removeNulls(Document obj) {

@@ -1,8 +1,9 @@
 package com.gigaspaces.persistency.helper;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openspaces.admin.Admin;
 import org.openspaces.admin.AdminFactory;
 import org.openspaces.admin.gsa.GridServiceAgent;
@@ -19,20 +20,18 @@ public class GSAgentController {
 
 	private CommandLineProcess GS_AGENT_PROCESS;
 
-	private String gs_home = "c:/temp/gigaspaces-xap-premium-9.6.0-ga/";
 	private Thread thread;
-	private String GS_AGENT = (isWin()) ? "/bin/gs-agent.bat"
-			: "/bin/gs-agent.sh";
+	private String GS_AGENT = (isWin()) ? "gs-agent.bat" : "gs-agent.sh";
 
-	public GSAgentController() {
-		this.gs_home = System.getenv("GS_HOME");
-	}
+	
 
 	public void start() {
 
-		String imagePath = combinePath();
+		List<String> args = new ArrayList<String>();
 
-		GS_AGENT_PROCESS = new CommandLineProcess(imagePath);
+		args.add(GS_AGENT);
+
+		GS_AGENT_PROCESS = new CommandLineProcess(args);
 
 		GS_AGENT_PROCESS.addEnvironmentVariable(LOOKUPGROUPS, QA_GROUP);
 
@@ -41,14 +40,7 @@ public class GSAgentController {
 		thread.start();
 
 		admin.getGridServiceManagers().waitForAtLeastOne();
-		
-		
 
-	}
-
-	private String combinePath() {
-
-		return FilenameUtils.normalize(gs_home + GS_AGENT);
 	}
 
 	private boolean isWin() {
@@ -63,5 +55,6 @@ public class GSAgentController {
 		}
 
 		GS_AGENT_PROCESS.stop();
+		thread.destroy();
 	}
 }

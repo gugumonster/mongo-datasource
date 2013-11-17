@@ -18,6 +18,7 @@ package com.gigaspaces.persistency.datasource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -25,6 +26,7 @@ import org.antlr.v4.runtime.TokenStream;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.json.Json;
@@ -36,13 +38,17 @@ import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitor;
 import com.gigaspaces.persistency.parser.SQL2MongoLexer;
 import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
+import com.mongodb.QueryBuilder;
 
 /**
  * @author Shadi Massalha
- *
+ * 
  */
 public class MongoQueryFactory {
 
+	private static final String $REGEX = "$regex";
+	private static final String LIKE = "like()";
+	private static final String RLIKE = "rlike()";
 	private static final String PARAM_PLACEHOLDER = "'%{}'";
 	private static final Map<SpaceTypeDescriptor, Map<String, StringBuilder>> cachedQuery = new ConcurrentHashMap<SpaceTypeDescriptor, Map<String, StringBuilder>>();
 
@@ -85,7 +91,6 @@ public class MongoQueryFactory {
 
 			qResult.add("_id", value);
 		}
-
 	}
 
 	private static StringBuilder parse(String sql) {
@@ -116,28 +121,89 @@ public class MongoQueryFactory {
 				.start(Json.parse(sb1.toString()));
 
 		if (parameters != null) {
-
-			int index = 0;
-			for (Element e : query.asDocument().getElements()) {
-
-				String field = e.getName();
-
-				Object ph = query.asDocument().get(field).getValueAsObject();
-
-				if (index >= parameters.length)
-					return query;
-
-				if (ph instanceof String) {
-
-					if (PARAM_PLACEHOLDER.equals(ph)) {
-						query.remove(field);
-						query.add(field, mapper.toObject(parameters[index++]));
-					}
-				}
-			}
-
+			query = replaceParameters(parameters, mapper, query,new Integer(0));
 		}
 
 		return query;
 	}
+
+	private static DocumentBuilder replaceParameters(Object[] parameters,
+			SpaceDocumentMapper<Document> mapper, DocumentBuilder builder,Integer index) {
+		
+
+		DocumentBuilder builder1 = BuilderFactory.start();
+
+		for (Element e : builder.asDocument().getElements()) {
+
+			String field = e.getName();
+
+			Object ph = builder.asDocument().get(field).getValueAsObject();
+
+			if (index >= parameters.length)
+				return builder;
+
+			if (ph instanceof String) {
+
+				if (PARAM_PLACEHOLDER.equals(ph)) {
+					builder1.add(field, mapper.toObject(parameters[index++]))
+							.build();
+				}
+			} else {
+				Document element = (Document) ph;
+
+				if (element.contains($REGEX)) {
+					for (Element e1 : element.getElements()) {
+
+						if (!$REGEX.equals(e1.getName()))
+							continue;
+
+						if (LIKE.equalsIgnoreCase(e1.getValueAsString())) {
+							builder1.add(
+									field,
+									convertLikeExpression((String) parameters[index++]));
+						} else if (RLIKE
+								.equalsIgnoreCase(e1.getValueAsString()))
+							builder1.add(field, Pattern
+									.compile((String) parameters[index++],Pattern.CASE_INSENSITIVE));
+
+					}
+				} else {
+					DocumentBuilder doc = replaceParameters(parameters, mapper,
+							BuilderFactory.start(element),index);
+
+					builder1.add(field, doc);
+				}
+			}
+		}
+
+		return builder1;
+	}
+
+	private static Pattern convertLikeExpression(String val) {
+		if (val != null && !val.isEmpty()) {
+			if (val.charAt(0) == '\'')
+				val = val.substring(1);
+
+			if (val.charAt(val.length() - 1) == '\'')
+				val = val.substring(0, val.length() - 1);
+
+			if (val.charAt(0) != '%')
+				val = "^" + val;
+			else
+				val = val.substring(1);
+
+			if (val.charAt(val.length() - 1) != '%')
+				val = val + "$";
+			else
+				val = val.substring(0, val.length() - 1);
+
+			val = val.replaceAll("%", ".*");
+			val = val.replace('_', '.');
+
+			return Pattern.compile(val);
+		}
+
+		return Pattern.compile("");
+	}
+
 }

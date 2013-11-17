@@ -4,16 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CommandLineProcess implements Runnable {
 
-	private String command;
+	private List<String> command;
 	private int exitValue;
 	Process process;
 	private Map<String, String> env = new HashMap<String, String>();
 
-	public CommandLineProcess(String cmd) {
+	public CommandLineProcess(List<String> cmd) {
 
 		if (cmd == null || cmd.isEmpty())
 			throw new IllegalArgumentException("cmd");
@@ -31,13 +32,14 @@ public class CommandLineProcess implements Runnable {
 		this.exitValue = process.exitValue();
 	}
 
-	private void execute(String cmd) {
+	private void execute(List<String> command2) {
 		try {
-			ProcessBuilder builder = new ProcessBuilder(cmd);
+			ProcessBuilder builder = new ProcessBuilder(command2);
 
 			if (env.size() > 0)
 				builder.environment().putAll(env);
 
+			
 			builder.redirectErrorStream(true);
 			process = builder.start();
 

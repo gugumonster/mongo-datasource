@@ -15,6 +15,7 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.archive;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,9 +29,7 @@ import org.openspaces.core.GigaSpace;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.gigaspaces.document.SpaceDocument;
-import com.gigaspaces.persistency.MongoClientConfiguration;
-import com.gigaspaces.persistency.MongoClientWrapper;
-import com.gigaspaces.persistency.MongoClientWrapperConfigurer;
+import com.gigaspaces.persistency.MongoClientWrapperV1;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.sync.DataSyncOperationType;
@@ -45,15 +44,15 @@ import com.mongodb.ServerAddress;
  * 
  */
 @SuppressWarnings("restriction")
-public class MongoArchiveOperationHandler implements ArchiveOperationHandler,
-		MongoClientConfiguration {
+public class MongoArchiveOperationHandler implements ArchiveOperationHandler
+/* MongoClientConfiguration */{
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	// injected(required)
 	private GigaSpace gigaSpace;
 
-	private MongoClientWrapper client;
+	private MongoClientWrapperV1 client;
 
 	private List<ServerAddress> seeds;
 	private String db;
@@ -126,10 +125,11 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler,
 	}
 
 	private void createMongoClient() {
-		client = new MongoClientWrapperConfigurer().seeds(seeds)
-				.credentials(credentials).options(options).addr(addr).uri(uri)
-				.host(host).port(port).user(user).password(password).db(db)
-				.create();
+		// TODO: implement for V1
+		// client = new MongoClientWrapperConfigurer().seeds(seeds)
+		// .credentials(credentials).options(options).addr(addr).uri(uri)
+		// .host(host).port(port).user(user).password(password).db(db)
+		// .create();
 	}
 
 	public GigaSpace getGigaSpace() {
@@ -216,7 +216,12 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler,
 	@PreDestroy
 	public void destroy() {
 		if (client != null) {
-			client.close();
+			try {
+				client.close();
+			} catch (IOException e) {
+				throw new SpaceMongoArchiveOperationHandlerException(
+						"can not close mongo client", e);
+			}
 		}
 	}
 }

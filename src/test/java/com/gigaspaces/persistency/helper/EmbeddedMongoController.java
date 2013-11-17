@@ -22,7 +22,7 @@ public class EmbeddedMongoController {
 			MongodStarter starter = MongodStarter.getDefaultInstance();
 
 			MongodExecutable mognoExecutable = starter
-					.prepare(new MongodConfig(Version.V2_2_3, _port, false));
+					.prepare(new MongodConfig(Version.Main.PRODUCTION, _port, false));
 
 			mongodProcess = mognoExecutable.start();
 

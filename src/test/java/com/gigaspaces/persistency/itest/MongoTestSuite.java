@@ -9,40 +9,45 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import com.gigaspaces.logger.GSLogConfigLoader;
-import com.gigaspaces.persistency.helper.EmbeddedMongoController;
+import com.gigaspaces.persistency.helper.MongoDBController;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {
-// BasicMongoTest.class,
-// BasicQueriesMongoTest.class // ,
-// DifferentTypesQueryMongoTest.class,
-InitialDataLoadMongoTest.class,
-// MetadataSpaceTypeDescriptorConversionTest.class,
-// MultiTypeMongoTest.class,
-// PojoWithPrimitiveTypesMongoTest.class,
-// ReadByIdsMongoTest.class,
-// WriteAndRemoveMongoTest.class,
-// ReadByIdWithPropertyAddedLaterMongoTest.class,
-// DataIteratorWithPropertyAddedLaterMongoTest.class
-})
+@SuiteClasses(value = {/*
+BasicMongoTest.class,
+BasicQueriesMongoTest.class  ,
+AdvanceQueriesMongoTest.class,
+DifferentTypesQueryMongoTest.class,*/
+//InitialDataLoadMongoTest.class,
+/*MetadataSpaceTypeDescriptorConversionTest.class,
+MultiTypeMongoTest.class,
+*/ 
+PojoWithPrimitiveTypesMongoTest.class,
+/* ReadByIdsMongoTest.class,
+ WriteAndRemoveMongoTest.class,
+ ReadByIdWithPropertyAddedLaterMongoTest.class,
+ DataIteratorWithPropertyAddedLaterMongoTest.class
+*/})
 public class MongoTestSuite {
 
 	private static final AtomicInteger runningNumber = new AtomicInteger(0);
 	private static volatile boolean isSuiteMode = false;
 
-	private static final EmbeddedMongoController mongoController = new EmbeddedMongoController();
-
+	//private static final EmbeddedMongoController mongoController = new EmbeddedMongoController();
+	private static final MongoDBController mongoController = new MongoDBController();
+	
 	@BeforeClass
 	public static void beforeSuite() {
 		GSLogConfigLoader.getLoader();
 		isSuiteMode = true;
-		mongoController.initMongo();
+		//mongoController.initMongo();
+		mongoController.start(false);
 	}
 
 	@AfterClass
 	public static void afterSuite() {
 		isSuiteMode = false;
-		mongoController.stopMongo();
+//		mongoController.stopMongo();
+		mongoController.stop();
 	}
 
 	public static String createDatabaseAndReturnItsName() {

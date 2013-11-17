@@ -1,6 +1,6 @@
 package com.gigaspaces.persistency.utest.parser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.regex.Pattern;
 
@@ -13,119 +13,199 @@ import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitor;
 import com.gigaspaces.persistency.parser.SQL2MongoLexer;
 import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
+import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
 
 public class SQL2MongoBaseVisitorTest {
 
-	@Test
-	public void testSQL2MongoBaseVisitorV3() {
-		// fail("Not yet implemented");
-
-	}
+	private static final String LIKE = "like()";
+	private static final String PARAMETER_PLACEHOLDER = "'%{}'";
 
 	@Test
 	public void testEquals() {
-		SQL2MongoBaseVisitor<ParseContext> visitor = parse("number = 10");
+		DBObject actual = parse("number = ?").getQuery();
 
-		QueryBuilder qb = QueryBuilder.start("number").is(10);
+		DBObject expected = QueryBuilder.start("number")
+				.is(PARAMETER_PLACEHOLDER).get();
 
-		assertEquals(qb.get(), visitor.getQuery());
+		assertEquals(expected, actual);
 
 	}
 
 	@Test
 	public void testNotEquals() {
-		SQL2MongoBaseVisitor<ParseContext> visitor = parse("number != 100.0276");
+		DBObject actual = parse("number != ?").getQuery();
 
-		QueryBuilder qb = QueryBuilder.start("number").notEquals(100.0276);
+		DBObject expected = QueryBuilder.start("number")
+				.notEquals(PARAMETER_PLACEHOLDER).get();
 
-		assertEquals(qb.get(), visitor.getQuery());
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testGreaterThan() {
+
+		DBObject actual = parse("number > ?").getQuery();
+
+		DBObject expected = QueryBuilder.start("number")
+				.greaterThan(PARAMETER_PLACEHOLDER).get();
+
+		assertEquals(expected, actual);
+
+	}
+
+	public void testGreaterThanEquals() {
+		DBObject actual = parse("number >= ?").getQuery();
+
+		DBObject expected = QueryBuilder.start("number")
+				.notEquals(PARAMETER_PLACEHOLDER).get();
+
+		assertEquals(expected, actual);
+
+	}
+
+	@Test
+	public void testLessThan() {
+		DBObject actual = parse("number < ?").getQuery();
+
+		DBObject expected = QueryBuilder.start("number")
+				.lessThan(PARAMETER_PLACEHOLDER).get();
+
+		assertEquals(expected, actual);
+
+	}
+
+	@Test
+	public void testLessThanEquals() {
+		DBObject actual = parse("number <= ?").getQuery();
+
+		DBObject expected = QueryBuilder.start("number")
+				.lessThanEquals(PARAMETER_PLACEHOLDER).get();
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testRlike() {
+
+		DBObject actual = parse("number rlike ?").getQuery();
+
+		DBObject expected = QueryBuilder.start("number")
+				.regex(Pattern.compile("rlike()")).get();
+
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testLike() {
+		DBObject actual = parse("number like ?").getQuery();
+
+		DBObject expected = QueryBuilder.start("number")
+				.regex(Pattern.compile(LIKE)).get();
+
+		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void testSimpleAnd() {
-		SQL2MongoBaseVisitor<ParseContext> visitor = parse("number is NOT null AND name like '%m_n%db%'");
+		DBObject actual = parse("number is NOT null AND name like ?")
+				.getQuery();
 
-		QueryBuilder qb = QueryBuilder.start().and("number").exists(false)
-				.and("name").regex(Pattern.compile("m.n.*db"));
+		DBObject expected = QueryBuilder.start().and("number").exists(false)
+				.and("name").regex(Pattern.compile(LIKE)).get();
 
-		assertEquals(qb.get(), visitor.getQuery());
+		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void testMultipleAnd() {
-		SQL2MongoBaseVisitor<ParseContext> visitor = parse("number is NOT null AND name like '%m_n%db%' AND age >= 20");
+		DBObject actual = parse(
+				"number is NOT null AND name like ? AND age >= ?").getQuery();
 
-		QueryBuilder qb = QueryBuilder.start().and("number").exists(false)
-				.and("name").regex(Pattern.compile("m.n.*db")).and("age")
-				.greaterThanEquals(20);
+		DBObject expexted = QueryBuilder.start().and("number").exists(false)
+				.and("name").regex(Pattern.compile(LIKE)).and("age")
+				.greaterThanEquals(PARAMETER_PLACEHOLDER).get();
 
-		assertEquals(qb.get(), visitor.getQuery());
+		assertEquals(expexted, actual);
 	}
 
 	@Test
 	public void testSimpleOr() {
-		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 OR y <= 20");
+		DBObject actual = parse("x < ? OR y <= ?").getQuery();
 
-		QueryBuilder qb = QueryBuilder.start()
-				.or(QueryBuilder.start("x").lessThan(3.3).get())
-				.or(QueryBuilder.start("y").lessThanEquals(20).get());
+		DBObject expected = QueryBuilder
+				.start()
+				.or(QueryBuilder.start("x").lessThan(PARAMETER_PLACEHOLDER)
+						.get())
+				.or(QueryBuilder.start("y")
+						.lessThanEquals(PARAMETER_PLACEHOLDER).get()).get();
 
-		assertEquals(qb.get(), visitor.getQuery());
+		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void testMultipleOr() {
-		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 OR y <= 20 OR z = true");
+		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < ? OR y <= ? OR z = ?");
 
-		QueryBuilder qb = QueryBuilder.start()
-				.or(QueryBuilder.start("x").lessThan(3.3).get())
-				.or(QueryBuilder.start("y").lessThanEquals(20).get())
-				.or(QueryBuilder.start("z").is(true).get());
+		QueryBuilder qb = QueryBuilder
+				.start()
+				.or(QueryBuilder.start("x").lessThan(PARAMETER_PLACEHOLDER)
+						.get())
+				.or(QueryBuilder.start("y")
+						.lessThanEquals(PARAMETER_PLACEHOLDER).get())
+				.or(QueryBuilder.start("z").is(PARAMETER_PLACEHOLDER).get());
 
 		assertEquals(qb.get(), visitor.getQuery());
 	}
 
 	@Test
 	public void testAndOr() {
-		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 AND y <= 20 OR z = true");
+		DBObject actual = parse("x < ? AND y <= ? OR z = ?").getQuery();
 
-		QueryBuilder qb = QueryBuilder.start().or(
-				QueryBuilder.start().and("x").lessThan(3.3).and("y")
-						.lessThanEquals(20).get(),
-				QueryBuilder.start("z").is(true).get());
+		DBObject expected = QueryBuilder
+				.start()
+				.or(QueryBuilder.start().and("x")
+						.lessThan(PARAMETER_PLACEHOLDER).and("y")
+						.lessThanEquals(PARAMETER_PLACEHOLDER).get(),
+						QueryBuilder.start("z").is(PARAMETER_PLACEHOLDER).get())
+				.get();
 
-		assertEquals(qb.get(), visitor.getQuery());
+		assertEquals(expected, actual);
 	}
-	
+
 	@Test
 	public void testOrWithTwoAndClause() {
-		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 AND y <= 20 OR z = true AND w like 'ab%'");
+		DBObject actual = parse("x < ? AND y <= ? OR z = ? AND w like ?")
+				.getQuery();
 
-		QueryBuilder qb = QueryBuilder.start().or(
-				QueryBuilder.start().and("x").lessThan(3.3).and("y")
-						.lessThanEquals(20).get(),
-				QueryBuilder.start("z").is(true)
-				.and("w")
-				.regex(Pattern.compile("^ab"))				
-				.get());
+		DBObject expcted = QueryBuilder
+				.start()
+				.or(QueryBuilder.start().and("x")
+						.lessThan(PARAMETER_PLACEHOLDER).and("y")
+						.lessThanEquals(PARAMETER_PLACEHOLDER).get(),
+						QueryBuilder.start("z").is(PARAMETER_PLACEHOLDER)
+								.and("w").regex(Pattern.compile(LIKE)).get())
+				.get();
 
-		assertEquals(qb.get(), visitor.getQuery());
+		assertEquals(expcted, actual);
 	}
 
 	@Test
 	public void testAndWithTwoOrClause() {
-		SQL2MongoBaseVisitor<ParseContext> visitor = parse("x < 3.3 OR y <= 20 AND z = true OR w like 'ab%'");
+		DBObject actual = parse("x < ? OR y <= ? AND z = ? OR w like ?")
+				.getQuery();
 
-		QueryBuilder qb = QueryBuilder.start().and(
-				QueryBuilder.start().and("x").lessThan(3.3).and("y")
-						.lessThanEquals(20).get(),
-				QueryBuilder.start("z").is(true)
-				.and("w")
-				.regex(Pattern.compile("^ab"))				
-				.get());
+		DBObject expected = QueryBuilder
+				.start()
+				.or(QueryBuilder.start().and("x")
+						.lessThan(PARAMETER_PLACEHOLDER).and("y")
+						.lessThanEquals(PARAMETER_PLACEHOLDER).and("z")
+						.is(PARAMETER_PLACEHOLDER).get(),
+						QueryBuilder.start("w")
+								.regex(Pattern.compile(LIKE))
+								.get()).get();
 
-		assertEquals(qb.get(), visitor.getQuery());
+		assertEquals(expected, actual);
 	}
 
 	/**
@@ -143,7 +223,7 @@ public class SQL2MongoBaseVisitorTest {
 		SQL2MongoBaseVisitor<ParseContext> visitor = new SQL2MongoBaseVisitor<ParseContext>();
 
 		parser.parse().accept(visitor);
-		
+
 		return visitor;
 	}
 

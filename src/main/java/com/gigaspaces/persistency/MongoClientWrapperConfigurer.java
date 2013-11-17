@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
+ *******************************************************************************//*
 package com.gigaspaces.persistency;
 
 import java.net.UnknownHostException;
@@ -27,10 +27,10 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
-/**
+*//**
  * @author Shadi Massalha
  * 
- */
+ *//*
 public class MongoClientWrapperConfigurer {
 
 	private static final String LOCALHOST = "localhost";
@@ -193,3 +193,4 @@ public class MongoClientWrapperConfigurer {
 				"invalid constructor id " + constructorId);
 	}
 }
+*/

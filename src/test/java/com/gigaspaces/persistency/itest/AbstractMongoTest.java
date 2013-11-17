@@ -3,8 +3,8 @@ package com.gigaspaces.persistency.itest;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import org.junit.After;
@@ -21,13 +21,11 @@ import com.gigaspaces.persistency.MongoSpaceDataSource;
 import com.gigaspaces.persistency.MongoSpaceDataSourceConfigurer;
 import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpoint;
 import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpointConfigurer;
-import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
-import com.mongodb.WriteConcern;
 
 public abstract class AbstractMongoTest {
 
-	private static final int PORT = 12345;
+	private static final int PORT = 27017;
 	protected static final Random random = new Random();
 	private static final String LOCALHOST = "127.0.0.1";
 
@@ -88,11 +86,6 @@ public abstract class AbstractMongoTest {
 	protected MongoClientWrapperV1 createMongoClientWrapperV1rapper(
 			String dbName) {
 
-		MongoClientOptions options = MongoClientOptions.builder()
-				.connectionsPerHost(20)
-				.threadsAllowedToBlockForConnectionMultiplier(100)
-				.writeConcern(WriteConcern.UNACKNOWLEDGED).build();
-
 		ServerAddress addr = null;
 		try {
 			addr = new ServerAddress(LOCALHOST, PORT);
@@ -103,10 +96,9 @@ public abstract class AbstractMongoTest {
 		MongoClientConfiguration config = new MongoClientConfiguration();
 
 		config.addServer(addr.getSocketAddress());
-
+		
 		MongoClientWrapperV1 client = new MongoClientWrapperConfigurerV1()
-				.config(config).db(dbName).create();
-		// .addr(addr).options(options).db(dbName).create();
+				.config(config).db(dbName).create();		
 
 		return client;
 	}

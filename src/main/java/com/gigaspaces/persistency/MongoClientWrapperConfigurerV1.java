@@ -25,8 +25,6 @@ import com.allanbank.mongodb.MongoFactory;
  */
 public class MongoClientWrapperConfigurerV1 {
 
-	private static final String LOCALHOST = "localhost";
-
 	// mongodb name
 	private String db;
 
