@@ -23,8 +23,6 @@ public class GSAgentController {
 	private Thread thread;
 	private String GS_AGENT = (isWin()) ? "gs-agent.bat" : "gs-agent.sh";
 
-	
-
 	public void start() {
 
 		List<String> args = new ArrayList<String>();
@@ -55,6 +53,5 @@ public class GSAgentController {
 		}
 
 		GS_AGENT_PROCESS.stop();
-		thread.destroy();
 	}
 }

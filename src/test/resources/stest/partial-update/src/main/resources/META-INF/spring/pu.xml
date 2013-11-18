@@ -55,12 +55,12 @@
 
 	<bean id="spaceDataSource"
 		class="com.gigaspaces.persistency.MongoSpaceDataSourceBeanFactory">
-		<property name="mongoClientWrapper" ref="mongoClient" />
+		<property name="mongoClientConnector" ref="mongoClient" />
 	</bean>
 	<!-- Defines a local Jini transaction manager. -->
 	<os-core:distributed-tx-manager id="transactionManager" />
 
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientWapperBeanFactory">
+	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
 
 		<property name="db" value="qadb" />
 		<property name="host" value="localhost" />

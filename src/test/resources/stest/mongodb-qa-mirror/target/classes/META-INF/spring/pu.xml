@@ -24,7 +24,7 @@
 
 	<bean id="spaceSynchronizationEndpoint"
 		class="com.gigaspaces.persistency.MongoSpaceSynchronizationEndpointBeanFactory">
-		<property name="mongoClientWrapper" ref="mongoClient" />
+		<property name="mongoClientConnector" ref="mongoClient" />
 	</bean>
 
 	<bean id="seeds" class="java.util.ArrayList">
@@ -37,7 +37,7 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientWapperBeanFactory">
+	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
 		<property name="seeds" ref="seeds" />
 		<property name="db" value="qadb" />
 	</bean>

@@ -31,7 +31,7 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 public class MongoClientConnectorBeanFactory implements
 		FactoryBean<MongoClientConnector>, InitializingBean, DisposableBean {
 
-	private MongoClientConnector mongoClientWrapper;
+	private MongoClientConnector mongoClientConnector;
 
 	private final MongoClientConnectorConfigurer configurer = getConfigurer();
 
@@ -56,7 +56,7 @@ public class MongoClientConnectorBeanFactory implements
 	}
 
 	public void destroy() throws Exception {
-		mongoClientWrapper.close();
+		mongoClientConnector.close();
 	}
 
 	private MongoClientConnectorConfigurer getConfigurer() {
@@ -65,11 +65,11 @@ public class MongoClientConnectorBeanFactory implements
 	}
 
 	public void afterPropertiesSet() throws Exception {
-		this.mongoClientWrapper = configurer.create();
+		this.mongoClientConnector = configurer.create();
 	}
 
 	public MongoClientConnector getObject() throws Exception {
-		return mongoClientWrapper;
+		return mongoClientConnector;
 	}
 
 	public Class<?> getObjectType() {

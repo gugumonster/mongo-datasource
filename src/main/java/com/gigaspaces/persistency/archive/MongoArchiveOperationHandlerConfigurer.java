@@ -24,10 +24,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
-/**
- * @author Shadi Massalha
- * 
- */
+
 /**
  * @author Shadi Massalha
  * 

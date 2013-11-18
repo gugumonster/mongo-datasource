@@ -31,7 +31,7 @@ public class InitialDataLoadMongoTest extends AbstractMongoTest {
 	private final int documentSize;
 	private final int batchCount;
 	private final int batchSize;
-	private final int batchLimit;
+	//private final int batchLimit;
 
 	public InitialDataLoadMongoTest(KeyGenerator keyGenerator,
 			int documentSize, int batchCount, int batchSize, int batchLimit) {
@@ -39,7 +39,7 @@ public class InitialDataLoadMongoTest extends AbstractMongoTest {
 		this.documentSize = documentSize;
 		this.batchCount = batchCount;
 		this.batchSize = batchSize;
-		this.batchLimit = batchLimit;
+		//this.batchLimit = batchLimit;
 	}
 
 	@SuppressWarnings("unchecked")

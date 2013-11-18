@@ -26,8 +26,8 @@ public class MongoSpaceDataSourceBeanFactory implements
 
 	private MongoSpaceDataSource mongoSpaceDataSource;
 
-	public void setMongoClientWrapper(MongoClientConnector mongoClientWrapper) {
-		configurer.mongoClientWrapper(mongoClientWrapper);
+	public void setMongoClientConnector(MongoClientConnector mongoClientConnector) {
+		configurer.mongoClientWrapper(mongoClientConnector);
 	}
 
 	public void destroy() throws Exception {

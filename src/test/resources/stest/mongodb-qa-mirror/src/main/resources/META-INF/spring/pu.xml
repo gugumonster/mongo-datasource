@@ -24,21 +24,17 @@
 
 	<bean id="spaceSynchronizationEndpoint"
 		class="com.gigaspaces.persistency.MongoSpaceSynchronizationEndpointBeanFactory">
-		<property name="mongoClientWrapper" ref="mongoClient" />
+		<property name="mongoClientConnector" ref="mongoClient" />
 	</bean>
 
-	<bean id="seeds" class="java.util.ArrayList">
-		<constructor-arg>
-			<list>
-				<bean class="com.mongodb.ServerAddress">
-					<constructor-arg name="host" value="localhost" />
-				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
-
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientWapperBeanFactory">
-		<property name="seeds" ref="seeds" />
+	<bean id="mongoClient"
+		class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
 		<property name="db" value="qadb" />
+		<property name="config">
+			<bean id="config" class="com.allanbank.mongodb.MongoClientConfiguration">
+				<constructor-arg name="mongoDbUri"
+					value="mongodb://localhost:27017/qadb" />
+			</bean>
+		</property>
 	</bean>
 </beans>
