@@ -24,7 +24,7 @@ import com.google.common.collect.HashBiMap;
 public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 
 	private final Random random = new Random();
-	private final BiMap<Priority, Integer> priorityMap = new HashBiMap<Priority, Integer>();
+	private final BiMap<Priority, Integer> priorityMap = HashBiMap.create();
 
 	private volatile boolean work = true;
 	private static final int NUMBER_OF_WRITERS = 5;
@@ -55,7 +55,7 @@ public class SpaceMongoLoadTest extends AbstractSystemTestUnit {
 			double seconds = ((double) (end.getTime() - start.getTime()))
 					/ (double) 1000;
 
-			System.out.println("performance time take: " + seconds + " sec.");
+			say("performance time take: " + seconds + " sec.");
 		} catch (Throwable e) {
 			throw new AssertionError(e);
 		}

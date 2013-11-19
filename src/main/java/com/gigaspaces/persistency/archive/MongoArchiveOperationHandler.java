@@ -46,14 +46,12 @@ import com.gigaspaces.persistency.error.SpaceMongoException;
  * 
  */
 @SuppressWarnings("restriction")
-public class MongoArchiveOperationHandler implements ArchiveOperationHandler
-/* MongoClientConfiguration */{
+public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	// injected(required)
 	private GigaSpace gigaSpace;
-
 
 	private MongoClientConnector client;
 

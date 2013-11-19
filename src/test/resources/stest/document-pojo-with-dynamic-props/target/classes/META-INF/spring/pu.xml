@@ -57,9 +57,15 @@
 	<!-- Defines a local Jini transaction manager. -->
 	<os-core:distributed-tx-manager id="transactionManager" />
 
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
+	<bean id="mongoClient"
+		class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
 		<property name="db" value="qadb" />
-		<property name="host" value="localhost" />
-		<property name="port" value="27017" />
+		<property name="config">
+			<bean class="com.allanbank.mongodb.MongoClientConfiguration">
+				<constructor-arg value="mongodb://localhost:27017/qadb"
+					type="java.lang.String" />
+					<property name="defaultDurability" value="ACK"/>		
+			</bean>
+		</property>
 	</bean>
 </beans>

@@ -19,15 +19,11 @@
 	<!-- ANNOTATION AND COMPONENT SCAN CONFIGURATION -->
 	<!-- Enable scan for OpenSpaces and Spring components -->
 	<context:component-scan base-package="com.gigaspaces.stest.model" />
-	<!-- <context:component-scan base-package="com.c123.billbuddy.remoting" 
-		/> -->
 
 	<!-- Enables the usage of @GigaSpaceContext annotation based injection. -->
 	<os-core:giga-space-context />
 	<!-- Enables Spring Annotation configuration -->
 	<context:annotation-config />
-	<!-- Enables using @Polling and @Notify annotations -->
-	<!-- <os-events:annotation-support /> -->
 	<!-- Enables using @PreBackup, @PostBackup and other annotations -->
 	<os-core:annotation-support />
 	<!-- Transaction annotation support -->
@@ -37,7 +33,7 @@
 	<os-core:space id="space" url="/./qa-space" mirror="true"
 		schema="persistent" space-data-source="spaceDataSource">
 		<os-core:properties>
-			<props>				
+			<props>
 				<prop key="space-config.engine.cache_policy">0</prop>
 				<prop key="space-config.engine.cache_size">10000</prop>
 				<prop key="cluster-config.cache-loader.central-data-source">true</prop>
@@ -54,13 +50,20 @@
 		class="com.gigaspaces.persistency.MongoSpaceDataSourceBeanFactory">
 		<property name="mongoClientConnector" ref="mongoClient" />
 	</bean>
+
 	<!-- Defines a local Jini transaction manager. -->
 	<os-core:distributed-tx-manager id="transactionManager" />
 
 
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
+	<bean id="mongoClient"
+		class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
 		<property name="db" value="qadb" />
-		<property name="host" value="localhost" />
-		<property name="port" value="27017" />
+		<property name="config">
+			<bean class="com.allanbank.mongodb.MongoClientConfiguration">
+				<constructor-arg value="mongodb://localhost:27017/qadb"
+					type="java.lang.String" />
+				<property name="defaultDurability" value="ACK" />
+			</bean>
+		</property>
 	</bean>
 </beans>

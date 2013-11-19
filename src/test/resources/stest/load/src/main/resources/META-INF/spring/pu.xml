@@ -59,9 +59,10 @@
 		class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
 		<property name="db" value="qadb" />
 		<property name="config">
-			<bean id="config" class="com.allanbank.mongodb.MongoClientConfiguration">
-				<constructor-arg name="mongoDbUri"
-					value="mongodb://localhost:27017/qadb" />
+			<bean class="com.allanbank.mongodb.MongoClientConfiguration">
+				<constructor-arg value="mongodb://localhost:27017/qadb"
+					type="java.lang.String" />
+				<property name="defaultDurability" value="ACK" />
 			</bean>
 		</property>
 	</bean>

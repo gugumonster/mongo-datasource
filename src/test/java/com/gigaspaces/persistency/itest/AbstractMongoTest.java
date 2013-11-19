@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.openspaces.itest.persistency.cassandra.mock.MockIntroduceTypeData;
 
+import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
@@ -41,10 +42,10 @@ public abstract class AbstractMongoTest {
 
 		server.initialize();
 
-		_syncInterceptorClient = createMongoClientWrapperV1rapper(server
+		_syncInterceptorClient = createMongoClientConnectorrapper(server
 				.getDBName());
 		_syncInterceptor = createMongoSyncEndpointInterceptor(_syncInterceptorClient);
-		_dataSourceClient = createMongoClientWrapperV1rapper(server.getDBName());
+		_dataSourceClient = createMongoClientConnectorrapper(server.getDBName());
 		_dataSource = createMongoSpaceDataSource(_dataSourceClient);
 	}
 
@@ -88,7 +89,7 @@ public abstract class AbstractMongoTest {
 	}
 
 
-	protected MongoClientConnector createMongoClientWrapperV1rapper(
+	protected MongoClientConnector createMongoClientConnectorrapper(
 			String dbName) {
 
 		ServerAddress addr = null;
@@ -101,7 +102,7 @@ public abstract class AbstractMongoTest {
 		MongoClientConfiguration config = new MongoClientConfiguration();
 
 		config.addServer(addr.getSocketAddress());				
-		
+		config.setDefaultDurability(Durability.ACK);
 
 		MongoClientConnector client = new MongoClientConnectorConfigurer()
 				.config(config).db(dbName).create();		

@@ -17,7 +17,8 @@ import com.google.common.collect.HashBiMap;
 
 public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 	@SuppressWarnings("unchecked")
-	private final BiMap<Priority, Integer> priorityMap = initPriortyMap(new HashBiMap<Priority, Integer>());
+	private final BiMap<Priority, Integer> priorityMap = initPriortyMap(HashBiMap
+			.create());
 
 	// private GigaSpace gigaSpace;
 	private volatile boolean work = true;
@@ -72,15 +73,9 @@ public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 	}
 
 	private void initConfigurersAndStartSpaces() throws Exception {
-
-//		MongoSystemTestSuite.startGSAgent();
-//
-//		admin.getGridServiceManagers().waitForAtLeastOne();
-
-		start();
+		startWithoutDropDatabase();
 
 		waitForActiveReplicationChannelWithMirror(gigaSpace.getSpace());
-		// waitForActiveReplicationChannelWithMirror(space2);
 	}
 
 	private void fillClusterData() throws Exception {
@@ -104,7 +99,7 @@ public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 
 	private void teardownCluster() throws Exception {
 		stop();
-		//MongoSystemTestSuite.stopGSAgent();
+		// MongoSystemTestSuite.stopGSAgent();
 	}
 
 	private void startWorkers() {

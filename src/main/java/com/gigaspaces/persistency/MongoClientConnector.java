@@ -215,7 +215,7 @@ public class MongoClientConnector {
 
 			case WRITE:
 			case UPDATE:
-				Future<Integer> future = col.saveAsync(obj, Durability.ACK);
+				Future<Integer> future = col.saveAsync(obj);
 				saveReplies.add(future);
 				break;
 			case PARTIAL_UPDATE: // TODO: add partial update and change api
@@ -230,14 +230,14 @@ public class MongoClientConnector {
 						.build();
 
 				Future<Long> updateFuture = col.updateAsync(query,
-						removeNulls((Document) obj), Durability.ACK);
+						removeNulls((Document) obj));
 				updatesReplies.add(updateFuture);
 
 				break;
 			// case REMOVE_BY_UID: // TODO: not supported by cassandra
 			// implementation
 			case REMOVE:
-				deltedReplies.add(col.deleteAsync(obj, false, Durability.ACK));
+				deltedReplies.add(col.deleteAsync(obj,false));
 				break;
 			default:
 				throw new IllegalStateException(

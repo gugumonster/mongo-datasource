@@ -37,8 +37,8 @@
 	<os-core:space id="space" url="/./qa-space" mirror="true"
 		schema="persistent" space-data-source="spaceDataSource">
 		<os-core:properties>
-			<props>				
-				<prop key="space-config.engine.cache_policy">1</prop>				
+			<props>
+				<prop key="space-config.engine.cache_policy">1</prop>
 				<prop key="cluster-config.cache-loader.central-data-source">true</prop>
 				<prop key="cluster-config.mirror-service.supports-partial-update">true</prop>
 			</props>
@@ -57,9 +57,15 @@
 	<!-- Defines a local Jini transaction manager. -->
 	<os-core:distributed-tx-manager id="transactionManager" />
 
-	<bean id="mongoClient" class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
+	<bean id="mongoClient"
+		class="com.gigaspaces.persistency.MongoClientConnectorBeanFactory">
 		<property name="db" value="qadb" />
-		<property name="host" value="localhost" />
-		<property name="port" value="27017" />
+		<property name="config">
+			<bean class="com.allanbank.mongodb.MongoClientConfiguration">
+				<constructor-arg value="mongodb://localhost:27017/qadb"
+					type="java.lang.String" />
+					<property name="defaultDurability" value="ACK"/>		
+			</bean>
+		</property>
 	</bean>
 </beans>

@@ -38,6 +38,10 @@ public abstract class AbstractSystemTestUnit {
 	@Before
 	public void start() {
 		MongoSystemTestSuite.drop();
+		startWithoutDropDatabase();
+	}
+
+	protected void startWithoutDropDatabase() throws AssertionError {
 		if (hasMirrorService())
 			deployMirrorService();
 
@@ -105,7 +109,7 @@ public abstract class AbstractSystemTestUnit {
 	}
 
 	protected void say(String message) {
-		System.out.println(message);
+		System.err.println(message);
 	}
 
 	protected void waitForActiveReplicationChannelWithMirror(final IJSpace space)

@@ -40,13 +40,20 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>r08</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>com.gigaspaces.quality</groupId>
 			<artifactId>tf</artifactId>
 			<version>1.5.0</version>
 		</dependency>
-		
+
+
 		<!-- mongodb java driver -->
 		<dependency>
 			<groupId>org.mongodb</groupId>
@@ -88,10 +95,5 @@
 			<artifactId>commons-compress</artifactId>
 			<version>1.5</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>de.flapdoodle.embed</groupId> -->
-		<!-- <artifactId>de.flapdoodle.embed.process</artifactId> -->
-		<!-- <version>1.35</version> -->
-		<!-- </dependency> -->
 	</dependencies>
 </project>

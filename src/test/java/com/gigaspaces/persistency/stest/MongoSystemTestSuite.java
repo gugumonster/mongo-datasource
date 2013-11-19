@@ -17,9 +17,8 @@ import com.gigaspaces.persistency.helper.MongoDBController;
   BasicMongoSpaceChangeTest.class,
   BasicMongoSpacePartialUpdateTest.class,
   SmallTypeHierarcyMongoSpaceTest.class,*/
-  SpaceMongoLoadTest.class
-
-//		SpaceMongoInitalLoadTest.class	
+//  SpaceMongoLoadTest.class
+		SpaceMongoInitalLoadTest.class	
 
  })
 public class MongoSystemTestSuite {
