@@ -29,7 +29,7 @@ import org.openspaces.core.GigaSpace;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.gigaspaces.document.SpaceDocument;
-import com.gigaspaces.persistency.MongoClientWrapperV1;
+import com.gigaspaces.persistency.MongoClientWrapper;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.sync.DataSyncOperationType;
@@ -52,7 +52,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler
 	// injected(required)
 	private GigaSpace gigaSpace;
 
-	private MongoClientWrapperV1 client;
+	private MongoClientWrapper client;
 
 	private List<ServerAddress> seeds;
 	private String db;

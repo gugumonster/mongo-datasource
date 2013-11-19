@@ -14,7 +14,6 @@ import java.util.UUID;
 
 import org.bson.types.ObjectId;
 
-import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.internal.reflection.ISetterMethod;
 import com.gigaspaces.metadata.SpaceDocumentSupport;

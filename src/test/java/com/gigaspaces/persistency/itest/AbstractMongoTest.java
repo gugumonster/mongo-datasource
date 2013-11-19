@@ -15,8 +15,8 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
 import com.gigaspaces.metadata.index.SpaceIndexType;
-import com.gigaspaces.persistency.MongoClientWrapperConfigurerV1;
-import com.gigaspaces.persistency.MongoClientWrapperV1;
+import com.gigaspaces.persistency.MongoClientWrapperConfigurer;
+import com.gigaspaces.persistency.MongoClientWrapper;
 import com.gigaspaces.persistency.MongoSpaceDataSource;
 import com.gigaspaces.persistency.MongoSpaceDataSourceConfigurer;
 import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpoint;
@@ -32,8 +32,8 @@ public abstract class AbstractMongoTest {
 	protected final MongoTestServer server = new MongoTestServer();
 	protected MongoSpaceSynchronizationEndpoint _syncInterceptor;
 	protected MongoSpaceDataSource _dataSource;
-	private MongoClientWrapperV1 _syncInterceptorClient;
-	private MongoClientWrapperV1 _dataSourceClient;
+	private MongoClientWrapper _syncInterceptorClient;
+	private MongoClientWrapper _dataSourceClient;
 
 	@Before
 	public void initialSetup() {
@@ -66,7 +66,7 @@ public abstract class AbstractMongoTest {
 	}
 
 	protected MongoSpaceDataSource createMongoSpaceDataSource(
-			MongoClientWrapperV1 _dataSourceClient2) {
+			MongoClientWrapper _dataSourceClient2) {
 
 		MongoSpaceDataSource dataSource = new MongoSpaceDataSourceConfigurer()
 				.mongoClientWrapper(_dataSourceClient2).create();
@@ -75,7 +75,7 @@ public abstract class AbstractMongoTest {
 	}
 
 	protected MongoSpaceSynchronizationEndpoint createMongoSyncEndpointInterceptor(
-			MongoClientWrapperV1 client) {
+			MongoClientWrapper client) {
 
 		MongoSpaceSynchronizationEndpoint syncInterceptor = new MongoSpaceSynchronizationEndpointConfigurer()
 				.mongoClientWrapper(client).create();
@@ -83,7 +83,7 @@ public abstract class AbstractMongoTest {
 		return syncInterceptor;
 	}
 
-	protected MongoClientWrapperV1 createMongoClientWrapperV1rapper(
+	protected MongoClientWrapper createMongoClientWrapperV1rapper(
 			String dbName) {
 
 		ServerAddress addr = null;
@@ -95,9 +95,9 @@ public abstract class AbstractMongoTest {
 
 		MongoClientConfiguration config = new MongoClientConfiguration();
 
-		config.addServer(addr.getSocketAddress());
+		config.addServer(addr.getSocketAddress());				
 		
-		MongoClientWrapperV1 client = new MongoClientWrapperConfigurerV1()
+		MongoClientWrapper client = new MongoClientWrapperConfigurer()
 				.config(config).db(dbName).create();		
 
 		return client;

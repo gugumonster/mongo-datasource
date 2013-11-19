@@ -12,21 +12,20 @@ import com.gigaspaces.logger.GSLogConfigLoader;
 import com.gigaspaces.persistency.helper.MongoDBController;
 
 @RunWith(Suite.class)
-@SuiteClasses(value = {/*
-BasicMongoTest.class,
-BasicQueriesMongoTest.class  ,
-AdvanceQueriesMongoTest.class,
-DifferentTypesQueryMongoTest.class,*/
-//InitialDataLoadMongoTest.class,
-/*MetadataSpaceTypeDescriptorConversionTest.class,
-MultiTypeMongoTest.class,
-*/ 
-PojoWithPrimitiveTypesMongoTest.class,
-/* ReadByIdsMongoTest.class,
- WriteAndRemoveMongoTest.class,
- ReadByIdWithPropertyAddedLaterMongoTest.class,
- DataIteratorWithPropertyAddedLaterMongoTest.class
-*/})
+@SuiteClasses(value = {
+	BasicMongoTest.class,
+	BasicQueriesMongoTest.class  ,
+	AdvanceQueriesMongoTest.class,
+	DifferentTypesQueryMongoTest.class,
+	InitialDataLoadMongoTest.class,
+	MetadataSpaceTypeDescriptorConversionTest.class,
+	MultiTypeMongoTest.class, 
+	PojoWithPrimitiveTypesMongoTest.class,
+	ReadByIdsMongoTest.class,
+ 	WriteAndRemoveMongoTest.class,
+ 	ReadByIdWithPropertyAddedLaterMongoTest.class,
+ 	DataIteratorWithPropertyAddedLaterMongoTest.class
+})
 public class MongoTestSuite {
 
 	private static final AtomicInteger runningNumber = new AtomicInteger(0);

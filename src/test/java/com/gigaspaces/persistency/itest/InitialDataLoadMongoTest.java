@@ -112,7 +112,7 @@ public class InitialDataLoadMongoTest extends AbstractMongoTest {
 		double read = ((double) (endRead.getTime() - startRead.getTime()) / (double) 1000);
 		System.err.println("write " + batchSize * batchCount + " documents in "
 				+ write + " sec");
-		System.err.println("write " + count + " documents in " + read + " sec");
+		System.err.println("read " + count + " documents in " + read + " sec");
 
 		Assert.assertEquals("count differs", batchCount * batchSize, count);
 

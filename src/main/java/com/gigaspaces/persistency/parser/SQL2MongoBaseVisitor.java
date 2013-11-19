@@ -115,7 +115,7 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 		String val = ctx.getChild(0).getText();
 
 		atom.and(id);
-		
+
 		if ("is".equals(op)) {
 			buildIsExpression(val, atom);
 		} else if ("like".equals(op)) {
@@ -236,28 +236,4 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 		subQuery.exists(!(index > -1));
 	}
 
-	private void buildLikeExpression(String val, QueryBuilder subQuery) {
-		if (val != null && !val.isEmpty()) {
-			if (val.charAt(0) == '\'')
-				val = val.substring(1);
-
-			if (val.charAt(val.length() - 1) == '\'')
-				val = val.substring(0, val.length() - 1);
-
-			if (val.charAt(0) != '%')
-				val = "^" + val;
-			else
-				val = val.substring(1);
-
-			if (val.charAt(val.length() - 1) != '%')
-				val = val + "$";
-			else
-				val = val.substring(0, val.length() - 1);
-
-			val = val.replaceAll("%", ".*");
-			val = val.replace('_', '.');
-
-			subQuery.regex(Pattern.compile(val));
-		}
-	}
 }

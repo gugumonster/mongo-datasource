@@ -25,7 +25,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.datasource.DataSourceQuery;
-import com.gigaspaces.persistency.MongoClientWrapperV1;
+import com.gigaspaces.persistency.MongoClientWrapper;
 import com.gigaspaces.persistency.error.UnSupportedQueryException;
 import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
@@ -39,12 +39,12 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 	private static final Log logger = LogFactory
 			.getLog(MongoSqlQueryDataIterator.class);
 
-	private MongoClientWrapperV1 client;
+	private MongoClientWrapper client;
 	private DataSourceQuery query;
 	private MongoIterator<Document> cursor;
 	private SpaceDocumentMapper<Document> pojoMapper;
 
-	public MongoSqlQueryDataIterator(MongoClientWrapperV1 client,
+	public MongoSqlQueryDataIterator(MongoClientWrapper client,
 			DataSourceQuery query) {
 		if (client == null)
 			throw new IllegalArgumentException("");
