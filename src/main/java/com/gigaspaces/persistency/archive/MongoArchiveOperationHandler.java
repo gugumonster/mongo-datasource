@@ -30,13 +30,15 @@ import org.springframework.beans.factory.annotation.Required;
 
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.persistency.MongoClientConnector;
-import com.gigaspaces.persistency.error.SpaceMongoException;
+import com.gigaspaces.persistency.MongoClientConnectorConfigurer;
 import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.sync.DataSyncOperationType;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+//github.com/Gigaspaces/mongo-datasource.git
+import com.gigaspaces.persistency.error.SpaceMongoException;
 
 /**
  * 
@@ -51,6 +53,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler
 
 	// injected(required)
 	private GigaSpace gigaSpace;
+
 
 	private MongoClientConnector client;
 

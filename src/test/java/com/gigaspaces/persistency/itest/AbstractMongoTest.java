@@ -15,13 +15,13 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
 import com.gigaspaces.metadata.index.SpaceIndexType;
-import com.gigaspaces.persistency.MongoClientConnectorConfigurer;
+import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpoint;
+import com.mongodb.ServerAddress;
 import com.gigaspaces.persistency.MongoClientConnector;
+import com.gigaspaces.persistency.MongoClientConnectorConfigurer;
 import com.gigaspaces.persistency.MongoSpaceDataSource;
 import com.gigaspaces.persistency.MongoSpaceDataSourceConfigurer;
-import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpoint;
 import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpointConfigurer;
-import com.mongodb.ServerAddress;
 
 public abstract class AbstractMongoTest {
 
@@ -32,6 +32,7 @@ public abstract class AbstractMongoTest {
 	protected final MongoTestServer server = new MongoTestServer();
 	protected MongoSpaceSynchronizationEndpoint _syncInterceptor;
 	protected MongoSpaceDataSource _dataSource;
+
 	private MongoClientConnector _syncInterceptorClient;
 	private MongoClientConnector _dataSourceClient;
 
@@ -66,7 +67,9 @@ public abstract class AbstractMongoTest {
 	}
 
 	protected MongoSpaceDataSource createMongoSpaceDataSource(
+
 			MongoClientConnector _dataSourceClient2) {
+
 
 		MongoSpaceDataSource dataSource = new MongoSpaceDataSourceConfigurer()
 				.mongoClientWrapper(_dataSourceClient2).create();
@@ -75,13 +78,15 @@ public abstract class AbstractMongoTest {
 	}
 
 	protected MongoSpaceSynchronizationEndpoint createMongoSyncEndpointInterceptor(
+
 			MongoClientConnector client) {
 
 		MongoSpaceSynchronizationEndpoint syncInterceptor = new MongoSpaceSynchronizationEndpointConfigurer()
-				.mongoClientWrapper(client).create();
+				.mongoClientConnector(client).create();
 
 		return syncInterceptor;
 	}
+
 
 	protected MongoClientConnector createMongoClientWrapperV1rapper(
 			String dbName) {
@@ -97,6 +102,7 @@ public abstract class AbstractMongoTest {
 
 		config.addServer(addr.getSocketAddress());				
 		
+
 		MongoClientConnector client = new MongoClientConnectorConfigurer()
 				.config(config).db(dbName).create();		
 
@@ -121,5 +127,4 @@ public abstract class AbstractMongoTest {
 		builder.idProperty(key);
 		return new MockIntroduceTypeData(builder.create());
 	}
-
 }

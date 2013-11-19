@@ -17,15 +17,15 @@ package com.gigaspaces.persistency;
 
 public class MongoSpaceDataSourceConfigurer {
 
-	private MongoClientConnector mongoClientWrapper;
+	private MongoClientConnector mongoClientConnector;
 
 	public MongoSpaceDataSourceConfigurer mongoClientWrapper(
-			MongoClientConnector mongoClientWrapper) {
-		this.mongoClientWrapper = mongoClientWrapper;
+			MongoClientConnector mongoClientConnector) {
+		this.mongoClientConnector = mongoClientConnector;
 		return this;
 	}
-	
-	public MongoSpaceDataSource create(){
-		return new MongoSpaceDataSource(mongoClientWrapper);
+
+	public MongoSpaceDataSource create() {
+		return new MongoSpaceDataSource(mongoClientConnector);
 	}
 }

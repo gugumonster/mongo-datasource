@@ -23,8 +23,8 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.MongoClientConnector;
-import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 
 /**
  * @author Shadi Massalha
@@ -33,7 +33,9 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 	private MongoIterator<Document> currenCursor;
+
 	private MongoClientConnector mongoClientWrapper;
+
 	private Iterator<SpaceTypeDescriptor> types;
 	private SpaceTypeDescriptor spaceTypeDescriptor;
 
@@ -82,10 +84,9 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 		spaceTypeDescriptor = types.next();
 		this.pojoMapper = new AsyncSpaceDocumentMapper(spaceTypeDescriptor);
-		
+
 		MongoIterator<Document> cursor = mongoClientWrapper.getCollection(
-				spaceTypeDescriptor.getTypeName())
-				.find(BuilderFactory.start());
+				spaceTypeDescriptor.getTypeName()).find(BuilderFactory.start());
 
 		return cursor;
 	}

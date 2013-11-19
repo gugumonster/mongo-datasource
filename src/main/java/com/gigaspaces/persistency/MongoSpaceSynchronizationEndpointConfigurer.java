@@ -17,15 +17,16 @@ package com.gigaspaces.persistency;
 
 public class MongoSpaceSynchronizationEndpointConfigurer {
 
-	private MongoClientConnector mongoClientWrapper;
+	private MongoClientConnector mongoClientConnector;
 
-	public MongoSpaceSynchronizationEndpointConfigurer mongoClientWrapper(
-			MongoClientConnector mongoClientWrapper) {
-		this.mongoClientWrapper = mongoClientWrapper;
+	public MongoSpaceSynchronizationEndpointConfigurer mongoClientConnector(
+
+	MongoClientConnector mongoClientConnector) {
+		this.mongoClientConnector = mongoClientConnector;
 		return this;
 	}
-	
-	public MongoSpaceSynchronizationEndpoint create(){
-		return new MongoSpaceSynchronizationEndpoint(mongoClientWrapper);
+
+	public MongoSpaceSynchronizationEndpoint create() {
+		return new MongoSpaceSynchronizationEndpoint(mongoClientConnector);
 	}
 }

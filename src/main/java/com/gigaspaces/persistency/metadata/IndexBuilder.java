@@ -33,6 +33,7 @@ public class IndexBuilder {
 	private MongoClientConnector client;
 
 	public IndexBuilder(MongoClientConnector pool) {
+
 		this.client = pool;
 	}
 
@@ -64,7 +65,7 @@ public class IndexBuilder {
 			SpaceIndexType type, DocumentBuilder option) {
 
 		MongoCollection c = client.getCollection(typeSimpleName);
-		
+
 		Element key = null;
 
 		if (type == SpaceIndexType.BASIC)

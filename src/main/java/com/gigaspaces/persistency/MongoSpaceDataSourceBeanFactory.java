@@ -23,13 +23,13 @@ public class MongoSpaceDataSourceBeanFactory implements
 		FactoryBean<MongoSpaceDataSource>, InitializingBean, DisposableBean {
 
 	private final MongoSpaceDataSourceConfigurer configurer = getConfigurer();
-	
+
 	private MongoSpaceDataSource mongoSpaceDataSource;
-	
-	public void setMongoClientWrapper(MongoClientConnector mongoClientWrapper){
+
+	public void setMongoClientWrapper(MongoClientConnector mongoClientWrapper) {
 		configurer.mongoClientWrapper(mongoClientWrapper);
 	}
-	
+
 	public void destroy() throws Exception {
 		mongoSpaceDataSource.close();
 	}
@@ -42,11 +42,11 @@ public class MongoSpaceDataSourceBeanFactory implements
 		this.mongoSpaceDataSource = configurer.create();
 	}
 
-	public MongoSpaceDataSource getObject() throws Exception {		
+	public MongoSpaceDataSource getObject() throws Exception {
 		return mongoSpaceDataSource;
 	}
 
-	public Class<?> getObjectType() {		
+	public Class<?> getObjectType() {
 		return MongoSpaceDataSource.class;
 	}
 

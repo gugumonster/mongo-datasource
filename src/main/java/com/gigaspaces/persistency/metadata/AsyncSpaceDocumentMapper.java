@@ -12,22 +12,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.hamcrest.core.IsNot;
-
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.builder.ArrayBuilder;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.ObjectId;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.internal.reflection.ISetterMethod;
 import com.gigaspaces.metadata.SpaceDocumentSupport;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.error.SpaceMongoException;
-import com.allanbank.mongodb.bson.builder.ArrayBuilder;
-import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.ElementType;
-import com.allanbank.mongodb.bson.element.ArrayElement;
-import com.allanbank.mongodb.bson.element.LongElement;
-import com.allanbank.mongodb.bson.element.ObjectId;
-import com.allanbank.mongodb.bson.Document;
 
 public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 

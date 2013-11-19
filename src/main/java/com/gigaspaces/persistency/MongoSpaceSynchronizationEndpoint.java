@@ -42,7 +42,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 	private MongoClientConnector client;
 
 	public MongoSpaceSynchronizationEndpoint(MongoClientConnector client) {
-		
+
 		if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null.");
 

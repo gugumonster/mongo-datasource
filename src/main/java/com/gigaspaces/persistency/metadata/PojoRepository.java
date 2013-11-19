@@ -3,10 +3,8 @@ package com.gigaspaces.persistency.metadata;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jacorb.trading.client.offers.describe;
 import org.openspaces.persistency.cassandra.meta.mapping.node.ProcedureCache;
 
 import com.gigaspaces.internal.reflection.IConstructor;

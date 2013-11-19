@@ -43,7 +43,6 @@ import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
 import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 
-
 /**
  * 
  * A MonogDB implementation of {@link com.gigaspaces.datasource.SpaceDataSource}
@@ -93,7 +92,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 				idQuery.getTypeDescriptor());
 
 		DocumentBuilder q = BuilderFactory.start().add(_ID,
-				mapper.toObject(idQuery.getId()));		
+				mapper.toObject(idQuery.getId()));
 
 		MongoCollection c = mongoClient.getCollection(idQuery
 				.getTypeDescriptor().getTypeName());
@@ -114,7 +113,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	@Override
 	public DataIterator<Object> getDataIteratorByIds(DataSourceIdsQuery arg0) {
-		
+
 		List<DocumentAssignable> ors = new ArrayList<DocumentAssignable>();
 
 		for (Object id : arg0.getIds()) {
