@@ -22,7 +22,7 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.MongoClientWrapperV1;
+import com.gigaspaces.persistency.MongoClientConnector;
 import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 
@@ -33,13 +33,13 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 	private MongoIterator<Document> currenCursor;
-	private MongoClientWrapperV1 mongoClientWrapper;
+	private MongoClientConnector mongoClientWrapper;
 	private Iterator<SpaceTypeDescriptor> types;
 	private SpaceTypeDescriptor spaceTypeDescriptor;
 
 	private SpaceDocumentMapper<Document> pojoMapper;
 
-	public MongoInitialDataLoadIterator(MongoClientWrapperV1 client) {
+	public MongoInitialDataLoadIterator(MongoClientConnector client) {
 		if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null");
 

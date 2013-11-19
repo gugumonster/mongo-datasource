@@ -42,13 +42,7 @@ import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
 import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
 import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
-import com.gigaspaces.persistency.metadata.SpaceDocumentMapperImpl;
-//import com.gigaspaces.persistency.metadata.DefaultMongoToPojoMapper;
-//import com.mongodb.BasicDBObject;
-//import com.mongodb.DBCollection;
-//import com.mongodb.DBCursor;
-//import com.mongodb.DBObject;
-//import com.mongodb.QueryBuilder;
+
 
 /**
  * 
@@ -58,7 +52,6 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapperImpl;
  * @author Shadi Massalha
  * 
  */
-// TODO: check this implementation
 public class MongoSpaceDataSource extends SpaceDataSource {
 
 	private static final String _ID = "_id";
@@ -66,9 +59,9 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 	private static final Log logger = LogFactory
 			.getLog(MongoSpaceDataSource.class);
 
-	private MongoClientWrapperV1 mongoClient;
+	private MongoClientConnector mongoClient;
 
-	public MongoSpaceDataSource(MongoClientWrapperV1 mongoClient) {
+	public MongoSpaceDataSource(MongoClientConnector mongoClient) {
 
 		if (mongoClient == null)
 			throw new IllegalArgumentException(
@@ -100,9 +93,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 				idQuery.getTypeDescriptor());
 
 		DocumentBuilder q = BuilderFactory.start().add(_ID,
-				mapper.toObject(idQuery.getId()));
-		// DBObject q = new BasicDBObject(_ID,
-		// mapper.toObject(idQuery.getId()));
+				mapper.toObject(idQuery.getId()));		
 
 		MongoCollection c = mongoClient.getCollection(idQuery
 				.getTypeDescriptor().getTypeName());
@@ -129,8 +120,6 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		for (Object id : arg0.getIds()) {
 
 			ors.add(BuilderFactory.start().add(_ID, id));
-
-			// q.or(new BasicDBObject(_ID, id));
 		}
 
 		Document q1 = QueryBuilder.or(ors.toArray(new DocumentAssignable[0]));

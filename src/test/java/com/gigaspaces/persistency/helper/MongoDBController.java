@@ -55,9 +55,7 @@ public class MongoDBController {
 		} catch (UnknownHostException e) {
 			throw new AssertionError(e);
 		}
-
-		// client.dropDatabase(QA_DB);
-
+		
 		client.getDB(QA_DB);
 
 	}

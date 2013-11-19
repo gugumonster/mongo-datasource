@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
 
-import org.jacorb.idl.runtime.double_token;
 import org.openspaces.core.GigaSpace;
 import org.openspaces.core.ReadMultipleException;
 import org.openspaces.core.TakeMultipleException;

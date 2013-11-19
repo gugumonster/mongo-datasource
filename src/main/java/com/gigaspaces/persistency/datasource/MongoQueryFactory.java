@@ -26,7 +26,6 @@ import org.antlr.v4.runtime.TokenStream;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.json.Json;
@@ -38,7 +37,6 @@ import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitor;
 import com.gigaspaces.persistency.parser.SQL2MongoLexer;
 import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
-import com.mongodb.QueryBuilder;
 
 /**
  * @author Shadi Massalha

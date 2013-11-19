@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openspaces.persistency.cassandra.meta.mapping.SpaceTypeDescriptorHolder;
 import org.openspaces.persistency.cassandra.meta.mapping.TypeHierarcyTopologySorter;
 
+import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
@@ -51,10 +52,9 @@ import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
 import com.gigaspaces.persistency.error.SpaceMongoDataSourceException;
 import com.gigaspaces.persistency.error.SpaceMongoException;
-import com.gigaspaces.persistency.error.SpaceMongoSynchronizationEndpointException;
 import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.BatchUnit;
-import com.gigaspaces.persistency.metadata.IndexBuilderV1;
+import com.gigaspaces.persistency.metadata.IndexBuilder;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
@@ -65,7 +65,7 @@ import com.gigaspaces.sync.IntroduceTypeData;
  * 
  *         mongodb driver client wrapper
  */
-public class MongoClientWrapperV1 {
+public class MongoClientConnector {
 
 	private static final String ERROR_OCCURS_WHILE_TRY_DESERIALIZE_OBJECT = "error occurs while try deserialize object: ";
 	private static final String ERROR_OCCUR_WHILE_SERIALIZE_AND_SAVE_TYPE_DESCRIPTOR = "error occurs while serialize and save type descriptor: ";
@@ -74,7 +74,7 @@ public class MongoClientWrapperV1 {
 	private static final String METADATA_COLLECTION_NAME = "metadata";
 
 	private static final Log logger = LogFactory
-			.getLog(MongoClientWrapperV1.class);
+			.getLog(MongoClientConnector.class);
 
 	private final MongoClient client;
 	private String dbName;
@@ -83,13 +83,13 @@ public class MongoClientWrapperV1 {
 	private static final Map<String, SpaceTypeDescriptorHolder> types = new ConcurrentHashMap<String, SpaceTypeDescriptorHolder>();
 	private static final Map<String, SpaceDocumentMapper<Document>> _mappingCache = new ConcurrentHashMap<String, SpaceDocumentMapper<Document>>();
 
-	private IndexBuilderV1 indexBuilder;
+	private IndexBuilder indexBuilder;
 
-	public MongoClientWrapperV1(MongoClient client, String db) {
+	public MongoClientConnector(MongoClient client, String db) {
 
 		this.client = client;
 		this.dbName = db;
-		this.indexBuilder = new IndexBuilderV1(this);
+		this.indexBuilder = new IndexBuilder(this);
 	}
 
 	/**
@@ -113,7 +113,6 @@ public class MongoClientWrapperV1 {
 		DocumentBuilder builder = BuilderFactory.start();
 
 		builder.add(DEFAULT_ID, spaceTypeDescriptor.getTypeName());
-		// obj.append(DEFAULT_ID, spaceTypeDescriptor.getTypeName());
 
 		writeMetadata(spaceTypeDescriptor, m, builder);
 	}
@@ -142,7 +141,6 @@ public class MongoClientWrapperV1 {
 			builder.add(TYPE_DESCRIPTOR_FIELD_NAME, bos.toByteArray());
 
 			int wr = m.save(builder);
-			// WriteResult wr = m.save(obj, WriteConcern.SAFE);
 
 			if (logger.isTraceEnabled())
 				logger.trace(wr);
@@ -209,7 +207,6 @@ public class MongoClientWrapperV1 {
 			SpaceDocumentMapper<Document> mapper = getMapper(spaceTypeDescriptor
 					.getTypeDescriptor());
 
-			// DBObject obj = mapper.maps(spaceDoc);
 			DocumentAssignable obj = mapper.toDBObject(spaceDoc);
 
 			MongoCollection col = getCollection(batchUnit.getTypeName());
@@ -218,7 +215,7 @@ public class MongoClientWrapperV1 {
 
 			case WRITE:
 			case UPDATE:
-				Future<Integer> future = col.saveAsync(obj);
+				Future<Integer> future = col.saveAsync(obj, Durability.ACK);
 				saveReplies.add(future);
 				break;
 			case PARTIAL_UPDATE: // TODO: add partial update and change api
@@ -233,15 +230,14 @@ public class MongoClientWrapperV1 {
 						.build();
 
 				Future<Long> updateFuture = col.updateAsync(query,
-						removeNulls((Document) obj));
+						removeNulls((Document) obj), Durability.ACK);
 				updatesReplies.add(updateFuture);
 
 				break;
 			// case REMOVE_BY_UID: // TODO: not supported by cassandra
 			// implementation
 			case REMOVE:
-				deltedReplies.add(col.deleteAsync(obj));
-				// col.remove(obj);
+				deltedReplies.add(col.deleteAsync(obj, false, Durability.ACK));
 				break;
 			default:
 				throw new IllegalStateException(
@@ -254,10 +250,9 @@ public class MongoClientWrapperV1 {
 		long totalCount = waitForSave(saveReplies) + waitFor(updatesReplies)
 				+ waitFor(deltedReplies);
 
-		if (totalCount != length)
-			throw new SpaceMongoSynchronizationEndpointException(
-					"perform save/upate/delete request: " + length
-							+ ", success replies: " + totalCount);
+		if (logger.isTraceEnabled()) {
+			logger.trace("total accepted replies is: " + totalCount);
+		}
 	}
 
 	private long waitForSave(List<Future<Integer>> replies) {
@@ -302,8 +297,6 @@ public class MongoClientWrapperV1 {
 
 		DocumentBuilder builder = BuilderFactory.start();
 
-		// BasicDBObject result = new BasicDBObject();
-
 		for (Element e : obj.getElements()) {
 
 			String key = e.getName();
@@ -318,12 +311,8 @@ public class MongoClientWrapperV1 {
 
 			if (value instanceof DocumentAssignable) {
 				builder.push("$set").add(key, removeNulls(obj));
-				// result.append("$set", new BasicDBObject(key,
-				// removeNulls((DBObject) value)));
 			} else
 				builder.add(key, value);
-			// result.append("$set", new BasicDBObject(key, value));
-
 		}
 
 		return builder.build();
@@ -336,7 +325,6 @@ public class MongoClientWrapperV1 {
 				.get(spaceTypeDescriptor.getTypeName());
 
 		if (mapper == null) {
-			// mapper = new DefaultPojoToMongoMapper(spaceTypeDescriptor);
 			mapper = new AsyncSpaceDocumentMapper(spaceTypeDescriptor);
 			_mappingCache.put(spaceTypeDescriptor.getTypeName(), mapper);
 		}

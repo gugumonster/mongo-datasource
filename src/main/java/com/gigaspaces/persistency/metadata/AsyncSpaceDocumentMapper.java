@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.hamcrest.core.IsNot;
+
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.internal.reflection.ISetterMethod;
 import com.gigaspaces.metadata.SpaceDocumentSupport;
@@ -21,7 +23,9 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.element.ArrayElement;
+import com.allanbank.mongodb.bson.element.LongElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.Document;
 
@@ -58,6 +62,7 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 		typeCodes.put(Byte.class, TYPE_BYTE);
 		typeCodes.put(Character.class, TYPE_CHAR);
 		typeCodes.put(Short.class, TYPE_SHORT);
+		typeCodes.put(short.class, TYPE_SHORT);
 		typeCodes.put(Integer.class, TYPE_INT);
 		typeCodes.put(Long.class, TYPE_LONG);
 		typeCodes.put(Float.class, TYPE_FLOAT);
@@ -143,7 +148,11 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 				if (TYPE.equals(property))
 					continue;
 
-				Object value = bson.get(property).getValueAsObject();
+				Object value = bson.get(property);
+
+				if (!(value instanceof ArrayElement)) {
+					value = ((Element) value).getValueAsObject();
+				}
 
 				if (value == null)
 					continue;
@@ -155,6 +164,9 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 						property);
 
 				Object val = fromDBObject(value);
+
+				if (type(setter.getParameterTypes()[0]) == TYPE_SHORT)
+					val = Short.valueOf(val.toString()).shortValue();
 
 				setter.set(pojo, val);
 			}
@@ -304,12 +316,12 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 		return map;
 	}
 
-	private Object[] toArray(Class<?> type, ArrayElement value) {
+	private Object toArray(Class<?> type, ArrayElement value) {
 
-		Object[] array = (Object[]) Array.newInstance(type.getComponentType(),
-				value.getEntries().size() - 1);
+		int length = value.getEntries().size() - 1;
+		Object array = Array.newInstance(type.getComponentType(), length);
 
-		for (int i = 1; i < value.getEntries().size(); i++) {
+		for (int i = 1; i < length+1; i++) {
 			Object v = fromDBObject(value.getEntries().get(i)
 					.getValueAsObject());
 
@@ -317,7 +329,10 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 				v = MongoDocumentObjectConverter.instance().toDocumentIfNeeded(
 						v, SpaceDocumentSupport.CONVERT);
 
-			array[i - 1] = v;
+			if (type(type.getComponentType()) == TYPE_SHORT)
+				v = Short.valueOf(v.toString()).shortValue();
+
+			Array.set(array, i - 1, v);
 		}
 
 		return array;
@@ -512,10 +527,31 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 		for (int i = 0; i < length; i++) {
 			Object obj = toObject(Array.get(property, i));
-			builder.add(obj);
+			setArray(builder, obj);
 		}
 
 		return builder.build();
+	}
+
+	private void setArray(ArrayBuilder builder, Object obj) {
+
+		switch (type(obj)) {
+		case TYPE_INT:
+			builder.add(((Integer) obj).intValue());
+			break;
+		case TYPE_SHORT:
+			builder.add(((Short) obj).intValue());
+			break;
+		case TYPE_LONG:
+			builder.add(((Long) obj).longValue());
+			break;
+		case TYPE_DOUBLE:
+			builder.add(((Double) obj).doubleValue());
+			break;
+		default:
+			builder.add(obj);
+			break;
+		}
 	}
 
 	private Character toCharacter(Object value) {

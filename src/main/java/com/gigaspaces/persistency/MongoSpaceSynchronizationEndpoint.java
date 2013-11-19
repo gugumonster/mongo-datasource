@@ -39,9 +39,9 @@ public class MongoSpaceSynchronizationEndpoint extends
 	private static final Log logger = LogFactory
 			.getLog(MongoSpaceSynchronizationEndpoint.class);
 
-	private MongoClientWrapperV1 client;
+	private MongoClientConnector client;
 
-	public MongoSpaceSynchronizationEndpoint(MongoClientWrapperV1 client) {
+	public MongoSpaceSynchronizationEndpoint(MongoClientConnector client) {
 		
 		if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null.");

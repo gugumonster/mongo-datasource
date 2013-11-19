@@ -16,7 +16,7 @@ public class DocumentPojoWithDynamicPropsMongoSpaceTest extends
 
 	@Override
 	public void test() {
-		//testWritePojoReadPojo();
+		testWritePojoReadPojo();
 		testWriteDocumentReadPojo();
 		testWriteDocumentReadDocument();
 		testWritePojoReadDocument();

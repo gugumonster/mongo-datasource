@@ -29,7 +29,7 @@ import org.openspaces.core.GigaSpace;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.gigaspaces.document.SpaceDocument;
-import com.gigaspaces.persistency.MongoClientWrapperV1;
+import com.gigaspaces.persistency.MongoClientConnector;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.sync.DataSyncOperationType;
@@ -52,7 +52,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler
 	// injected(required)
 	private GigaSpace gigaSpace;
 
-	private MongoClientWrapperV1 client;
+	private MongoClientConnector client;
 
 	private List<ServerAddress> seeds;
 	private String db;
@@ -137,7 +137,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler
 	}
 
 	/**
-	 * @see MongoClientWrapperConfigurer#db(String)
+	 * @see MongoClientConnectorConfigurer#db(String)
 	 */
 	@Required
 	public void setDb(String db) {
@@ -146,21 +146,21 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler
 	}
 
 	/**
-	 * @see MongoClientWrapperConfigurer#user(String)
+	 * @see MongoClientConnectorConfigurer#user(String)
 	 */
 	public void setUser(String user) {
 		this.user = user;
 	}
 
 	/**
-	 * @see MongoClientWrapperConfigurer#password(String)
+	 * @see MongoClientConnectorConfigurer#password(String)
 	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
 	/**
-	 * @see MongoClientWrapperConfigurer#seeds(ServerAddress[])
+	 * @see MongoClientConnectorConfigurer#seeds(ServerAddress[])
 	 */
 	public void setSeeds(List<ServerAddress> seeds) {
 		this.seeds = seeds;

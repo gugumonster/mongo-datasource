@@ -17,10 +17,10 @@ package com.gigaspaces.persistency;
 
 public class MongoSpaceDataSourceConfigurer {
 
-	private MongoClientWrapperV1 mongoClientWrapper;
+	private MongoClientConnector mongoClientWrapper;
 
 	public MongoSpaceDataSourceConfigurer mongoClientWrapper(
-			MongoClientWrapperV1 mongoClientWrapper) {
+			MongoClientConnector mongoClientWrapper) {
 		this.mongoClientWrapper = mongoClientWrapper;
 		return this;
 	}
