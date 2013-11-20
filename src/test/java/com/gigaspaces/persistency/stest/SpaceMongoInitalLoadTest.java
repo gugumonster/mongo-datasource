@@ -92,14 +92,12 @@ public class SpaceMongoInitalLoadTest extends AbstractSystemTestUnit {
 		barrier.await();
 
 		waitForEmptyReplicationBacklog(gigaSpace.getSpace());
-		// waitForEmptyReplicationBacklog(space2);
 
 		say("total written: " + writes.size());
 	}
 
 	private void teardownCluster() throws Exception {
 		stop();
-		// MongoSystemTestSuite.stopGSAgent();
 	}
 
 	private void startWorkers() {

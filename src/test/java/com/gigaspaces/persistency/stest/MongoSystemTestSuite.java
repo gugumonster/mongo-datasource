@@ -11,16 +11,16 @@ import com.gigaspaces.persistency.helper.MongoDBController;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
+		BasicMongoSpaceAllInCacheTest.class,
+		BasicMongoSpaceLRUTest.class,
+		BasicMongoSpaceChangeTest.class,
+		BasicMongoSpacePartialUpdateTest.class,
+ SmallTypeHierarcyMongoSpaceTest.class,
+//		DocumentPojoWithDynamicPropsMongoSpaceTest.class,
+ SpaceMongoLoadTest.class
+//		SpaceMongoInitalLoadTest.class
 
-/*  BasicMongoSpaceAllInCacheTest.class, 
-  BasicMongoSpaceLRUTest.class,   
-  BasicMongoSpaceChangeTest.class,
-  BasicMongoSpacePartialUpdateTest.class,
-  SmallTypeHierarcyMongoSpaceTest.class,*/
-//  SpaceMongoLoadTest.class
-		SpaceMongoInitalLoadTest.class	
-
- })
+})
 public class MongoSystemTestSuite {
 
 	private static final GSAgentController GS_AGENT_CONTROLLER = new GSAgentController();
@@ -57,6 +57,6 @@ public class MongoSystemTestSuite {
 
 	public static void drop() {
 		MONGO_DB_CONTROLLER.drop();
-		
+
 	}
 }

@@ -36,7 +36,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openspaces.persistency.cassandra.meta.mapping.SpaceTypeDescriptorHolder;
 import org.openspaces.persistency.cassandra.meta.mapping.TypeHierarcyTopologySorter;
 
-import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.MongoDatabase;
@@ -229,15 +228,17 @@ public class MongoClientConnector {
 								((Document) obj).get("_id").getValueAsObject())
 						.build();
 
-				Future<Long> updateFuture = col.updateAsync(query,
-						removeNulls((Document) obj));
+				Document upadte = removeNulls((Document) obj);
+								
+				Future<Long> updateFuture = col.updateAsync(query, upadte);
+
 				updatesReplies.add(updateFuture);
 
 				break;
 			// case REMOVE_BY_UID: // TODO: not supported by cassandra
 			// implementation
 			case REMOVE:
-				deltedReplies.add(col.deleteAsync(obj,false));
+				deltedReplies.add(col.deleteAsync(obj, false));
 				break;
 			default:
 				throw new IllegalStateException(
@@ -308,11 +309,11 @@ public class MongoClientConnector {
 
 			if (value == null)
 				continue;
-
-			if (value instanceof DocumentAssignable) {
-				builder.push("$set").add(key, removeNulls(obj));
-			} else
-				builder.add(key, value);
+//
+//			if (value instanceof DocumentAssignable) {
+//				builder.push("$set").add(key, (Document) value);
+//			} else
+				builder.push("$set").add(key, value);
 		}
 
 		return builder.build();
