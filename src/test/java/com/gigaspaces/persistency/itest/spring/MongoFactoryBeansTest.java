@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openspaces.itest.persistency.cassandra.mock.MockIntroduceTypeData;
 import org.openspaces.itest.persistency.cassandra.mock.MockOperationsBatchDataBuilder;
-import org.openspaces.persistency.cassandra.CassandraConsistencyLevel;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -47,25 +46,11 @@ public class MongoFactoryBeansTest {
 
 		PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
 		Properties properties = new Properties();
-		properties.setProperty("cassandra.hosts", server.getHost());
-		properties.setProperty("cassandra.port",
+		properties.setProperty("mongodb.host", server.getHost());
+		properties.setProperty("mongodb.port",
 				String.valueOf(server.getPort()));
-		properties.setProperty("cassandra.keyspace", server.getDBName());
-		properties.setProperty("cassandra.user", "default");
-		properties.setProperty("cassandra.password", "default");
-		properties.setProperty("cassandra.ds.cluster", "ds_cluster");
-		properties.setProperty("cassandra.sync.cluster", "sync_cluster");
-		properties
-				.setProperty("cassandra.ds.minconnections", String.valueOf(1));
-		properties
-				.setProperty("cassandra.ds.maxconnections", String.valueOf(5));
-		properties.setProperty("cassandra.ds.batchlimit", String.valueOf(100));
-		properties.setProperty("cassandra.hector.gcgrace",
-				String.valueOf(60 * 60 * 24 * 10));
-		properties.setProperty("cassandra.hector.read.consistency.level",
-				CassandraConsistencyLevel.QUORUM.name());
-		properties.setProperty("cassandra.hector.write.consistency.level",
-				CassandraConsistencyLevel.ONE.name());
+		properties.setProperty("mongodb.db", server.getDBName());
+		properties.setProperty("mongodb.durability","ACK");
 		propertyConfigurer.setProperties(properties);
 		context.addBeanFactoryPostProcessor(propertyConfigurer);
 		context.refresh();

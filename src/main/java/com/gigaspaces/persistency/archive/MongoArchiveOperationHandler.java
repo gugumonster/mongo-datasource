@@ -28,17 +28,13 @@ import org.openspaces.archive.ArchiveOperationHandler;
 import org.openspaces.core.GigaSpace;
 import org.springframework.beans.factory.annotation.Required;
 
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.persistency.MongoClientConnector;
 import com.gigaspaces.persistency.MongoClientConnectorConfigurer;
+import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.sync.DataSyncOperationType;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoClientURI;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
-//github.com/Gigaspaces/mongo-datasource.git
-import com.gigaspaces.persistency.error.SpaceMongoException;
 
 /**
  * 
@@ -55,16 +51,8 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	private MongoClientConnector client;
 
-	private List<ServerAddress> seeds;
+	private MongoClientConfiguration config;
 	private String db;
-	private List<MongoCredential> credentials;
-	private MongoClientOptions options;
-	private ServerAddress addr;
-	private String host;
-	private int port;
-	private MongoClientURI uri;
-	private String password;
-	private String user;
 
 	@Required
 	public void setGigaSpace(GigaSpace gigaSpace) {
@@ -126,11 +114,9 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	}
 
 	private void createMongoClient() {
-		// TODO: implement for V1
-		// client = new MongoClientWrapperConfigurer().seeds(seeds)
-		// .credentials(credentials).options(options).addr(addr).uri(uri)
-		// .host(host).port(port).user(user).password(password).db(db)
-		// .create();
+
+		client = new MongoClientConnectorConfigurer().config(config).db(db)
+				.create();
 	}
 
 	public GigaSpace getGigaSpace() {
@@ -147,71 +133,11 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	}
 
 	/**
-	 * @see MongoClientConnectorConfigurer#user(String)
+	 * @see MongoClientConnectorConfigurer#config(MongoClientConfiguration)
 	 */
-	public void setUser(String user) {
-		this.user = user;
-	}
-
-	/**
-	 * @see MongoClientConnectorConfigurer#password(String)
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	/**
-	 * @see MongoClientConnectorConfigurer#seeds(ServerAddress[])
-	 */
-	public void setSeeds(List<ServerAddress> seeds) {
-		this.seeds = seeds;
-	}
-
-	/**
-	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setCredentials(java
-	 *      .util.List)
-	 */
-	public void setCredentials(List<MongoCredential> credentials) {
-		this.credentials = credentials;
-	}
-
-	/**
-	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setOptions(com.mongodb
-	 *      .MongoClientOptions)
-	 */
-	public void setOptions(MongoClientOptions options) {
-		this.options = options;
-	}
-
-	/**
-	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setAddr(com.mongodb
-	 *      .ServerAddress)
-	 */
-	public void setAddr(ServerAddress addr) {
-		this.addr = addr;
-	}
-
-	/**
-	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setHost(java.lang
-	 *      .String)
-	 */
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	/**
-	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setPort(int)
-	 */
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	/**
-	 * @see com.gigaspaces.persistency.MongoClientConfiguration#setUri(com.mongodb
-	 *      .MongoClientURI)
-	 */
-	public void setUri(MongoClientURI uri) {
-		this.uri = uri;
+	@Required
+	public void setConfig(MongoClientConfiguration config) {
+		this.config = config;
 	}
 
 	@PreDestroy
@@ -224,5 +150,9 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 						"can not close mongo client", e);
 			}
 		}
+	}
+
+	public MongoClientConfiguration getConfig() {
+		return config;
 	}
 }

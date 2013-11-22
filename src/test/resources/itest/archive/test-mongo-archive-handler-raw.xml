@@ -23,9 +23,13 @@
 	<bean id="mongoArchiveHandler"
 		class="com.gigaspaces.persistency.archive.MongoArchiveOperationHandler">
 		<property name="gigaSpace" ref="gigaSpace" />
-		<property name="host" value="${mongodb.host}" />
-		<property name="port" value="${mongodb.port}" />
+		<property name="config" ref="config" />
 		<property name="db" value="${mongodb.db}" />
 	</bean>
 
+	<bean id="config" class="com.allanbank.mongodb.MongoClientConfiguration">
+		<constructor-arg
+			value="mongodb://${mongodb.host}:${mongodb.port}/${mongodb.db}" type="java.lang.String" />
+		<property name="defaultDurability" value="${mongodb.durability}" />
+	</bean>
 </beans>

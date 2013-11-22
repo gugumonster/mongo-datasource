@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +16,8 @@ import org.openspaces.persistency.cassandra.error.SpaceCassandraException;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
@@ -34,7 +38,7 @@ public class TestMongoArchiveOperationHandler {
 	private static final String SPACEDOCUMENT_ID = "hw-1234";
 
 	private final String TEST_NAMESPACE_XML = "/itest/archive/test-mongo-archive-handler-namespace.xml";
-	private final String TEST_RAW_XML = "/archive/test-mongo-archive-handler-raw.xml";
+	private final String TEST_RAW_XML = "/itest/archive/test-mongo-archive-handler-raw.xml";
 
 	private final MongoTestServer server = new MongoTestServer();
 
@@ -89,9 +93,13 @@ public class TestMongoArchiveOperationHandler {
 			final IJSpace space = urlSpaceConfigurer.create();
 			gigaSpace = new GigaSpaceConfigurer(space).create();
 
+			MongoClientConfiguration config = new MongoClientConfiguration(
+					"mongodb://" + server.getHost() + ":" + server.getPort()
+							+ "/" + server.getDBName());
+
 			archiveHandler = new MongoArchiveOperationHandlerConfigurer()
-					.db(server.getDBName()).host(server.getHost())
-					.port(server.getPort()).gigaSpace(gigaSpace).create();
+					.db(server.getDBName()).config(config).gigaSpace(gigaSpace)
+					.create();
 
 			test(archiveHandler, gigaSpace);
 		} finally {
@@ -117,7 +125,7 @@ public class TestMongoArchiveOperationHandler {
 		properties.put("mongodb.db", server.getDBName());
 		properties.put("mongodb.host", server.getHost());
 		properties.put("mongodb.port", "" + server.getPort());
-		// properties.put("cassandra.write-consistency", "ALL");
+		properties.put("mongodb.durability", "ACK");
 		propertyConfigurer.setProperties(properties);
 		context.addBeanFactoryPostProcessor(propertyConfigurer);
 		context.refresh();
@@ -125,9 +133,9 @@ public class TestMongoArchiveOperationHandler {
 		try {
 			final MongoArchiveOperationHandler archiveHandler = context
 					.getBean(MongoArchiveOperationHandler.class);
-			// TODO: check this logic for mongo
-			// Assert.assertEquals(CassandraConsistencyLevel.ALL,
-			// archiveHandler.getWriteConsistency());
+
+			Assert.assertEquals(Durability.ACK, archiveHandler.getConfig()
+					.getDefaultDurability());
 			final GigaSpace gigaSpace = context
 					.getBean(org.openspaces.core.GigaSpace.class);
 			test(archiveHandler, gigaSpace);
@@ -172,7 +180,9 @@ public class TestMongoArchiveOperationHandler {
 	private void verifyDocumentInCassandra() {
 		// TODO: check this logic for mongo
 		//
-		//Cluster cluster = HFactory.getOrCreateCluster("test-localhost_"+server.getPort(), server.getHost()+ ":" + server.getPort());
+		// Cluster cluster =
+		// HFactory.getOrCreateCluster("test-localhost_"+server.getPort(),
+		// server.getHost()+ ":" + server.getPort());
 		// Keyspace keyspace = HFactory.createKeyspace(server.getKeySpaceName(),
 		// cluster);
 		//

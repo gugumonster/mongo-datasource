@@ -11,6 +11,7 @@
 	</properties>
 
 	<modules>
+		<module>../../../../../mongo-datasource</module>
 		<module>stest-model</module>
 
 		<module>mongodb-qa-mirror</module>

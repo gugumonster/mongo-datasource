@@ -20,7 +20,12 @@
 	<os-core:giga-space id="gigaSpace" space="space"
 		tx-manager="transactionManager" />
 
-	<os-archive:cassandra-archive-handler
-		id="mongoArchiveHandler" giga-space="gigaSpace" host="${mongodb.host}"
-		port="${mongodb.port}" db="${mongodb.db}" />
+	<os-archive:mongo-archive-handler id="mongoArchiveHandler"
+		giga-space="gigaSpace" config-ref="config" db="${mongodb.db}" />
+
+	<bean id="config" class="com.allanbank.mongodb.MongoClientConfiguration">
+		<constructor-arg
+			value="mongodb://${mongodb.host}:${mongodb.port}/${mongodb.db}" type="java.lang.String" />
+		<property name="defaultDurability" value="${mongodb.durability}" />
+	</bean>
 </beans>
