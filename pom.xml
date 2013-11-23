@@ -4,7 +4,18 @@
 	<groupId>com.gigaspaces</groupId>
 	<artifactId>mongo-datasource</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
+	<modules>
+		<module>src/test/resources/stest/stest-model</module>
+		<module>src/test/resources/stest/mongodb-qa-mirror</module>
+		<module>src/test/resources/stest/all-in-cache</module>
+		<module>src/test/resources/stest/lru</module>
+		<module>src/test/resources/stest/partial-update</module>
+		<module>src/test/resources/stest/initial-load</module>
+		<module>src/test/resources/stest/load</module>
+		<module>src/test/resources/stest/document-pojo-with-dynamic-props</module>
+	</modules>
 	<repositories>
 		<repository>
 			<id>org.openspaces</id>

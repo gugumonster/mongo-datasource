@@ -10,6 +10,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.gigaspaces.logger.GSLogConfigLoader;
 import com.gigaspaces.persistency.helper.MongoDBController;
+import com.gigaspaces.persistency.itest.archive.TestMongoArchiveOperationHandler;
+import com.gigaspaces.persistency.itest.spring.MongoFactoryBeansTest;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
@@ -24,28 +26,27 @@ import com.gigaspaces.persistency.helper.MongoDBController;
 	ReadByIdsMongoTest.class,
  	WriteAndRemoveMongoTest.class,
  	ReadByIdWithPropertyAddedLaterMongoTest.class,
- 	DataIteratorWithPropertyAddedLaterMongoTest.class
+ 	DataIteratorWithPropertyAddedLaterMongoTest.class,
+	//TestMongoArchiveOperationHandler.class,
+	MongoFactoryBeansTest.class
 })
 public class MongoTestSuite {
 
 	private static final AtomicInteger runningNumber = new AtomicInteger(0);
 	private static volatile boolean isSuiteMode = false;
 
-	//private static final EmbeddedMongoController mongoController = new EmbeddedMongoController();
 	private static final MongoDBController mongoController = new MongoDBController();
 	
 	@BeforeClass
 	public static void beforeSuite() {
 		GSLogConfigLoader.getLoader();
 		isSuiteMode = true;
-		//mongoController.initMongo();
 		mongoController.start(false);
 	}
 
 	@AfterClass
 	public static void afterSuite() {
 		isSuiteMode = false;
-//		mongoController.stopMongo();
 		mongoController.stop();
 	}
 

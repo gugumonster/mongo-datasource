@@ -4,7 +4,7 @@
 	<groupId>com.gigaspaces.stest.model</groupId>
 	<artifactId>stest-model</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-
+	<packaging>jar</packaging>
 
 	<repositories>
 		<repository>
