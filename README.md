@@ -29,11 +29,10 @@ Build
 * build project with running unit test, integration test and system test 
 	`mvn clean surefire:test integration-test install`
 
-
-Note
-====
-
-* eclipse users uses m2e plugin sometimes miss synchronization its recommended to right click on 
+> ##### Notes #####
+> * its recommended that you run `mvn clean install` and then running the testing phases separately `mvn surefire:test integration-test` 
+  because integration and system test can take long time
+> * eclipse users uses m2e plugin sometimes miss synchronization its recommended to right click on 
   mongodb-datasource project and from the menu [Maven]-> [Update project]
 
 
