@@ -10,23 +10,22 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import com.gigaspaces.logger.GSLogConfigLoader;
 import com.gigaspaces.persistency.helper.MongoDBController;
-import com.gigaspaces.persistency.itest.archive.TestMongoArchiveOperationHandler;
 import com.gigaspaces.persistency.itest.spring.MongoFactoryBeansTest;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
-//	BasicMongoTest.class,
-//	BasicQueriesMongoTest.class  ,
-//	AdvanceQueriesMongoTest.class,
-//	DifferentTypesQueryMongoTest.class,
-//	InitialDataLoadMongoTest.class,
-//	MetadataSpaceTypeDescriptorConversionTest.class,
-//	MultiTypeMongoTest.class, 
-//	PojoWithPrimitiveTypesMongoTest.class,
-//	ReadByIdsMongoTest.class,
-// 	WriteAndRemoveMongoTest.class,
-// 	ReadByIdWithPropertyAddedLaterMongoTest.class,
-// 	DataIteratorWithPropertyAddedLaterMongoTest.class,
+	BasicMongoTest.class,
+	BasicQueriesMongoTest.class  ,
+	AdvanceQueriesMongoTest.class,
+	DifferentTypesQueryMongoTest.class,
+	InitialDataLoadMongoTest.class,
+	MetadataSpaceTypeDescriptorConversionTest.class,
+	MultiTypeMongoTest.class, 
+	PojoWithPrimitiveTypesMongoTest.class,
+	ReadByIdsMongoTest.class,
+ 	WriteAndRemoveMongoTest.class,
+ 	ReadByIdWithPropertyAddedLaterMongoTest.class,
+ 	DataIteratorWithPropertyAddedLaterMongoTest.class,
 	//TestMongoArchiveOperationHandler.class,
 	MongoFactoryBeansTest.class
 })

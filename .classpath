@@ -13,8 +13,8 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="src/test/resources/stest/mongodb-qa-mirror"/>
-	<classpathentry kind="src" path="src/test/resources/stest/all-in-cache"/>
+	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/mongodb-qa-mirror"/>
+	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/all-in-cache"/>
 	<classpathentry kind="src" path="src/test/resources/stest/document-pojo-with-dynamic-props"/>
 	<classpathentry kind="src" path="src/test/resources/stest/initial-load"/>
 	<classpathentry kind="src" path="src/test/resources/stest/load"/>

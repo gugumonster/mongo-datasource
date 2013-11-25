@@ -1,26 +1,30 @@
 package com.gigaspaces.persistency.utest.metadata;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.UUID;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
+import com.gigaspaces.document.SpaceDocument;
+//import com.gigaspaces.internal.utils.Assert;
+import com.gigaspaces.metadata.SpaceTypeDescriptor;
+import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
+import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.MongoDocumentObjectConverter;
 import com.gigaspaces.stest.model.Priority;
 import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsPojo;
 import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsUtils;
 
-import com.gigaspaces.document.SpaceDocument;
-import com.gigaspaces.internal.utils.Assert;
-import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.metadata.MongoDocumentObjectConverter;
-import com.gigaspaces.persistency.metadata.SpaceDocumentMapperImpl;
-import com.mongodb.DBObject;
-
 public class DocumentSpacePojoTest {
 
-	private SpaceDocumentMapperImpl converter = new SpaceDocumentMapperImpl(createMockedSpaceTypeDescriptor());
+	private AsyncSpaceDocumentMapper converter = new AsyncSpaceDocumentMapper(
+			createMockedSpaceTypeDescriptor());
 
 	private static final String TEST_TYPE_NAME = "TestType";
 	private static final String KEY_NAME = "keyField";
@@ -181,34 +185,40 @@ public class DocumentSpacePojoTest {
 	public void testBasicPojo() {
 		PojoTestType pojo = new PojoTestType();
 
-		DBObject bson = converter.toDBObject(pojo);
+		Document bson = converter.toDBObject(pojo);
 
 		System.out.println(bson);
 
 		PojoTestType pojo1 = (PojoTestType) converter.toDocument(bson);
 
-		Assert.isTrue(pojo.getKey().equals(pojo1.getKey()));
-		Assert.isTrue(pojo.getStringField().equals(pojo1.getStringField()));
-		Assert.isTrue(pojo.getLongField().equals(pojo1.getLongField()));
-		Assert.isTrue(pojo.getBigIntegerField().equals(
-				pojo1.getBigIntegerField()));
-		Assert.isTrue(pojo.getBigDecimalField().equals(
-				pojo1.getBigDecimalField()));
-		Assert.isTrue(pojo.getDateField().equals(pojo1.getDateField()));
-		Assert.isTrue(pojo.getDoubleField().equals(pojo1.getDoubleField()));
-		Assert.isTrue(pojo.getIntegerField().equals(pojo1.getIntegerField()));
-		Assert.isTrue(pojo.getFloatField().equals(pojo1.getFloatField()));
-		Assert.isTrue(pojo.getCharacterField()
-				.equals(pojo1.getCharacterField()));
-		Assert.isTrue(pojo.getBooleanField().equals(pojo1.getBooleanField()));
-		Assert.isTrue(pojo.getByteField().equals(pojo1.getByteField()));
-		Assert.isTrue(pojo.getByteArrayField()
-				.equals(pojo1.getByteArrayField()));
+		Assert.assertEquals(pojo.getKey(), pojo1.getKey());
+		Assert.assertEquals(pojo.getStringField(), pojo1.getStringField());
+		Assert.assertEquals(pojo.getLongField(), pojo1.getLongField());
+		Assert.assertEquals(pojo.getBigIntegerField(),
+				pojo1.getBigIntegerField());
+		Assert.assertEquals(pojo.getBigDecimalField(),
+				pojo1.getBigDecimalField());
+		Assert.assertEquals(pojo.getDateField(), pojo1.getDateField());
+		Assert.assertEquals(pojo.getDoubleField(), pojo1.getDoubleField());
+		Assert.assertEquals(pojo.getIntegerField(), pojo1.getIntegerField());
+		Assert.assertEquals(pojo.getFloatField(), pojo1.getFloatField());
+		Assert.assertEquals(pojo.getCharacterField(), pojo1.getCharacterField());
+		Assert.assertEquals(pojo.getBooleanField(), pojo1.getBooleanField());
+		Assert.assertEquals(pojo.getByteField(), pojo1.getByteField());
+
+		Assert.assertArrayEquals(pojo.getByteArrayField(),
+				pojo1.getByteArrayField());
 	}
 
 	private SpaceTypeDescriptor createMockedSpaceTypeDescriptor() {
-		// TODO Auto-generated method stub
-		return null;
+
+		SpaceTypeDescriptorBuilder builder = new SpaceTypeDescriptorBuilder(
+				TEST_TYPE_NAME).addFixedProperty(STRING_FIELD, String.class)
+				.addFixedProperty(BIGDECIMAL_FIELD, BigDecimal.class)
+				.addFixedProperty(BIGINT_FIELD, BigInteger.class)
+				.addFixedProperty(LONG_FIELD, Long.class);
+
+		return builder.create();
 	}
 
 	@Test
@@ -229,7 +239,7 @@ public class DocumentSpacePojoTest {
 				.setProperty(DYNAMIC_FIELD_7, DYNAMIC_FIELD_7_VAL)
 				.setProperty(DYNAMIC_FIELD_8, DYNAMIC_FIELD_8_VAL);
 
-		DBObject bson = converter.toDBObject(spaceDoc);
+		Document bson = converter.toDBObject(spaceDoc);
 
 		System.out.println(bson);
 
@@ -247,7 +257,7 @@ public class DocumentSpacePojoTest {
 		assertSpaceDocument(DYNAMIC_FIELD_4, spaceDoc, spaceDocument2);
 		assertSpaceDocument(DYNAMIC_FIELD_5, spaceDoc, spaceDocument2);
 		assertSpaceDocument(DYNAMIC_FIELD_6, spaceDoc, spaceDocument2);
-		//assertSpaceDocument(DYNAMIC_FIELD_7, spaceDoc, spaceDocument2);
+		// assertSpaceDocument(DYNAMIC_FIELD_7, spaceDoc, spaceDocument2);
 		assertSpaceDocument(DYNAMIC_FIELD_8, spaceDoc, spaceDocument2);
 
 	}
@@ -257,7 +267,16 @@ public class DocumentSpacePojoTest {
 		Object expected1 = expected.getProperty(property);
 		Object actual1 = actual.getProperty(property);
 
-		Assert.isTrue(expected1.equals(actual1));
+		if (expected1.getClass().isArray()) {
+			for (int i = 0; i < Array.getLength(expected1); i++) {
+				Object e = Array.get(expected1, i);
+				Object a = Array.get(actual1, i);
+
+				Assert.assertEquals(e, a);
+			}
+		} else
+			Assert.assertEquals(expected1, actual1);
+
 	}
 
 	@Test
@@ -270,12 +289,11 @@ public class DocumentSpacePojoTest {
 		SpaceDocument doc1 = MongoDocumentObjectConverter.instance()
 				.toSpaceDocument(data1);
 
-		DBObject bson = converter.toDBObject(doc1);
+		Document bson = converter.toDBObject(doc1);
 
 		System.out.println(bson);
 
-		TestDataTypeWithDynamicPropsPojo data2 = (TestDataTypeWithDynamicPropsPojo) converter
-				.toDocument(bson);
+		TestDataTypeWithDynamicPropsPojo data2 = (TestDataTypeWithDynamicPropsPojo) converter.toDocument(bson);
 
 		TestDataTypeWithDynamicPropsUtils.assertTestDataEquals(data1, data2);
 	}
@@ -287,14 +305,13 @@ public class DocumentSpacePojoTest {
 
 		doc.setProperty("enumProperty", Priority.MAJOR);
 
-		DBObject bson = converter.toDBObject(doc);
+		Document bson = converter.toDBObject(doc);
 
-		DBObject e = (DBObject) bson.get("enumProperty");
+		Element e = bson.get("enumProperty");
 
 		Priority priority = (Priority) converter.fromDBObject(e);
 
-		Assert.isTrue(Priority.MAJOR == priority);
-
+		Assert.assertEquals(Priority.MAJOR, priority);
 	}
 
 }

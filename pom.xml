@@ -123,8 +123,9 @@
 		</testResources>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.6</version>
+				<version>2.16</version>
 				<executions>
 					<execution>
 						<goals>
@@ -133,6 +134,22 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<testFailureIgnore>true</testFailureIgnore>
+					<parallel>classes</parallel>
+					<forkMode>pertest</forkMode>
+					<argLine>-Xms1024m -Xmx1024m</argLine>
+					<threadCount>4</threadCount>
+					<includes>
+						<include>**/MongoTestSuite.java</include>
+					</includes>
+					<excludes>
+						<exclude>**/*Abstract*</exclude>
+					</excludes>
+					<additionalClasspathElements>
+						<additionalClasspathElement>src/test/resources</additionalClasspathElement>
+					</additionalClasspathElements>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -145,13 +162,13 @@
 					<argLine>-Xms1024m -Xmx1024m</argLine>
 					<threadCount>4</threadCount>
 					<includes>
-						<include>**/*MongoTestSuite.java</include>
+						<include>**/AllTests.java</include>
 					</includes>
 					<excludes>
 						<exclude>**/*Abstract*</exclude>
 					</excludes>
 					<additionalClasspathElements>
-						<additionalClasspathElement>src/test/resources</additionalClasspathElement>						
+						<additionalClasspathElement>src/test/resources</additionalClasspathElement>
 					</additionalClasspathElements>
 				</configuration>
 			</plugin>

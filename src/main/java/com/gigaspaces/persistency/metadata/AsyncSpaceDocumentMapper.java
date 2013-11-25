@@ -40,6 +40,12 @@ import com.gigaspaces.metadata.SpaceDocumentSupport;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 
+/**
+ * class helper to map from mongo document type to SpaceDocument and vice versa
+ * 
+ * @author Shadi Massalha
+ * 
+ */
 public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 	private static final String _ID = "_id";
@@ -161,10 +167,12 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 				Object value = bson.get(property);
 
+				boolean isArray = false;
 				if (!(value instanceof ArrayElement)) {
 					value = ((Element) value).getValueAsObject();
+				} else {
+					isArray = true;
 				}
-
 				if (value == null)
 					continue;
 
@@ -173,8 +181,13 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 				ISetterMethod<Object> setter = repository.getSetter(type,
 						property);
+				Object val = null;
 
-				Object val = fromDBObject(value);
+				if (isArray) {
+					val = toExtractArray((ArrayElement) value,
+							setter.getParameterTypes()[0]);
+				} else
+					val = fromDBObject(value);
 
 				if (type(setter.getParameterTypes()[0]) == TYPE_SHORT)
 					val = Short.valueOf(val.toString()).shortValue();
@@ -278,6 +291,10 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 		Class<?> type = getClassFor(value.getEntries().get(0)
 				.getValueAsString());
 
+		return toExtractArray(value, type);
+	}
+
+	private Object toExtractArray(ArrayElement value, Class<?> type) {
 		if (type.isArray()) {
 			return toArray(type, value);
 		} else if (Collection.class.isAssignableFrom(type)) {
@@ -297,8 +314,13 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 		try {
 
-			map = (Map) repository.getConstructor(type).newInstance();
-
+			if (!type.isInterface()) {
+				map = (Map) repository.getConstructor(type).newInstance();
+			} else {
+				map = (Map) repository.getConstructor(
+						getClassFor(value.getEntries().get(0)
+								.getValueAsString())).newInstance();
+			}
 			for (int i = 1; i < value.getEntries().size(); i += 2) {
 				Object key = fromDBObject(value.getEntries().get(i)
 						.getValueAsObject());
@@ -332,7 +354,7 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 		int length = value.getEntries().size() - 1;
 		Object array = Array.newInstance(type.getComponentType(), length);
 
-		for (int i = 1; i < length+1; i++) {
+		for (int i = 1; i < length + 1; i++) {
 			Object v = fromDBObject(value.getEntries().get(i)
 					.getValueAsObject());
 
@@ -355,8 +377,14 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 		Collection collection = null;
 
 		try {
-			collection = (Collection) repository.getConstructor(type)
-					.newInstance();
+			if (!type.isInterface()) {
+				collection = (Collection) repository.getConstructor(type)
+						.newInstance();
+			} else {
+				collection = (Collection) repository.getConstructor(
+						getClassFor(value.getEntries().get(0)
+								.getValueAsString())).newInstance();
+			}
 
 			for (int i = 1; i < value.getEntries().size(); i++) {
 				collection.add(fromDBObject(value.getEntries().get(i)
