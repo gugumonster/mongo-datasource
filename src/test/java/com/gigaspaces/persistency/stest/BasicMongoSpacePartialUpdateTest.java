@@ -4,10 +4,11 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.gigaspaces.client.WriteModifiers;
-import com.gigaspaces.persistency.utils.AssertUtils;
 import com.gigaspaces.stest.model.IssuePojo;
 import com.gigaspaces.stest.model.Priority;
+
+import com.gigaspaces.client.WriteModifiers;
+import com.gigaspaces.persistency.utils.AssertUtils;
 
 public class BasicMongoSpacePartialUpdateTest extends AbstractSystemTestUnit {
 

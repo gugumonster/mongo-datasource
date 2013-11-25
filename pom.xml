@@ -6,6 +6,9 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
+	<properties>
+		<junitVersion>4.8.2</junitVersion>
+	</properties>
 	<modules>
 		<module>src/test/resources/stest/stest-model</module>
 		<module>src/test/resources/stest/mongodb-qa-mirror</module>
@@ -88,7 +91,11 @@
 			<artifactId>commons-pool</artifactId>
 			<version>1.4</version>
 		</dependency>
-
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junitVersion}</version>
+		</dependency>
 		<!-- local repository dependency that will be packaged and installed -->
 		<dependency>
 			<groupId>com.gigaspaces.stest.model</groupId>
@@ -107,4 +114,47 @@
 			<version>1.5</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.12.4</version>
+				<configuration>
+					<testFailureIgnore>true</testFailureIgnore>
+					<parallel>classes</parallel>
+					<forkMode>pertest</forkMode>
+					<argLine>-Xms1024m -Xmx1024m</argLine>
+					<threadCount>4</threadCount>
+					<includes>
+						<include>**/*MongoTestSuite.java</include>
+					</includes>
+					<excludes>
+						<exclude>**/*Abstract*</exclude>
+					</excludes>
+					<additionalClasspathElements>
+						<additionalClasspathElement>src/test/resources</additionalClasspathElement>						
+					</additionalClasspathElements>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

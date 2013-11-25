@@ -6,9 +6,10 @@ import java.util.List;
 
 import org.junit.Assert;
 
+import com.gigaspaces.stest.model.IssuePojo;
+
 import com.gigaspaces.client.ReadByIdsResult;
 import com.gigaspaces.persistency.utils.AssertUtils;
-import com.gigaspaces.stest.model.IssuePojo;
 
 public class BasicMongoSpaceLRUTest extends AbstractSystemTestUnit {
 

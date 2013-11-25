@@ -14,7 +14,6 @@
 		</repository>
 	</repositories>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>com.google.code.google-collections</groupId>

@@ -4,14 +4,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.gigaspaces.stest.model.Issue;
+import com.gigaspaces.stest.model.MongoIssuePojo;
+import com.gigaspaces.stest.model.Priority;
 import junit.framework.Assert;
 
 import com.gigaspaces.client.ReadModifiers;
 import com.gigaspaces.client.WriteModifiers;
 import com.gigaspaces.framework.ThreadBarrier;
-import com.gigaspaces.stest.model.Issue;
-import com.gigaspaces.stest.model.MongoIssuePojo;
-import com.gigaspaces.stest.model.Priority;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 

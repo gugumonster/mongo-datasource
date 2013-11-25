@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * An Issue (simplification of an Issue in JIRA) which can be updated by voting
  * ({@link #vote()} or changing its priority directly (
- * {@link Issue#setPriority(com.gigaspaces.data.issue.Issue.Priority)}
+ * {@link Issue#setPriority(src.main.java.com.gigaspaces.stest.model.data.issue.Issue.Priority)}
  * 
  * This Issue creates its UID based on its 'key'.
  * 

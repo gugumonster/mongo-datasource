@@ -1,9 +1,10 @@
 package com.gigaspaces.persistency.stest;
 
-import com.gigaspaces.persistency.utils.AssertUtils;
 import com.gigaspaces.stest.model.SmallTypeHierarcyMongoDBSpaceDataClassA;
 import com.gigaspaces.stest.model.SmallTypeHierarcyMongoDBSpaceDataClassB;
 import com.gigaspaces.stest.model.SmallTypeHierarcyMongoDBSpaceDataClassC;
+
+import com.gigaspaces.persistency.utils.AssertUtils;
 
 public class SmallTypeHierarcyMongoSpaceTest extends AbstractSystemTestUnit {
 

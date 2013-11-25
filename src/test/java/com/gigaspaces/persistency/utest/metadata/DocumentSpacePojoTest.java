@@ -7,14 +7,15 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import com.gigaspaces.stest.model.Priority;
+import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsPojo;
+import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsUtils;
+
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.internal.utils.Assert;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.metadata.MongoDocumentObjectConverter;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapperImpl;
-import com.gigaspaces.stest.model.Priority;
-import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsPojo;
-import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsUtils;
 import com.mongodb.DBObject;
 
 public class DocumentSpacePojoTest {

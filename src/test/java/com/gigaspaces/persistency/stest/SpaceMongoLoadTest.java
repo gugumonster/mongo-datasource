@@ -13,11 +13,12 @@ import org.openspaces.core.GigaSpace;
 import org.openspaces.core.ReadMultipleException;
 import org.openspaces.core.TakeMultipleException;
 
-import com.gigaspaces.client.WriteModifiers;
-import com.gigaspaces.framework.ThreadBarrier;
 import com.gigaspaces.stest.model.Issue;
 import com.gigaspaces.stest.model.MongoIssuePojo;
 import com.gigaspaces.stest.model.Priority;
+
+import com.gigaspaces.client.WriteModifiers;
+import com.gigaspaces.framework.ThreadBarrier;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 

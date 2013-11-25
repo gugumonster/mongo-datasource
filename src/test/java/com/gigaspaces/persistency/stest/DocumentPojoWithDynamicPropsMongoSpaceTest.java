@@ -1,13 +1,13 @@
 package com.gigaspaces.persistency.stest;
 
-import junit.framework.Assert;
-
-import com.gigaspaces.document.SpaceDocument;
-import com.gigaspaces.persistency.metadata.MongoDocumentObjectConverter;
 import com.gigaspaces.stest.model.TestDataTypeWithDynamicProps;
 import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsDocument;
 import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsPojo;
 import com.gigaspaces.stest.model.TestDataTypeWithDynamicPropsUtils;
+import junit.framework.Assert;
+
+import com.gigaspaces.document.SpaceDocument;
+import com.gigaspaces.persistency.metadata.MongoDocumentObjectConverter;
 
 public class DocumentPojoWithDynamicPropsMongoSpaceTest extends
 		AbstractSystemTestUnit {
