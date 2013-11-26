@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.openspaces.admin.Admin;
 import org.openspaces.admin.AdminFactory;
 import org.openspaces.admin.gsa.GridServiceAgent;
@@ -12,6 +13,7 @@ import com.gigaspaces.persistency.utils.CommandLineProcess;
 
 public class GSAgentController {
 
+	private static final String GS_HOME = "GS_HOME";
 	private static final String QA_GROUP = "qa_group";
 	private static final String LOOKUPGROUPS = "LOOKUPGROUPS";
 
@@ -28,8 +30,8 @@ public class GSAgentController {
 		List<String> args = new ArrayList<String>();
 
 		args.add(GS_AGENT);
-
-		GS_AGENT_PROCESS = new CommandLineProcess(args);
+		String wd= FilenameUtils.normalize(System.getenv(GS_HOME)+"/bin");
+		GS_AGENT_PROCESS = new CommandLineProcess(args,wd);
 
 		GS_AGENT_PROCESS.addEnvironmentVariable(LOOKUPGROUPS, QA_GROUP);
 

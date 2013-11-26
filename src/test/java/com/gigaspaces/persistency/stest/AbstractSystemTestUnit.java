@@ -22,13 +22,13 @@ import com.j_spaces.core.filters.ReplicationStatistics.ChannelState;
 import com.j_spaces.core.filters.ReplicationStatistics.OutgoingChannel;
 import com.j_spaces.core.filters.ReplicationStatistics.OutgoingReplication;
 
-//TODO: support linux gigaspace
+
 public abstract class AbstractSystemTestUnit {
 
 	private static final String QA_GROUP = "qa_group";
 	private final static String DEPLOY_DIR = "/mongodb-system-test-deploy";
 
-	protected final Admin admin = new AdminFactory().addGroup(QA_GROUP)
+	protected static final Admin admin = new AdminFactory().addGroup(QA_GROUP)
 			.createAdmin();
 
 	protected GigaSpace gigaSpace;
@@ -38,6 +38,7 @@ public abstract class AbstractSystemTestUnit {
 	@Before
 	public void start() {
 		MongoSystemTestSuite.drop();
+		
 		startWithoutDropDatabase();
 	}
 
@@ -64,9 +65,11 @@ public abstract class AbstractSystemTestUnit {
 
 	@After
 	public void stop() {
-
+		
+		waitForEmptyReplicationBacklog(gigaSpace);
+						
 		testPU.undeployAndWait();
-
+		
 		mirrorServicePU.undeployAndWait();
 	}
 
@@ -90,6 +93,7 @@ public abstract class AbstractSystemTestUnit {
 	protected abstract String getPUJar();
 
 	private void deployMirrorService() {
+					
 		File mirrorPuArchive = new File(getDeploymentJarPath(DEPLOY_DIR,
 				getMirrorService()));
 
@@ -97,7 +101,7 @@ public abstract class AbstractSystemTestUnit {
 				mirrorPuArchive);
 
 		try {
-
+			
 			mirrorServicePU = admin.getGridServiceManagers().deploy(deployment);
 
 			mirrorServicePU.waitFor(1);
