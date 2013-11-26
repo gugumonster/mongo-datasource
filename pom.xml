@@ -136,13 +136,10 @@
 				</executions>
 				<configuration>
 					<testFailureIgnore>true</testFailureIgnore>
-					<!-- <parallel>classes</parallel> -->
-					<!-- <forkMode>pertest</forkMode> -->
 					<argLine>-Xms1024m -Xmx1024m</argLine>
-					<!-- <threadCount>4</threadCount> -->
 					<includes>
 						<include>**/MongoTestSuite.java</include>
-						<!-- <include>**/MongoSystemTestSuite.java</include> -->
+						<include>**/MongoSystemTestSuite.java</include>
 					</includes>
 					<excludes>
 						<exclude>**/*Abstract*</exclude>

@@ -24,6 +24,7 @@ import de.flapdoodle.embed.mongo.distribution.Version;
 
 public class MongoDBController {
 
+	private static final String MONGO_HOME = "MONGO_HOME";
 	private static final String LOCALHOST = "localhost";
 	private static final String QA_DB = "qadb";
 	private static final int PORT = 27017;
@@ -155,7 +156,8 @@ public class MongoDBController {
 	}
 
 	private CommandLineProcess start(List<String> cmd) {
-		CommandLineProcess process = new CommandLineProcess(cmd);
+		String wd = FilenameUtils.normalize(System.getenv(MONGO_HOME)+"/bin");
+		CommandLineProcess process = new CommandLineProcess(cmd,wd);
 
 		Thread thread = new Thread(process);
 
