@@ -24,14 +24,6 @@ public class MultiTypeMongoTest extends AbstractMongoTest {
 	private final String document2KeyName = "key2";
 	private final String document3KeyName = "key3";
 
-	// TODO: check equivelence for mmongo
-	/*
-	 * @Override protected CassandraSpaceDataSource
-	 * createCassandraSpaceDataSource( HectorCassandraClient hectorClient) {
-	 * CassandraDataSource ds = createCassandraDataSource();
-	 * CassandraSpaceDataSource dataSource = new CassandraSpaceDataSource(null,
-	 * null, ds, hectorClient, 5, 30, 10 batchLimit ); return dataSource; }
-	 */
 
 	@Before
 	public void before() {

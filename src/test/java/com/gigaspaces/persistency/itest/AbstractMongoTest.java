@@ -68,26 +68,23 @@ public abstract class AbstractMongoTest {
 	}
 
 	protected MongoSpaceDataSource createMongoSpaceDataSource(
-
 			MongoClientConnector _dataSourceClient2) {
 
-
 		MongoSpaceDataSource dataSource = new MongoSpaceDataSourceConfigurer()
-				.mongoClientWrapper(_dataSourceClient2).create();
+				.mongoClientConnector(_dataSourceClient2).create();
 
 		return dataSource;
 	}
 
 	protected MongoSpaceSynchronizationEndpoint createMongoSyncEndpointInterceptor(
 
-			MongoClientConnector client) {
+	MongoClientConnector client) {
 
 		MongoSpaceSynchronizationEndpoint syncInterceptor = new MongoSpaceSynchronizationEndpointConfigurer()
 				.mongoClientConnector(client).create();
 
 		return syncInterceptor;
 	}
-
 
 	protected MongoClientConnector createMongoClientConnectorrapper(
 			String dbName) {
@@ -101,11 +98,11 @@ public abstract class AbstractMongoTest {
 
 		MongoClientConfiguration config = new MongoClientConfiguration();
 
-		config.addServer(addr.getSocketAddress());				
+		config.addServer(addr.getSocketAddress());
 		config.setDefaultDurability(Durability.ACK);
 
 		MongoClientConnector client = new MongoClientConnectorConfigurer()
-				.config(config).db(dbName).create();		
+				.config(config).db(dbName).create();
 
 		return client;
 	}

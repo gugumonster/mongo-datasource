@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.openspaces.core.GigaSpace;
 import org.openspaces.core.GigaSpaceConfigurer;
 import org.openspaces.core.space.UrlSpaceConfigurer;
-import org.openspaces.persistency.cassandra.error.SpaceCassandraException;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -24,6 +23,7 @@ import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
 import com.gigaspaces.metadata.index.SpaceIndexType;
 import com.gigaspaces.persistency.archive.MongoArchiveOperationHandler;
 import com.gigaspaces.persistency.archive.MongoArchiveOperationHandlerConfigurer;
+import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.itest.MongoTestServer;
 import com.j_spaces.core.IJSpace;
 
@@ -75,7 +75,7 @@ public class TestMongoArchiveOperationHandler {
 		configurerTest();
 	}
 
-	@Test(expected = SpaceCassandraException.class)
+	@Test(expected = SpaceMongoException.class)
 	public void testNoTypeDescriptorInSpace() throws Exception {
 		skipRegisterTypeDescriptor = true;
 		configurerTest();

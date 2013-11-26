@@ -217,18 +217,15 @@ public class MongoClientConnector {
 				Future<Integer> future = col.saveAsync(obj);
 				saveReplies.add(future);
 				break;
-			case PARTIAL_UPDATE: // TODO: add partial update and change api
-									// support and wiki documentaion
-			case CHANGE:// TODO: add partial update and change api support and
-						// wiki documentaion
-
+			case PARTIAL_UPDATE: 
+			case CHANGE:
 				Document query = BuilderFactory
 						.start()
 						.add("_id",
 								((Document) obj).get("_id").getValueAsObject())
 						.build();
 
-				Document upadte = removeNulls((Document) obj);
+				Document upadte = normalize((Document) obj);
 								
 				Future<Long> updateFuture = col.updateAsync(query, upadte);
 
@@ -294,7 +291,7 @@ public class MongoClientConnector {
 		return (total < 0) ? -1 * total : total;
 	}
 
-	private Document removeNulls(Document obj) {
+	private Document normalize(Document obj) {
 
 		DocumentBuilder builder = BuilderFactory.start();
 

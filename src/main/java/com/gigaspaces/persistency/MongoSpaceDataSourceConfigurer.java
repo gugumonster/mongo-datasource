@@ -19,7 +19,7 @@ public class MongoSpaceDataSourceConfigurer {
 
 	private MongoClientConnector mongoClientConnector;
 
-	public MongoSpaceDataSourceConfigurer mongoClientWrapper(
+	public MongoSpaceDataSourceConfigurer mongoClientConnector(
 			MongoClientConnector mongoClientConnector) {
 		this.mongoClientConnector = mongoClientConnector;
 		return this;

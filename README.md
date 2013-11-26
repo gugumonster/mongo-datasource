@@ -26,8 +26,9 @@ Build
 * clone the project git clone
 * navigate to mongo-datasource project directory
 * build project without testing `mvn clean install`
-* build project with running unit test, integration test and system test 
-	`mvn clean surefire:test integration-test install`
+* build project with running unit tests and system test 
+	`mvn clean surefire:test install`
+* run integration and system tests `mvn integration-test` or `mvn verify` 
 
 > ##### Notes #####
 > * its recommended that you run `mvn clean install` and then running the testing phases separately `mvn surefire:test integration-test` 

@@ -65,16 +65,6 @@ public class InitialDataLoadMongoTest extends AbstractMongoTest {
 								10 * 1024 * 1024, 10, 1, 4 } });
 	}
 
-	// TODO: check equivelence for mmongo
-	// @Override
-	// protected MongoSpaceDataSource createMongoSpaceDataSource(
-	// MongoClientWrapper client) {
-	// CassandraDataSource ds = createCassandraDataSource();
-	// CassandraSpaceDataSource dataSource = new CassandraSpaceDataSource(
-	// null, null, ds, hectorClient, 5, 30, batchLimit);
-	// return dataSource;
-	// }
-
 	@Before
 	public void before() {
 		_syncInterceptor
