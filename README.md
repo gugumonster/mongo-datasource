@@ -6,28 +6,26 @@ Implementation for XAP mongodb persistency SpaceDataSource and SpaceSynchronizat
 Prerequisites
 =============
 
-* Download the latest version of [XAP](http://www.gigaspaces.com/xap-download) and follow the [installation instructions](http://wiki.gigaspaces.com/wiki/display/XAP97/Installation)
-* Download [MongoDB](http://www.mongodb.org/downloads) and follow the [installation instructions](http://docs.mongodb.org/manual/installation/)
-* Download [Maven](http://maven.apache.org/download.cgi) (3.0.5 or later) and follow the [installation instructions](http://maven.apache.org/download.cgi#Installation) at the end of document
-
-Configure Environment Variable
-==============================
-
-* create environment variable GS_HOME -> path/to/[XAP installation directory]
-* add GS_HOME\bin to PATH environment variable
-* create environment variable MONGO_HOME -> path/to/[mongo installtion directory]
-* add MONGO_HOME\bin to PATH environment variable
-* add M2_HOME\bin to PATH environment variable
-
+* XAP
+  * [Download](http://www.gigaspaces.com/xap-download) the latest version and follow the [installation instructions](http://wiki.gigaspaces.com/wiki/display/XAP97/Installation)
+  * Create environment variable `GS_HOME` -> path/to/[XAP installation directory]
+  * Add `GS_HOME\bin` to `PATH` environment variable
+* MongoDB
+  * [Download](http://www.mongodb.org/downloads) and follow the [installation instructions](http://docs.mongodb.org/manual/installation/)
+  * Create environment variable `MONGO_HOME` -> path/to/[mongo installtion directory]
+  * Add `MONGO_HOME\bin` to `PATH` environment variable
+* Maven
+  * [Download](http://maven.apache.org/download.cgi) (3.0.5 or later) and follow the [installation instructions](http://maven.apache.org/download.cgi#Installation) at the end of document
+  * Add `M2_HOME\bin` to `PATH` environment variable
 
 Build
 =====
 
-* clone the project git clone
-* navigate to mongo-datasource project directory
-* build project without testing `mvn clean install`
-* build project with running unit tests and system test 
-	`mvn clean surefire:test install`
+* Clone the project git clone
+* Navigate to mongo-datasource project directory
+* Build project 
+  * without tests: `mvn clean install`
+  * with tests: `mvn clean surefire:test install`
 * run integration and system tests `mvn integration-test` or `mvn verify` 
 
 > ##### Notes #####
