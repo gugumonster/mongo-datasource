@@ -7,7 +7,7 @@ Prerequisites
 =============
 
 * XAP
-  * [Download](http://www.gigaspaces.com/xap-download) the latest version and follow the [installation instructions](http://wiki.gigaspaces.com/wiki/display/XAP97/Installation)
+  * [Download](http://www.gigaspaces.com/xap-download) (9.6 or later) and follow the [installation instructions](http://wiki.gigaspaces.com/wiki/display/XAP97/Installation)
   * Create environment variable `GS_HOME` -> path/to/[XAP installation directory]
   * Add `GS_HOME\bin` to `PATH` environment variable
 * MongoDB
