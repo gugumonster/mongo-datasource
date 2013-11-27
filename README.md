@@ -21,8 +21,8 @@ Prerequisites
 Build
 =====
 
-* Clone the project git clone
-* Navigate to mongo-datasource project directory
+* Clone the project: `git clone https://github.com/Gigaspaces/mongo-datasource.git`
+* Navigate to the `mongo-datasource` project directory
 * Build project 
   * without tests: `mvn clean install`
   * with tests: `mvn clean surefire:test install`
