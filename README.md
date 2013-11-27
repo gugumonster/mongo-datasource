@@ -6,9 +6,9 @@ Implementation for XAP mongodb persistency SpaceDataSource and SpaceSynchronizat
 Prerequisites
 =============
 
-* download [XAP last version](http://www.gigaspaces.com/xap-download) and follow the [installation instructions](http://wiki.gigaspaces.com/wiki/display/XAP97/Installation)
-* download [MongoDB](http://www.mongodb.org/downloads) and follow the [installation instructions](http://docs.mongodb.org/manual/installation/)
-* download [Maven 3.0.5 or later](http://maven.apache.org/download.cgi) and follow the [installation instructions](http://maven.apache.org/download.cgi#Installation) at the end of document
+* Download the latest version of [XAP](http://www.gigaspaces.com/xap-download) and follow the [installation instructions](http://wiki.gigaspaces.com/wiki/display/XAP97/Installation)
+* Download [MongoDB](http://www.mongodb.org/downloads) and follow the [installation instructions](http://docs.mongodb.org/manual/installation/)
+* Download [Maven](http://maven.apache.org/download.cgi) (3.0.5 or later) and follow the [installation instructions](http://maven.apache.org/download.cgi#Installation) at the end of document
 
 Configure Environment Variable
 ==============================
