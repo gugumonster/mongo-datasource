@@ -10,8 +10,8 @@
 		<junitVersion>4.8.2</junitVersion>
 	</properties>
 	<modules>
-		<module>mongo-datasource</module>
 		<module>mongo-datasource/src/test/resources/stest/stest-model</module>
+		<module>mongo-datasource</module>		
 		<module>mongo-datasource/src/test/resources/stest/mongodb-qa-mirror</module>
 		<module>mongo-datasource/src/test/resources/stest/all-in-cache</module>
 		<module>mongo-datasource/src/test/resources/stest/lru</module>
@@ -19,5 +19,6 @@
 		<module>mongo-datasource/src/test/resources/stest/initial-load</module>
 		<module>mongo-datasource/src/test/resources/stest/load</module>
 		<module>mongo-datasource/src/test/resources/stest/document-pojo-with-dynamic-props</module>
-	</modules>	
+	</modules>		
+
 </project>

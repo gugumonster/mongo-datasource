@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gigaspaces</groupId>
 	<artifactId>mongo-datasource</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>	
 	<packaging>jar</packaging>
 
 	<properties>
@@ -104,6 +104,7 @@
 			<version>1.5</version>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<testSourceDirectory>src/test/java</testSourceDirectory>
 		<testResources>
@@ -120,7 +121,7 @@
 					<execution>
 						<goals>
 							<goal>integration-test</goal>
-							<goal>verify</goal>
+							<goal>verify</goal>							
 						</goals>
 					</execution>
 				</executions>
@@ -129,7 +130,7 @@
 					<argLine>-Xms1024m -Xmx1024m</argLine>
 					<includes>
 						<include>**/MongoTestSuite.java</include>
-						<include>**/MongoSystemTestSuite.java</include>
+						<!-- <include>**/MongoSystemTestSuite.java</include> -->
 					</includes>
 					<excludes>
 						<exclude>**/*Abstract*</exclude>
