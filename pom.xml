@@ -11,13 +11,13 @@
 	</properties>
 	<modules>
 		<module>mongo-datasource</module>
-		<module>src/test/resources/stest/stest-model</module>
-		<module>src/test/resources/stest/mongodb-qa-mirror</module>
-		<module>src/test/resources/stest/all-in-cache</module>
-		<module>src/test/resources/stest/lru</module>
-		<module>src/test/resources/stest/partial-update</module>
-		<module>src/test/resources/stest/initial-load</module>
-		<module>src/test/resources/stest/load</module>
-		<module>src/test/resources/stest/document-pojo-with-dynamic-props</module>
+		<module>mongo-datasource/src/test/resources/stest/stest-model</module>
+		<module>mongo-datasource/src/test/resources/stest/mongodb-qa-mirror</module>
+		<module>mongo-datasource/src/test/resources/stest/all-in-cache</module>
+		<module>mongo-datasource/src/test/resources/stest/lru</module>
+		<module>mongo-datasource/src/test/resources/stest/partial-update</module>
+		<module>mongo-datasource/src/test/resources/stest/initial-load</module>
+		<module>mongo-datasource/src/test/resources/stest/load</module>
+		<module>mongo-datasource/src/test/resources/stest/document-pojo-with-dynamic-props</module>
 	</modules>	
 </project>
