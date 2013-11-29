@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="target/" kind="src" output="target/classes" path="src/main/java">
+	<classpathentry kind="src" output="target/classes" path="src/main/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
@@ -20,7 +20,7 @@
 	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/load"/>
 	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/partial-update"/>
 	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/lru"/>
-	<classpathentry excluding="target/|src/|src/main/java/com/|src/main/java/com/|src/main/java/|src/main/java/" kind="src" path="src/test/resources/stest/stest-model"/>
+	<classpathentry excluding="target/|src/|src/main/java/com/|src/main/java/" kind="src" path="src/test/resources/stest/stest-model"/>
 	<classpathentry kind="src" path="src/test/resources/stest/stest-model/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
 		<attributes>
@@ -33,10 +33,5 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry excluding="**|stest/all-in-cache/|stest/all-in-cache/|stest/mongodb-qa-mirror/|stest/mongodb-qa-mirror/|stest/stest-model/|stest/stest-model/|stest/|stest/|stest/stest-model/|stest/mongodb-qa-mirror/|stest/all-in-cache/|stest/document-pojo-with-dynamic-props/|stest/document-pojo-with-dynamic-props/|stest/initial-load/|stest/initial-load/|stest/load/|stest/load/|stest/partial-update/|stest/partial-update/|stest/lru/|stest/lru/|stest/stest-model/|stest/stest-model/src/|stest/stest-model/src/main/java/com/|stest/stest-model/|stest/stest-model/target/|stest/stest-model/src/main/java/|stest/stest-model/src/main/java/com/|stest/stest-model/src/main/java/" kind="src" output="target/test-classes" path="src/test/resources">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
