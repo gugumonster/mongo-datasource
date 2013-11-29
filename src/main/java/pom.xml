@@ -2,24 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gigaspaces</groupId>
-	<artifactId>mongo-datasource-parent</artifactId>
+	<artifactId>mongo-datasource</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 
 	<properties>
 		<junitVersion>4.8.2</junitVersion>
 	</properties>
-	<modules>
-		<module>src/main/java</module>
-		<module>src/test/resources/stest/stest-model</module>
-		<module>src/test/resources/stest/mongodb-qa-mirror</module>
-		<module>src/test/resources/stest/all-in-cache</module>
-		<module>src/test/resources/stest/lru</module>
-		<module>src/test/resources/stest/partial-update</module>
-		<module>src/test/resources/stest/initial-load</module>
-		<module>src/test/resources/stest/load</module>
-		<module>src/test/resources/stest/document-pojo-with-dynamic-props</module>
-	</modules>
+
 	<repositories>
 		<repository>
 			<id>org.openspaces</id>
