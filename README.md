@@ -24,7 +24,7 @@ Build
 * Clone the project: `git clone https://github.com/Gigaspaces/mongo-datasource.git`
 * Navigate to the `mongo-datasource` project directory
 * Build project 
-  * without tests: `mvn clean install`
+  * without tests: `mvn clean install -DskipTests`
   * with tests: `mvn clean surefire:test install`
 * run integration and system tests `mvn integration-test` or `mvn verify` 
 
