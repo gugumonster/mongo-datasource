@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gigaspaces</groupId>
 	<artifactId>mongo-datasource</artifactId>
-	<version>0.0.1-SNAPSHOT</version>	
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -86,12 +86,6 @@
 			<artifactId>junit</artifactId>
 			<version>${junitVersion}</version>
 		</dependency>
-		<!-- local repository dependency that will be packaged and installed -->
-		<dependency>
-			<groupId>com.gigaspaces.stest.model</groupId>
-			<artifactId>stest-model</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		<!-- mongo embedded server implementation for testing -->
 		<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
@@ -115,13 +109,246 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+				
+					<execution>
+						<id>all-in-cache-copy</id>						
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>									
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/test/resources/stest/all-in-cache/src/main/resources/lib</outputDirectory>							
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>document-pojo-with-dynamic-props-copy</id>						
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>									
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/test/resources/stest/document-pojo-with-dynamic-props/src/main/resources/lib</outputDirectory>							
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>initial-load-copy</id>						
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>									
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/test/resources/stest/initial-load/src/main/resources/lib</outputDirectory>							
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>load-copy</id>						
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>									
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/test/resources/stest/load/src/main/resources/lib</outputDirectory>
+														
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>lru-copy</id>						
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>									
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/test/resources/stest/lru/src/main/resources/lib</outputDirectory>														
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>mongodb-qa-mirror-copy</id>						
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>									
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/test/resources/stest/mongodb-qa-mirror/src/main/resources/lib</outputDirectory>														
+						</configuration>
+					</execution>
+					
+					<execution>
+						<id>partial-update-copy</id>						
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
+									<type>${project.packaging}</type>									
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>src/test/resources/stest/partial-update/src/main/resources/lib</outputDirectory>														
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<executions>
+					<execution>
+						<id>all-in-cache</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>mvn</executable>
+							<commandlineArgs>-f src/test/resources/stest/all-in-cache/pom.xml install</commandlineArgs>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>document-pojo-with-dynamic-props</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>mvn</executable>
+							<commandlineArgs>-f src/test/resources/stest/document-pojo-with-dynamic-props/pom.xml install</commandlineArgs>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>mongodb-qa-mirror</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>mvn</executable>
+							<commandlineArgs>-f src/test/resources/stest/mongodb-qa-mirror/pom.xml install</commandlineArgs>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>initial-load</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>mvn</executable>
+							<commandlineArgs>-f src/test/resources/stest/initial-load/pom.xml install</commandlineArgs>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>load</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>mvn</executable>
+							<commandlineArgs>-f src/test/resources/stest/load/pom.xml install</commandlineArgs>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>partial-update</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>mvn</executable>
+							<commandlineArgs>-f src/test/resources/stest/partial-update/pom.xml install</commandlineArgs>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>lru</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>mvn</executable>
+							<commandlineArgs>-f src/test/resources/stest/lru/pom.xml install</commandlineArgs>
+						</configuration>
+					</execution>
+
+				</executions>
+
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.16</version>
 				<executions>
 					<execution>
+						<phase>integration-test</phase>
 						<goals>
 							<goal>integration-test</goal>
-							<goal>verify</goal>							
+							<goal>verify</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -130,7 +357,7 @@
 					<argLine>-Xms1024m -Xmx1024m</argLine>
 					<includes>
 						<include>**/MongoTestSuite.java</include>
-						<!-- <include>**/MongoSystemTestSuite.java</include> -->
+						<include>**/MongoSystemTestSuite.java</include>
 					</includes>
 					<excludes>
 						<exclude>**/*Abstract*</exclude>

@@ -25,11 +25,14 @@
 	</repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.gigaspaces</groupId>
-			<artifactId>mongo-datasource</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+	
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.gigaspaces</groupId> -->
+<!-- 			<artifactId>mongo-datasource</artifactId> -->
+<!-- 			<version>0.0.1-SNAPSHOT</version> -->
+<!-- 			<scope>system</scope> -->
+<!-- 			<systemPath>${project.build.directory}/../../../../../../target/mongo-datasource-0.0.1-SNAPSHOT.jar</systemPath> -->
+<!-- 		</dependency> -->
 
 
 		<dependency>
@@ -56,12 +59,6 @@
 			<version>4.0</version>
 		</dependency>
 
-		<!-- local repository dependency that will be packaged and installed -->
-		<dependency>
-			<groupId>com.gigaspaces.stest.model</groupId>
-			<artifactId>stest-model</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -79,18 +76,6 @@
 						</goals>
 						<configuration>
 							<artifactItems>
-								<artifactItem>
-									<groupId>com.gigaspaces.stest.model</groupId>
-									<artifactId>stest-model</artifactId>
-									<version>0.0.1-SNAPSHOT</version>
-									<type>${project.packaging}</type>
-								</artifactItem>
-								<artifactItem>
-									<groupId>com.gigaspaces</groupId>
-									<artifactId>mongo-datasource</artifactId>
-									<version>0.0.1-SNAPSHOT</version>
-									<type>${project.packaging}</type>
-								</artifactItem>
 								<artifactItem>
 									<groupId>com.google.guava</groupId>
 									<artifactId>guava</artifactId>

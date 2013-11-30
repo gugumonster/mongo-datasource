@@ -28,12 +28,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.gigaspaces</groupId>
-			<artifactId>mongo-datasource</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.allanbank</groupId>
 			<artifactId>mongodb-async-driver</artifactId>
 			<version>1.2.3</version>
@@ -58,12 +52,6 @@
 			<version>4.0</version>
 		</dependency>
 
-		<!-- local repository dependency that will be packaged and installed -->
-		<dependency>
-			<groupId>com.gigaspaces.stest.model</groupId>
-			<artifactId>stest-model</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -80,19 +68,7 @@
 							<goal>copy</goal>
 						</goals>
 						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>com.gigaspaces.stest.model</groupId>
-									<artifactId>stest-model</artifactId>
-									<version>0.0.1-SNAPSHOT</version>
-									<type>${project.packaging}</type>
-								</artifactItem>
-								<artifactItem>
-									<groupId>com.gigaspaces</groupId>
-									<artifactId>mongo-datasource</artifactId>
-									<version>0.0.1-SNAPSHOT</version>
-									<type>${project.packaging}</type>
-								</artifactItem>
+							<artifactItems>								
 								<artifactItem>
 									<groupId>com.google.guava</groupId>
 									<artifactId>guava</artifactId>

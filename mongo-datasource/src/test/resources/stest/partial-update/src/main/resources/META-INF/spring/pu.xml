@@ -18,7 +18,7 @@
 
 	<!-- ANNOTATION AND COMPONENT SCAN CONFIGURATION -->
 	<!-- Enable scan for OpenSpaces and Spring components -->
-	<context:component-scan base-package="com.gigaspaces.stest.model" />
+	<context:component-scan base-package="com.gigaspaces.persistency.qa.model" />
 	<!-- <context:component-scan base-package="com.c123.billbuddy.remoting" 
 		/> -->
 

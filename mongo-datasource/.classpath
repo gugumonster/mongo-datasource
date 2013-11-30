@@ -13,15 +13,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/mongodb-qa-mirror"/>
-	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/all-in-cache"/>
-	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/document-pojo-with-dynamic-props"/>
-	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/initial-load"/>
-	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/load"/>
-	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/partial-update"/>
-	<classpathentry excluding="target/" kind="src" path="src/test/resources/stest/lru"/>
-	<classpathentry excluding="target/|src/|src/main/java/com/|src/main/java/" kind="src" path="src/test/resources/stest/stest-model"/>
-	<classpathentry kind="src" path="src/test/resources/stest/stest-model/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
