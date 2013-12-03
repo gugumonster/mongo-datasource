@@ -8,7 +8,9 @@
 
 	<properties>
 		<junitVersion>4.8.2</junitVersion>
+		<childGroup>com.gigaspaces.mongo-datasource.stest</childGroup>
 	</properties>
+
 	<repositories>
 		<repository>
 			<id>org.openspaces</id>
@@ -106,14 +108,68 @@
 				<directory>src/test/resources</directory>
 			</testResource>
 		</testResources>
+
+
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<phase>package</phase>
+
+					</execution>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.12.4</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<testFailureIgnore>true</testFailureIgnore>
+					<parallel>classes</parallel>
+					<forkMode>pertest</forkMode>
+					<argLine>-Xms1024m -Xmx1024m</argLine>
+					<threadCount>4</threadCount>
+					<includes>
+						<include>**/AllTests.java</include>
+					</includes>
+					<excludes>
+						<exclude>**/*Abstract*</exclude>
+						<exclude>**/stest/**</exclude>
+					</excludes>
+					<additionalClasspathElements>
+						<additionalClasspathElement>src/test/resources</additionalClasspathElement>
+					</additionalClasspathElements>
+				</configuration>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
-				
+
 					<execution>
-						<id>all-in-cache-copy</id>						
+						<id>all-in-cache-copy</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy</goal>
@@ -124,15 +180,15 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
-									<type>${project.packaging}</type>									
+									<type>${project.packaging}</type>
 								</artifactItem>
 							</artifactItems>
-							<outputDirectory>src/test/resources/stest/all-in-cache/src/main/resources/lib</outputDirectory>							
+							<outputDirectory>src/test/resources/stest/all-in-cache/src/main/resources/lib</outputDirectory>
 						</configuration>
 					</execution>
-					
+
 					<execution>
-						<id>document-pojo-with-dynamic-props-copy</id>						
+						<id>document-pojo-with-dynamic-props-copy</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy</goal>
@@ -143,15 +199,15 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
-									<type>${project.packaging}</type>									
+									<type>${project.packaging}</type>
 								</artifactItem>
 							</artifactItems>
-							<outputDirectory>src/test/resources/stest/document-pojo-with-dynamic-props/src/main/resources/lib</outputDirectory>							
+							<outputDirectory>src/test/resources/stest/document-pojo-with-dynamic-props/src/main/resources/lib</outputDirectory>
 						</configuration>
 					</execution>
-					
+
 					<execution>
-						<id>initial-load-copy</id>						
+						<id>initial-load-copy</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy</goal>
@@ -162,15 +218,15 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
-									<type>${project.packaging}</type>									
+									<type>${project.packaging}</type>
 								</artifactItem>
 							</artifactItems>
-							<outputDirectory>src/test/resources/stest/initial-load/src/main/resources/lib</outputDirectory>							
+							<outputDirectory>src/test/resources/stest/initial-load/src/main/resources/lib</outputDirectory>
 						</configuration>
 					</execution>
-					
+
 					<execution>
-						<id>load-copy</id>						
+						<id>load-copy</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy</goal>
@@ -181,16 +237,16 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
-									<type>${project.packaging}</type>									
+									<type>${project.packaging}</type>
 								</artifactItem>
 							</artifactItems>
 							<outputDirectory>src/test/resources/stest/load/src/main/resources/lib</outputDirectory>
-														
+
 						</configuration>
 					</execution>
-					
+
 					<execution>
-						<id>lru-copy</id>						
+						<id>lru-copy</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy</goal>
@@ -201,15 +257,15 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
-									<type>${project.packaging}</type>									
+									<type>${project.packaging}</type>
 								</artifactItem>
 							</artifactItems>
-							<outputDirectory>src/test/resources/stest/lru/src/main/resources/lib</outputDirectory>														
+							<outputDirectory>src/test/resources/stest/lru/src/main/resources/lib</outputDirectory>
 						</configuration>
 					</execution>
-					
+
 					<execution>
-						<id>mongodb-qa-mirror-copy</id>						
+						<id>mongodb-qa-mirror-copy</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy</goal>
@@ -220,15 +276,15 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
-									<type>${project.packaging}</type>									
+									<type>${project.packaging}</type>
 								</artifactItem>
 							</artifactItems>
-							<outputDirectory>src/test/resources/stest/mongodb-qa-mirror/src/main/resources/lib</outputDirectory>														
+							<outputDirectory>src/test/resources/stest/mongodb-qa-mirror/src/main/resources/lib</outputDirectory>
 						</configuration>
 					</execution>
-					
+
 					<execution>
-						<id>partial-update-copy</id>						
+						<id>partial-update-copy</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy</goal>
@@ -239,10 +295,10 @@
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
-									<type>${project.packaging}</type>									
+									<type>${project.packaging}</type>
 								</artifactItem>
 							</artifactItems>
-							<outputDirectory>src/test/resources/stest/partial-update/src/main/resources/lib</outputDirectory>														
+							<outputDirectory>src/test/resources/stest/partial-update/src/main/resources/lib</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -260,7 +316,8 @@
 						</goals>
 						<configuration>
 							<executable>mvn</executable>
-							<commandlineArgs>-f src/test/resources/stest/all-in-cache/pom.xml install</commandlineArgs>
+							<commandlineArgs>-f src/test/resources/stest/all-in-cache/pom.xml
+								install</commandlineArgs>
 						</configuration>
 					</execution>
 
@@ -272,7 +329,9 @@
 						</goals>
 						<configuration>
 							<executable>mvn</executable>
-							<commandlineArgs>-f src/test/resources/stest/document-pojo-with-dynamic-props/pom.xml install</commandlineArgs>
+							<commandlineArgs>-f
+								src/test/resources/stest/document-pojo-with-dynamic-props/pom.xml
+								install</commandlineArgs>
 						</configuration>
 					</execution>
 
@@ -284,7 +343,8 @@
 						</goals>
 						<configuration>
 							<executable>mvn</executable>
-							<commandlineArgs>-f src/test/resources/stest/mongodb-qa-mirror/pom.xml install</commandlineArgs>
+							<commandlineArgs>-f
+								src/test/resources/stest/mongodb-qa-mirror/pom.xml install</commandlineArgs>
 						</configuration>
 					</execution>
 
@@ -296,7 +356,8 @@
 						</goals>
 						<configuration>
 							<executable>mvn</executable>
-							<commandlineArgs>-f src/test/resources/stest/initial-load/pom.xml install</commandlineArgs>
+							<commandlineArgs>-f src/test/resources/stest/initial-load/pom.xml
+								install</commandlineArgs>
 						</configuration>
 					</execution>
 
@@ -320,7 +381,8 @@
 						</goals>
 						<configuration>
 							<executable>mvn</executable>
-							<commandlineArgs>-f src/test/resources/stest/partial-update/pom.xml install</commandlineArgs>
+							<commandlineArgs>-f
+								src/test/resources/stest/partial-update/pom.xml install</commandlineArgs>
 						</configuration>
 					</execution>
 
@@ -367,34 +429,7 @@
 					</additionalClasspathElements>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.12.4</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>test</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<testFailureIgnore>true</testFailureIgnore>
-					<parallel>classes</parallel>
-					<forkMode>pertest</forkMode>
-					<argLine>-Xms1024m -Xmx1024m</argLine>
-					<threadCount>4</threadCount>
-					<includes>
-						<include>**/AllTests.java</include>
-					</includes>
-					<excludes>
-						<exclude>**/*Abstract*</exclude>
-					</excludes>
-					<additionalClasspathElements>
-						<additionalClasspathElement>src/test/resources</additionalClasspathElement>
-					</additionalClasspathElements>
-				</configuration>
-			</plugin>
+
 		</plugins>
 	</build>
 </project>
