@@ -17,21 +17,15 @@ package com.gigaspaces.persistency.error;
 
 /**
  * @author Shadi Massalha
- *
  */
 public class SpaceMongoDataSourceException extends SpaceMongoException {
+    private static final long serialVersionUID = 1L;
 
-	public SpaceMongoDataSourceException(String message, Throwable e) {
+    public SpaceMongoDataSourceException(String message) {
+        super(message);
+    }
+
+    public SpaceMongoDataSourceException(String message, Throwable e) {
 		super(message, e);
 	}
-
-	public SpaceMongoDataSourceException(String message) {
-		super(message);
-	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 }

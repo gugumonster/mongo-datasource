@@ -28,53 +28,43 @@ import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 
 /**
  * @author Shadi Massalha
- * 
  */
 public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
-	private MongoIterator<Document> currenCursor;
-
-	private MongoClientConnector mongoClientWrapper;
-
-	private Iterator<SpaceTypeDescriptor> types;
-	private SpaceTypeDescriptor spaceTypeDescriptor;
-
+	private MongoIterator<Document> currentCursor;
+	private final MongoClientConnector mongoClient;
+	private final Iterator<SpaceTypeDescriptor> types;
+	private SpaceTypeDescriptor typeDescriptor;
 	private SpaceDocumentMapper<Document> pojoMapper;
 
 	public MongoInitialDataLoadIterator(MongoClientConnector client) {
 		if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null");
 
-		this.mongoClientWrapper = client;
+		this.mongoClient = client;
 		this.types = client.getSortedTypes().iterator();
-		this.currenCursor = nextDataIterator();
-
+		this.currentCursor = nextDataIterator();
 	}
 
-	public boolean hasNext() {
+    public void close() {
+        if (currentCursor != null)
+            currentCursor.close();
+    }
 
-		while (currenCursor != null && !currenCursor.hasNext()) {
-			currenCursor = nextDataIterator();
+    public boolean hasNext() {
+
+		while (currentCursor != null && !currentCursor.hasNext()) {
+			currentCursor = nextDataIterator();
 		}
-		return currenCursor != null;
+		return currentCursor != null;
 	}
 
 	public Object next() {
-		Document obj = currenCursor.next();
-
-		Object pojo = pojoMapper.toDocument(obj);
-
-		return pojo;
+		return pojoMapper.toDocument(currentCursor.next());
 	}
 
 	public void remove() {
-		currenCursor.remove();
-
-	}
-
-	public void close() {
-		if (currenCursor != null)
-			currenCursor.close();
+		currentCursor.remove();
 	}
 
 	private MongoIterator<Document> nextDataIterator() {
@@ -82,12 +72,8 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 		if (!types.hasNext())
 			return null;
 
-		spaceTypeDescriptor = types.next();
-		this.pojoMapper = new AsyncSpaceDocumentMapper(spaceTypeDescriptor);
-
-		MongoIterator<Document> cursor = mongoClientWrapper.getCollection(
-				spaceTypeDescriptor.getTypeName()).find(BuilderFactory.start());
-
-		return cursor;
+		typeDescriptor = types.next();
+		this.pojoMapper = new AsyncSpaceDocumentMapper(typeDescriptor);
+		return mongoClient.getCollection(typeDescriptor.getTypeName()).find(BuilderFactory.start());
 	}
 }

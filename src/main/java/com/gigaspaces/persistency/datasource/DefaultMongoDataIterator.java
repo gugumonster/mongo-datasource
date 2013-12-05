@@ -24,25 +24,20 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 
 /**
  * @author Shadi Massalha
- *
  */
 public class DefaultMongoDataIterator implements DataIterator<Object> {
 
 	private MongoIterator<Document> iterator;
-
 	private SpaceDocumentMapper<Document> mapper;
 
-	public DefaultMongoDataIterator(MongoIterator<Document> iteraor,
-			SpaceTypeDescriptor spaceTypeDescriptor) {
-		if (iteraor == null)
-			throw new NullPointerException("mongo cursor can not be null");
+	public DefaultMongoDataIterator(MongoIterator<Document> iterator, SpaceTypeDescriptor typeDescriptor) {
+		if (iterator == null)
+			throw new IllegalArgumentException("iterator can not be null");
+		if (typeDescriptor == null)
+			throw new IllegalArgumentException("typeDescriptor can not be null");
 
-		if (spaceTypeDescriptor == null)
-			throw new IllegalArgumentException(
-					"spaceTypeDescriptor can not be null");
-
-		this.iterator = iteraor;
-		this.mapper = new AsyncSpaceDocumentMapper(spaceTypeDescriptor);
+		this.iterator = iterator;
+		this.mapper = new AsyncSpaceDocumentMapper(typeDescriptor);
 	}
 
 	public boolean hasNext() {
@@ -50,9 +45,7 @@ public class DefaultMongoDataIterator implements DataIterator<Object> {
 	}
 
 	public Object next() {
-		Document bson = iterator.next();
-
-		return mapper.toDocument(bson);
+		return mapper.toDocument(iterator.next());
 	}
 
 	public void remove() {
@@ -62,5 +55,4 @@ public class DefaultMongoDataIterator implements DataIterator<Object> {
 	public void close() {
 		iterator.close();
 	}
-
 }

@@ -60,29 +60,24 @@ import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
 
 /**
+ * MongoDB driver client wrapper
+ *
  * @author Shadi Massalha
- * 
- *         mongodb driver client wrapper
  */
 public class MongoClientConnector {
 
-	private static final String ERROR_OCCURS_WHILE_TRY_DESERIALIZE_OBJECT = "error occurs while try deserialize object: ";
-	private static final String ERROR_OCCUR_WHILE_SERIALIZE_AND_SAVE_TYPE_DESCRIPTOR = "error occurs while serialize and save type descriptor: ";
 	private static final String TYPE_DESCRIPTOR_FIELD_NAME = "value";
-	private static final String DEFAULT_ID = "_id";
 	private static final String METADATA_COLLECTION_NAME = "metadata";
 
-	private static final Log logger = LogFactory
-			.getLog(MongoClientConnector.class);
+	private static final Log logger = LogFactory.getLog(MongoClientConnector.class);
 
 	private final MongoClient client;
-	private String dbName;
+	private final String dbName;
+    private final IndexBuilder indexBuilder;
 
 	// TODO: shadi must add documentation
 	private static final Map<String, SpaceTypeDescriptorHolder> types = new ConcurrentHashMap<String, SpaceTypeDescriptorHolder>();
-	private static final Map<String, SpaceDocumentMapper<Document>> _mappingCache = new ConcurrentHashMap<String, SpaceDocumentMapper<Document>>();
-
-	private IndexBuilder indexBuilder;
+	private static final Map<String, SpaceDocumentMapper<Document>> mappingCache = new ConcurrentHashMap<String, SpaceDocumentMapper<Document>>();
 
 	public MongoClientConnector(MongoClient client, String db) {
 
@@ -91,51 +86,27 @@ public class MongoClientConnector {
 		this.indexBuilder = new IndexBuilder(this);
 	}
 
-	/**
-	 * @param introduceTypeData
-	 */
-	public void introduceType(IntroduceTypeData introduceTypeData) {
+    public void close() throws IOException {
 
-		SpaceTypeDescriptor spaceTypeDescriptor = introduceTypeData
-				.getTypeDescriptor();
+        client.close();
+    }
 
-		introduceType(spaceTypeDescriptor);
+    public void introduceType(IntroduceTypeData introduceTypeData) {
+
+		introduceType(introduceTypeData.getTypeDescriptor());
 	}
 
-	/**
-	 * @param spaceTypeDescriptor
-	 */
-	public void introduceType(SpaceTypeDescriptor spaceTypeDescriptor) {
-		MongoCollection m = getConnection().getCollection(
-				METADATA_COLLECTION_NAME);
+	public void introduceType(SpaceTypeDescriptor typeDescriptor) {
 
-		DocumentBuilder builder = BuilderFactory.start();
+        MongoCollection m = getConnection().getCollection(METADATA_COLLECTION_NAME);
 
-		builder.add(DEFAULT_ID, spaceTypeDescriptor.getTypeName());
+		DocumentBuilder builder = BuilderFactory.start()
+		    .add(Constants.ID_PROPERTY, typeDescriptor.getTypeName());
 
-		writeMetadata(spaceTypeDescriptor, m, builder);
-	}
-
-	/**
-	 * serialize the type descriptor to binary stream and save it to metadata
-	 * collection
-	 * 
-	 * @param introduceTypeData
-	 * @param spaceTypeDescriptor
-	 * @param m
-	 * @param builder
-	 */
-	private void writeMetadata(SpaceTypeDescriptor spaceTypeDescriptor,
-			MongoCollection m, DocumentBuilder builder) {
 		try {
-
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
 			ObjectOutputStream out = new ObjectOutputStream(bos);
-
-			IOUtils.writeObject(out,
-					SpaceTypeDescriptorVersionedSerializationUtils
-							.toSerializableForm(spaceTypeDescriptor));
+			IOUtils.writeObject(out, SpaceTypeDescriptorVersionedSerializationUtils.toSerializableForm(typeDescriptor));
 
 			builder.add(TYPE_DESCRIPTOR_FIELD_NAME, bos.toByteArray());
 
@@ -144,304 +115,194 @@ public class MongoClientConnector {
 			if (logger.isTraceEnabled())
 				logger.trace(wr);
 
-			indexBuilder.ensureIndexes(spaceTypeDescriptor);
+			indexBuilder.ensureIndexes(typeDescriptor);
 
 		} catch (IOException e) {
 			logger.error(e);
 
-			throw new SpaceMongoException(
-					ERROR_OCCUR_WHILE_SERIALIZE_AND_SAVE_TYPE_DESCRIPTOR
-							+ spaceTypeDescriptor, e);
+			throw new SpaceMongoException("error occurs while serialize and save type descriptor: " + typeDescriptor, e);
 		}
 	}
 
-	/**
-	 * @return mongodb DB object
-	 */
 	public MongoDatabase getConnection() {
-		MongoDatabase db = client.getDatabase(dbName);
-
-		// if (StringUtils.hasLength(user))
-		// db.authenticate(user, password);
-
-		return db;
+        return client.getDatabase(dbName);
 	}
 
-	/**
-	 * @param collectionName
-	 *            - name of the requested mongodb collection
-	 * @return
-	 */
 	public MongoCollection getCollection(String collectionName) {
 
-		MongoDatabase db = getConnection();
-
-		return db.getCollection(collectionName);
+		return getConnection().getCollection(collectionName);
 	}
 
-	/**
-	 * @param rows
-	 *            - batch units which includes space documents and target
-	 *            operation type to be performed
-	 */
-	public void performBatch(List<BatchUnit> rows) {
+    public void performBatch(DataSyncOperation[] operations) {
+        List<BatchUnit> rows = new LinkedList<BatchUnit>();
+
+        for (DataSyncOperation operation : operations) {
+
+            BatchUnit bu = new BatchUnit();
+            cacheTypeDescriptor(operation.getTypeDescriptor());
+            bu.setSpaceDocument(operation.getDataAsDocument());
+            bu.setDataSyncOperationType(operation.getDataSyncOperationType());
+            rows.add(bu);
+        }
+
+        performBatch(rows);
+    }
+
+    public void performBatch(List<BatchUnit> rows) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("MongoClientWrapper.performBatch(" + rows + ")");
 			logger.trace("Batch size to be performed is " + rows.size());
 		}
 
-		int length = rows.size();
+		List<Future<? extends Number>> pending = new ArrayList<Future<? extends Number>>();
 
-		List<Future<Integer>> saveReplies = new ArrayList<Future<Integer>>();
-		List<Future<Long>> updatesReplies = new ArrayList<Future<Long>>();
-		List<Future<Long>> deltedReplies = new ArrayList<Future<Long>>();
+        for (BatchUnit row : rows) {
+            SpaceDocument spaceDoc = row.getSpaceDocument();
+            SpaceTypeDescriptorHolder typeDescriptorHolder = types.get(row.getTypeName());
 
-		for (int i = 0; i < length; i++) {
-			BatchUnit batchUnit = rows.get(i);
+            SpaceDocumentMapper<Document> mapper = getMapper(typeDescriptorHolder.getTypeDescriptor());
 
-			SpaceDocument spaceDoc = batchUnit.getSpaceDocument();
-			SpaceTypeDescriptorHolder spaceTypeDescriptor = types.get(batchUnit
-					.getTypeName());
+            DocumentAssignable obj = mapper.toDBObject(spaceDoc);
 
-			SpaceDocumentMapper<Document> mapper = getMapper(spaceTypeDescriptor
-					.getTypeDescriptor());
+            MongoCollection col = getCollection(row.getTypeName());
 
-			DocumentAssignable obj = mapper.toDBObject(spaceDoc);
+            switch (row.getDataSyncOperationType()) {
 
-			MongoCollection col = getCollection(batchUnit.getTypeName());
+                case WRITE:
+                case UPDATE:
+                    pending.add(col.saveAsync(obj));
+                    break;
+                case PARTIAL_UPDATE:
+                case CHANGE:
+                    Document query = BuilderFactory.start()
+                            .add(Constants.ID_PROPERTY, ((Document) obj).get(Constants.ID_PROPERTY).getValueAsObject())
+                            .build();
 
-			switch (batchUnit.getDataSyncOperationType()) {
+                    Document update = normalize((Document) obj);
+                    pending.add(col.updateAsync(query, update));
+                    break;
+                // case REMOVE_BY_UID: // Not supported by this implementation
+                case REMOVE:
+                    pending.add(col.deleteAsync(obj, false));
+                    break;
+                default:
+                    throw new IllegalStateException("Unsupported data sync operation type: "
+                            + row.getDataSyncOperationType());
+            }
+        }
 
-			case WRITE:
-			case UPDATE:
-				Future<Integer> future = col.saveAsync(obj);
-				saveReplies.add(future);
-				break;
-			case PARTIAL_UPDATE: 
-			case CHANGE:
-				Document query = BuilderFactory
-						.start()
-						.add("_id",
-								((Document) obj).get("_id").getValueAsObject())
-						.build();
-
-				Document upadte = normalize((Document) obj);
-								
-				Future<Long> updateFuture = col.updateAsync(query, upadte);
-
-				updatesReplies.add(updateFuture);
-
-				break;
-			// case REMOVE_BY_UID: // TODO: not supported by cassandra
-			// implementation
-			case REMOVE:
-				deltedReplies.add(col.deleteAsync(obj, false));
-				break;
-			default:
-				throw new IllegalStateException(
-						"Unsupported data sync operation type: "
-								+ batchUnit.getDataSyncOperationType());
-
-			}
-		}
-
-		long totalCount = waitForSave(saveReplies) + waitFor(updatesReplies)
-				+ waitFor(deltedReplies);
+		long totalCount = waitFor(pending);
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("total accepted replies is: " + totalCount);
 		}
 	}
 
-	private long waitForSave(List<Future<Integer>> replies) {
+    public Collection<SpaceTypeDescriptor> loadMetadata() {
 
-		long total = 0;
+		MongoCollection metadata = getCollection(METADATA_COLLECTION_NAME);
 
-		for (Future<Integer> future : replies) {
-			try {
-				total += future.get().intValue();
-			} catch (InterruptedException e) {
-				throw new SpaceMongoException("Asynchronize repolies size is: "
-						+ replies.size(), e);
-			} catch (ExecutionException e) {
-				throw new SpaceMongoException("Asynchronize repolies size is: "
-						+ replies.size(), e);
-			}
-		}
-
-		return (total < 0) ? -1 * total : total;
-	}
-
-	public long waitFor(List<Future<Long>> replies) {
-
-		long total = 0;
-
-		for (Future<Long> future : replies) {
-			try {
-				total += future.get().longValue();
-			} catch (InterruptedException e) {
-				throw new SpaceMongoException("Asynchronize repolies size is: "
-						+ replies.size(), e);
-			} catch (ExecutionException e) {
-				throw new SpaceMongoException("Asynchronize repolies size is: "
-						+ replies.size(), e);
-			}
-		}
-
-		return (total < 0) ? -1 * total : total;
-	}
-
-	private Document normalize(Document obj) {
-
-		DocumentBuilder builder = BuilderFactory.start();
-
-		for (Element e : obj.getElements()) {
-
-			String key = e.getName();
-
-			if ("_id".equals(key))
-				continue;
-
-			Object value = obj.get(key).getValueAsObject();
-
-			if (value == null)
-				continue;
-//
-//			if (value instanceof DocumentAssignable) {
-//				builder.push("$set").add(key, (Document) value);
-//			} else
-				builder.push("$set").add(key, value);
-		}
-
-		return builder.build();
-	}
-
-	protected SpaceDocumentMapper<Document> getMapper(
-			SpaceTypeDescriptor spaceTypeDescriptor) {
-
-		SpaceDocumentMapper<Document> mapper = _mappingCache
-				.get(spaceTypeDescriptor.getTypeName());
-
-		if (mapper == null) {
-			mapper = new AsyncSpaceDocumentMapper(spaceTypeDescriptor);
-			_mappingCache.put(spaceTypeDescriptor.getTypeName(), mapper);
-		}
-
-		return mapper;
-	}
-
-	public void cacheSpaceTypeDesciptor(SpaceTypeDescriptor spaceTypeDescriptor) {
-
-		if (spaceTypeDescriptor == null)
-			throw new IllegalArgumentException(
-					"spaceTypeDescriptor can not be null");
-
-		if (!types.containsKey(spaceTypeDescriptor.getTypeName())) {
-			introduceType(spaceTypeDescriptor);
-		}
-
-		SpaceTypeDescriptorHolder holder = new SpaceTypeDescriptorHolder(
-				spaceTypeDescriptor);
-
-		types.put(spaceTypeDescriptor.getTypeName(), holder);
-	}
-
-	public void close() throws IOException {
-
-		client.close();
-	}
-
-	public Collection<SpaceTypeDescriptor> loadMetadata() {
-
-		MongoCollection metadata = getConnection().getCollection(
-				METADATA_COLLECTION_NAME);
-
-		MongoIterator<Document> cursor = metadata.find(BuilderFactory.start()
-				.build());
+		MongoIterator<Document> cursor = metadata.find(BuilderFactory.start().build());
 
 		while (cursor.hasNext()) {
-
 			Document type = cursor.next();
-
 			Object b = type.get(TYPE_DESCRIPTOR_FIELD_NAME).getValueAsObject();
-
 			readMetadata(b);
 		}
 
 		return getSortedTypes();
 	}
 
-	/**
-	 * read object as byte array of type {@link SpaceTypeDescriptor} then ensure
-	 * indexes and put it in types cache
-	 * 
-	 * @param b
-	 *            - object to be casted to type array
-	 */
+    public Collection<SpaceTypeDescriptor> getSortedTypes() {
+
+        return TypeHierarcyTopologySorter.getSortedList(types);
+    }
+
+    private void cacheTypeDescriptor(SpaceTypeDescriptor typeDescriptor) {
+
+        if (typeDescriptor == null)
+            throw new IllegalArgumentException("typeDescriptor can not be null");
+
+        if (!types.containsKey(typeDescriptor.getTypeName()))
+            introduceType(typeDescriptor);
+
+        types.put(typeDescriptor.getTypeName(), new SpaceTypeDescriptorHolder(typeDescriptor));
+    }
+
 	private void readMetadata(Object b) {
 		try {
 
-			ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(
-					(byte[]) b));
+			ObjectInput in = new ObjectInputStream(new ByteArrayInputStream((byte[]) b));
+			Serializable typeDescWrapper = IOUtils.readObject(in);
+			SpaceTypeDescriptor typeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils.fromSerializableForm(
+                    typeDescWrapper);
+			indexBuilder.ensureIndexes(typeDescriptor);
 
-			Serializable typeDescriptorVersionedSerializableWrapper = IOUtils
-					.readObject(in);
-
-			SpaceTypeDescriptor spaceTypeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils
-					.fromSerializableForm(typeDescriptorVersionedSerializableWrapper);
-
-			indexBuilder.ensureIndexes(spaceTypeDescriptor);
-
-			cacheSpaceTypeDesciptor(spaceTypeDescriptor);
+			cacheTypeDescriptor(typeDescriptor);
 
 		} catch (ClassNotFoundException e) {
 			logger.error(e);
-			throw new SpaceMongoDataSourceException(
-					ERROR_OCCURS_WHILE_TRY_DESERIALIZE_OBJECT + b, e);
+			throw new SpaceMongoDataSourceException("Failed to deserialize: " + b, e);
 		} catch (IOException e) {
 			logger.error(e);
-			throw new SpaceMongoDataSourceException(
-					ERROR_OCCURS_WHILE_TRY_DESERIALIZE_OBJECT + b, e);
+            throw new SpaceMongoDataSourceException("Failed to deserialize: " + b, e);
 		}
-	}
-
-	/**
-	 * Encapsulate {@link DataSyncOperation} into batch helper POJO and create
-	 * new batch list
-	 * 
-	 * @param dataSyncOperations
-	 */
-	public void performBatch(DataSyncOperation[] dataSyncOperations) {
-		int length = dataSyncOperations.length;
-
-		List<BatchUnit> rows = new LinkedList<BatchUnit>();
-
-		for (int index = 0; index < length; index++) {
-
-			BatchUnit bu = new BatchUnit();
-			DataSyncOperation dso = dataSyncOperations[index];
-
-			cacheSpaceTypeDesciptor(dso.getTypeDescriptor());
-
-			bu.setSpaceDocument(dso.getDataAsDocument());
-			bu.setDataSyncOperationType(dso.getDataSyncOperationType());
-
-			rows.add(bu);
-		}
-
-		performBatch(rows);
-	}
-
-	/**
-	 * @return - returned sorted list regard of inheritance hierarchy supper
-	 *         class ascending
-	 */
-	public Collection<SpaceTypeDescriptor> getSortedTypes() {
-
-		return TypeHierarcyTopologySorter.getSortedList(types);
 	}
 
 	public void ensureIndexes(AddIndexData addIndexData) {
 		indexBuilder.ensureIndexes(addIndexData);
 	}
+
+    private static SpaceDocumentMapper<Document> getMapper(SpaceTypeDescriptor typeDescriptor) {
+
+        SpaceDocumentMapper<Document> mapper = mappingCache.get(typeDescriptor.getTypeName());
+        if (mapper == null) {
+            mapper = new AsyncSpaceDocumentMapper(typeDescriptor);
+            mappingCache.put(typeDescriptor.getTypeName(), mapper);
+        }
+
+        return mapper;
+    }
+
+    private static Document normalize(Document obj) {
+
+        DocumentBuilder builder = BuilderFactory.start();
+
+        for (Element e : obj.getElements()) {
+
+            String key = e.getName();
+
+            if (Constants.ID_PROPERTY.equals(key))
+                continue;
+
+            Object value = obj.get(key).getValueAsObject();
+
+            if (value == null)
+                continue;
+//
+//			if (value instanceof DocumentAssignable) {
+//				builder.push("$set").add(key, (Document) value);
+//			} else
+            builder.push("$set").add(key, value);
+        }
+
+        return builder.build();
+    }
+
+    private static long waitFor(List<Future<? extends Number>> replies) {
+
+        long total = 0;
+
+        for (Future<? extends Number> future : replies) {
+            try {
+                total += future.get().longValue();
+            } catch (InterruptedException e) {
+                throw new SpaceMongoException("Number of async operations: " + replies.size(), e);
+            } catch (ExecutionException e) {
+                throw new SpaceMongoException("Number of async operations: " + replies.size(), e);
+            }
+        }
+
+        return total;
+    }
 }

@@ -37,9 +37,7 @@ import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.sync.DataSyncOperationType;
 
 /**
- * 
  * @author Shadi Massalha
- * 
  */
 @SuppressWarnings("restriction")
 public class MongoArchiveOperationHandler implements ArchiveOperationHandler {

@@ -44,114 +44,94 @@ import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 
 /**
- * 
- * A MonogDB implementation of {@link com.gigaspaces.datasource.SpaceDataSource}
- * 
- * 
+ * A MongoDB implementation of {@link com.gigaspaces.datasource.SpaceDataSource}
+ *
  * @author Shadi Massalha
- * 
  */
 public class MongoSpaceDataSource extends SpaceDataSource {
 
-	private static final String _ID = "_id";
+	private static final Log logger = LogFactory.getLog(MongoSpaceDataSource.class);
 
-	private static final Log logger = LogFactory
-			.getLog(MongoSpaceDataSource.class);
-
-	private MongoClientConnector mongoClient;
+	private final MongoClientConnector mongoClient;
 
 	public MongoSpaceDataSource(MongoClientConnector mongoClient) {
 
 		if (mongoClient == null)
-			throw new IllegalArgumentException(
-					"mongoClient must be set and initiated");
-
+			throw new IllegalArgumentException("Argument cannot be null - mongoClient");
 		this.mongoClient = mongoClient;
 	}
 
-	@Override
-	public DataIterator<SpaceTypeDescriptor> initialMetadataLoad() {
+    public void close() throws IOException {
 
-		if (logger.isDebugEnabled())
-			logger.debug("MongoSpaceDataSource.initialMetadataLoad()");
+        if (logger.isDebugEnabled())
+            logger.debug("MongoSpaceDataSource.close()");
 
-		Collection<SpaceTypeDescriptor> sortedCollection = mongoClient
-				.loadMetadata();
+        mongoClient.close();
+    }
 
-		return new DataIteratorAdapter<SpaceTypeDescriptor>(
-				sortedCollection.iterator());
-	}
+    /**
+     * Inheritance is not supported.
+     */
+    @Override
+    public boolean supportsInheritance() {
+        return false;
+    }
 
-	@Override
+    @Override
+    public DataIterator<SpaceTypeDescriptor> initialMetadataLoad() {
+
+        if (logger.isDebugEnabled())
+            logger.debug("MongoSpaceDataSource.initialMetadataLoad()");
+
+        Collection<SpaceTypeDescriptor> sortedCollection = mongoClient.loadMetadata();
+
+        return new DataIteratorAdapter<SpaceTypeDescriptor>(sortedCollection.iterator());
+    }
+
+    @Override
+    public DataIterator<Object> initialDataLoad() {
+
+        if (logger.isDebugEnabled())
+            logger.debug("MongoSpaceDataSource.initialDataLoad()");
+
+        return new MongoInitialDataLoadIterator(mongoClient);
+    }
+
+    @Override
+    public DataIterator<Object> getDataIterator(DataSourceQuery query) {
+
+        if (logger.isDebugEnabled())
+            logger.debug("MongoSpaceDataSource.getDataIterator(" + query + ")");
+
+        return new MongoSqlQueryDataIterator(mongoClient, query);
+    }
+
+    @Override
 	public Object getById(DataSourceIdQuery idQuery) {
 
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceDataSource.getById(" + idQuery + ")");
 
-		SpaceDocumentMapper<Document> mapper = new AsyncSpaceDocumentMapper(
-				idQuery.getTypeDescriptor());
-
-		DocumentBuilder q = BuilderFactory.start().add(_ID,
-				mapper.toObject(idQuery.getId()));
-
-		MongoCollection c = mongoClient.getCollection(idQuery
-				.getTypeDescriptor().getTypeName());
-
-		Document cursor = c.findOne(q);
-
-		return mapper.toDocument(cursor);
+		SpaceDocumentMapper<Document> mapper = new AsyncSpaceDocumentMapper(idQuery.getTypeDescriptor());
+		DocumentBuilder q = BuilderFactory.start().add(Constants.ID_PROPERTY, mapper.toObject(idQuery.getId()));
+		MongoCollection c = mongoClient.getCollection(idQuery.getTypeDescriptor().getTypeName());
+		Document result = c.findOne(q);
+		return mapper.toDocument(result);
 	}
 
 	@Override
-	public DataIterator<Object> getDataIterator(DataSourceQuery query) {
+	public DataIterator<Object> getDataIteratorByIds(DataSourceIdsQuery idsQuery) {
 
-		if (logger.isDebugEnabled())
-			logger.debug("MongoSpaceDataSource.getDataIterator()");
+        if (logger.isDebugEnabled())
+            logger.debug("MongoSpaceDataSource.getDataIteratorByIds(" + idsQuery + ")");
 
-		return new MongoSqlQueryDataIterator(mongoClient, query);
-	}
+		DocumentAssignable[] ors = new DocumentAssignable[idsQuery.getIds().length];
+		for (int i=0 ; i < ors.length ; i++)
+			ors[i] = BuilderFactory.start().add(Constants.ID_PROPERTY, idsQuery.getIds()[i]);
+		Document q = QueryBuilder.or(ors);
 
-	@Override
-	public DataIterator<Object> getDataIteratorByIds(DataSourceIdsQuery arg0) {
-
-		List<DocumentAssignable> ors = new ArrayList<DocumentAssignable>();
-
-		for (Object id : arg0.getIds()) {
-
-			ors.add(BuilderFactory.start().add(_ID, id));
-		}
-
-		Document q1 = QueryBuilder.or(ors.toArray(new DocumentAssignable[0]));
-
-		MongoCollection c = mongoClient.getCollection(arg0.getTypeDescriptor()
-				.getTypeName());
-
-		MongoIterator<Document> cursor = c.find(q1);
-
-		return new DefaultMongoDataIterator(cursor, arg0.getTypeDescriptor());
-
-	}
-
-	@Override
-	public DataIterator<Object> initialDataLoad() {
-		return new MongoInitialDataLoadIterator(mongoClient);
-	}
-
-	/**
-	 * Returns <code>false</code>, inheritance is not supported.
-	 * 
-	 * @return <code>false</code>.
-	 */
-	@Override
-	public boolean supportsInheritance() {
-		return false;
-	}
-
-	public void close() throws IOException {
-
-		if (logger.isDebugEnabled())
-			logger.debug("MongoSpaceDataSource.close()");
-
-		mongoClient.close();
+		MongoCollection c = mongoClient.getCollection(idsQuery.getTypeDescriptor().getTypeName());
+		MongoIterator<Document> results = c.find(q);
+		return new DefaultMongoDataIterator(results, idsQuery.getTypeDescriptor());
 	}
 }

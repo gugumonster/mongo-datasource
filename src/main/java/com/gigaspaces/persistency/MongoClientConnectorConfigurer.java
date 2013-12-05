@@ -23,32 +23,17 @@ import com.allanbank.mongodb.MongoFactory;
 
 /**
  * @author Shadi Massalha
- * 
  */
 public class MongoClientConnectorConfigurer {
 
 	private String db;
-
 	private MongoClientConfiguration config;
 
-	/**
-	 * @param config
-	 *            - encapsulate all configuration option of mongo db driver
-	 *            server address, port, write concern, credintial ...
-	 * @see <a href=
-	 *      "http://www.allanbank.com/mongodb-async-driver/apidocs/com/allanbank/mongodb/MongoClientConfiguration.html"
-	 *      >com.allanbank.mongodb.MongoClientConfiguration</a>
-	 */
 	public MongoClientConnectorConfigurer config(MongoClientConfiguration config) {
 		this.config = config;
-
 		return this;
 	}
 
-	/**
-	 * @param db
-	 *            - the name of the target mongo db
-	 */
 	public MongoClientConnectorConfigurer db(String db) {
 		this.db = db;
 		return this;
@@ -57,10 +42,10 @@ public class MongoClientConnectorConfigurer {
 	public MongoClientConnector create() {
 
 		if (!StringUtils.hasLength(db))
-			throw new IllegalArgumentException("db can not be null or empty");
+			throw new IllegalArgumentException("Argument cannot be null or empty: db");
 
 		if (config == null)
-			throw new IllegalArgumentException("port must be gratter than 1024");
+            throw new IllegalArgumentException("Argument cannot be null or empty: config");
 
 		MongoClient client = MongoFactory.createClient(config);
 

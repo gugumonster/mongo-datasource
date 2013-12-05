@@ -28,33 +28,35 @@ import com.gigaspaces.sync.SpaceSynchronizationEndpoint;
 import com.gigaspaces.sync.TransactionData;
 
 /**
+ * A MongoDB implementation of  {@link SpaceSynchronizationEndpoint }
+ *
  * @author Shadi Massalha
- * 
- * 
- *         mongo db {@link SpaceSynchronizationEndpoint } implementation
  */
-public class MongoSpaceSynchronizationEndpoint extends
-		SpaceSynchronizationEndpoint {
+public class MongoSpaceSynchronizationEndpoint extends SpaceSynchronizationEndpoint {
 
-	private static final Log logger = LogFactory
-			.getLog(MongoSpaceSynchronizationEndpoint.class);
+	private static final Log logger = LogFactory.getLog(MongoSpaceSynchronizationEndpoint.class);
 
-	private MongoClientConnector client;
+	private final MongoClientConnector client;
 
 	public MongoSpaceSynchronizationEndpoint(MongoClientConnector client) {
 
 		if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null.");
-
 		this.client = client;
 	}
 
-	@Override
+    public void close() throws IOException {
+        if (logger.isDebugEnabled())
+            logger.trace("MongoSpaceSynchronizationEndpoint.close()");
+
+        client.close();
+    }
+
+    @Override
 	public void onIntroduceType(IntroduceTypeData introduceTypeData) {
 
 		if (logger.isDebugEnabled())
-			logger.trace("MongoSpaceSynchronizationEndpoint.onIntroduceType("
-					+ introduceTypeData + ")");
+			logger.trace("MongoSpaceSynchronizationEndpoint.onIntroduceType("+ introduceTypeData + ")");
 
 		client.introduceType(introduceTypeData);
 	}
@@ -62,8 +64,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 	@Override
 	public void onAddIndex(AddIndexData addIndexData) {
 		if (logger.isDebugEnabled())
-			logger.debug("MongoSpaceSynchronizationEndpoint.onAddIndex("
-					+ addIndexData + ")");
+			logger.debug("MongoSpaceSynchronizationEndpoint.onAddIndex("+ addIndexData + ")");
 
 		client.ensureIndexes(addIndexData);
 	}
@@ -74,9 +75,7 @@ public class MongoSpaceSynchronizationEndpoint extends
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceSynchronizationEndpoint.onOperationsBatchSynchronization()");
 
-		DataSyncOperation dataSyncOperations[] = batchData.getBatchDataItems();
-
-		doSynchronization(dataSyncOperations);
+        synchronize(batchData.getBatchDataItems());
 	}
 
 	@Override
@@ -85,23 +84,13 @@ public class MongoSpaceSynchronizationEndpoint extends
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceSynchronizationEndpoint.onTransactionSynchronization()");
 
-		DataSyncOperation dataSyncOperations[] = transactionData
-				.getTransactionParticipantDataItems();
-
-		doSynchronization(dataSyncOperations);
+        synchronize(transactionData.getTransactionParticipantDataItems());
 	}
 
-	public void close() throws IOException {
-		if (logger.isDebugEnabled())
-			logger.trace("MongoSpaceSynchronizationEndpoint.close()");
-
-		client.close();
-	}
-
-	private void doSynchronization(DataSyncOperation dataSyncOperations[]) {
+	private void synchronize(DataSyncOperation operations[]) {
 		if (logger.isDebugEnabled())
 			logger.trace("MongoSpaceSynchronizationEndpoint.doSynchronization()");
 
-		client.performBatch(dataSyncOperations);
+		client.performBatch(operations);
 	}
 }

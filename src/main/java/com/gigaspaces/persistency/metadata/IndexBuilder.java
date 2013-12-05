@@ -30,11 +30,10 @@ import com.gigaspaces.sync.AddIndexData;
 
 public class IndexBuilder {
 
-	private MongoClientConnector client;
+	private final MongoClientConnector client;
 
-	public IndexBuilder(MongoClientConnector pool) {
-
-		this.client = pool;
+	public IndexBuilder(MongoClientConnector client) {
+		this.client = client;
 	}
 
 	public void ensureIndexes(SpaceTypeDescriptor spaceTypeDescriptor) {
@@ -61,12 +60,26 @@ public class IndexBuilder {
 		}
 	}
 
-	private void createIndex(String typeSimpleName, String routing,
+    public void ensureIndexes(AddIndexData addIndexData) {
+        for (SpaceIndex idx : addIndexData.getIndexes()) {
+
+            if (idx.getIndexType() == SpaceIndexType.NONE)
+                continue;
+
+            createIndex(addIndexData.getTypeName(), idx);
+        }
+    }
+
+    private void createIndex(String collectionName, SpaceIndex idx) {
+        createIndex(collectionName, idx.getName(), idx.getIndexType(), BuilderFactory.start());
+    }
+
+    private void createIndex(String typeSimpleName, String routing,
 			SpaceIndexType type, DocumentBuilder option) {
 
 		MongoCollection c = client.getCollection(typeSimpleName);
 
-		Element key = null;
+		Element key;
 
 		if (type == SpaceIndexType.BASIC)
 			key = Index.hashed(routing);
@@ -74,32 +87,5 @@ public class IndexBuilder {
 			key = Index.asc(routing);
 
 		c.createIndex(routing, option.asDocument(), key);
-	}
-
-	private void createIndex(String collectionName, SpaceIndex idx) {
-
-		DocumentBuilder option = getOptions(idx);
-
-		createIndex(collectionName, idx.getName(), idx.getIndexType(), option);
-	}
-
-	private DocumentBuilder getOptions(SpaceIndex idx) {
-
-		// DBObject option = new BasicDBObject();
-
-		// if (idx.isUnique())
-		// option.put("unique", idx.isUnique());
-
-		return BuilderFactory.start();
-	}
-
-	public void ensureIndexes(AddIndexData addIndexData) {
-		for (SpaceIndex idx : addIndexData.getIndexes()) {
-
-			if (idx.getIndexType() == SpaceIndexType.NONE)
-				continue;
-
-			createIndex(addIndexData.getTypeName(), idx);
-		}
 	}
 }

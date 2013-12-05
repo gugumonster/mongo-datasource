@@ -310,9 +310,8 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Map toMap(Class<?> type, ArrayElement value) {
 
-		Map map = null;
-
 		try {
+            Map map;
 
 			if (!type.isInterface()) {
 				map = (Map) repository.getConstructor(type).newInstance();
@@ -333,20 +332,12 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 			return map;
 
 		} catch (InvocationTargetException e) {
-			new SpaceMongoException(
-					"Could not find default constructor for type: "
-							+ type.getName(), e);
+			throw new SpaceMongoException("Could not find default constructor for type: " + type.getName(), e);
 		} catch (InstantiationException e) {
-			new SpaceMongoException(
-					"Could not find default constructor for type: "
-							+ type.getName(), e);
+			throw new SpaceMongoException("Could not find default constructor for type: " + type.getName(), e);
 		} catch (IllegalAccessException e) {
-			new SpaceMongoException(
-					"Could not find default constructor for type: "
-							+ type.getName(), e);
+            throw new SpaceMongoException("Could not find default constructor for type: " + type.getName(), e);
 		}
-
-		return map;
 	}
 
 	private Object toArray(Class<?> type, ArrayElement value) {
@@ -374,38 +365,26 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Collection toCollection(Class<?> type, ArrayElement value) {
 
-		Collection collection = null;
-
 		try {
+            Collection collection;
 			if (!type.isInterface()) {
-				collection = (Collection) repository.getConstructor(type)
-						.newInstance();
+				collection = (Collection) repository.getConstructor(type).newInstance();
 			} else {
 				collection = (Collection) repository.getConstructor(
-						getClassFor(value.getEntries().get(0)
-								.getValueAsString())).newInstance();
+						getClassFor(value.getEntries().get(0).getValueAsString())).newInstance();
 			}
 
-			for (int i = 1; i < value.getEntries().size(); i++) {
-				collection.add(fromDBObject(value.getEntries().get(i)
-						.getValueAsObject()));
-			}
+			for (int i = 1; i < value.getEntries().size(); i++)
+				collection.add(fromDBObject(value.getEntries().get(i).getValueAsObject()));
 
+            return collection;
 		} catch (InvocationTargetException e) {
-			new SpaceMongoException(
-					"Could not find default constructor for type: "
-							+ type.getName(), e);
+			throw new SpaceMongoException("Could not find default constructor for type: " + type.getName(), e);
 		} catch (InstantiationException e) {
-			new SpaceMongoException(
-					"Could not find default constructor for type: "
-							+ type.getName(), e);
+			throw new SpaceMongoException("Could not find default constructor for type: " + type.getName(), e);
 		} catch (IllegalAccessException e) {
-			new SpaceMongoException(
-					"Could not find default constructor for type: "
-							+ type.getName(), e);
+			throw new SpaceMongoException("Could not find default constructor for type: " + type.getName(), e);
 		}
-
-		return collection;
 	}
 
 	public Class<?> getClassFor(String type) {

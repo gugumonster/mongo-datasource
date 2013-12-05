@@ -34,34 +34,28 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 
 /**
  * @author Shadi Massalha
- * 
  */
 public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	private static final Log logger = LogFactory
 			.getLog(MongoSqlQueryDataIterator.class);
 
-	private MongoClientConnector client;
-	private DataSourceQuery query;
+	private final MongoClientConnector client;
+	private final DataSourceQuery query;
+    private final SpaceDocumentMapper<Document> pojoMapper;
 	private MongoIterator<Document> cursor;
-	private SpaceDocumentMapper<Document> pojoMapper;
 
-	public MongoSqlQueryDataIterator(MongoClientConnector client,
-			DataSourceQuery query) {
+	public MongoSqlQueryDataIterator(MongoClientConnector client, DataSourceQuery query) {
 		if (client == null)
-			throw new IllegalArgumentException("");
-
+			throw new IllegalArgumentException("Argument cannot be null - client");
 		if (query == null)
-			throw new IllegalArgumentException("query can not be null");
-
+            throw new IllegalArgumentException("Argument cannot be null - query");
 		if (!(query.supportsAsSQLQuery() || query.supportsTemplateAsDocument()))
 			throw new UnSupportedQueryException("not sql query");
 
 		this.client = client;
 		this.query = query;
-		this.pojoMapper = new AsyncSpaceDocumentMapper(
-				query.getTypeDescriptor());
-
+		this.pojoMapper = new AsyncSpaceDocumentMapper(query.getTypeDescriptor());
 	}
 
 	public boolean hasNext() {
@@ -74,14 +68,11 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	public Object next() {
 
-		Object result = pojoMapper.toDocument(cursor.next());
-
-		return result;
+        return pojoMapper.toDocument(cursor.next());
 	}
 
 	private void init() {
-		MongoCollection collection = client.getCollection(query
-				.getTypeDescriptor().getTypeName());
+		MongoCollection collection = client.getCollection(query.getTypeDescriptor().getTypeName());
 
 		DocumentBuilder q = BuilderFactory.start();
 
@@ -95,7 +86,6 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 					.getTemplateAsDocument()));
 
 		cursor = collection.find(q);
-
 	}
 
 	public void remove() {
@@ -106,7 +96,5 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 	public void close() {
 		if (cursor != null)
 			cursor.close();
-
 	}
-
 }

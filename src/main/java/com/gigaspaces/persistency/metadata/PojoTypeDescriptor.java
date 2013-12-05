@@ -27,11 +27,7 @@ import com.gigaspaces.persistency.error.SpaceMongoException;
 
 public class PojoTypeDescriptor {
 
-	// POJO type
-	private Class<?> type;
-
-	private Constructor<Object> constructor;
-
+	private final Constructor<Object> constructor;
 	private final Map<String, Method> getters = new HashMap<String, Method>();
 	private final Map<String, Method> setters = new HashMap<String, Method>();
 
@@ -70,10 +66,6 @@ public class PojoTypeDescriptor {
 			setters.put(property.getName(), property.getSetterMethod());
 		}
 
-	}
-
-	public Class<?> getType() {
-		return type;
 	}
 
 	public Constructor<Object> getConstructor() {

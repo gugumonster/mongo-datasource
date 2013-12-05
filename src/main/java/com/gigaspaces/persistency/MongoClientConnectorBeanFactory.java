@@ -22,11 +22,11 @@ import org.springframework.beans.factory.InitializingBean;
 import com.allanbank.mongodb.MongoClientConfiguration;
 
 /**
+ * Default spring bean factory implementation that can get external
+ * {@link MongoClientConnectorConfigurer} as configurer otherwise create
+ * it own one
+
  * @author Shadi Massalha
- * 
- *         default spring bean factory implementation that can get external
- *         {@link MongoClientConnectorConfigurer} as configurar otherwise create
- *         it own one
  */
 public class MongoClientConnectorBeanFactory implements
 		FactoryBean<MongoClientConnector>, InitializingBean, DisposableBean {
@@ -35,22 +35,10 @@ public class MongoClientConnectorBeanFactory implements
 
 	private final MongoClientConnectorConfigurer configurer = getConfigurer();
 
-	/**
-	 * @param db
-	 *            - the name of the target mongo db
-	 */
 	public void setDb(String db) {
 		configurer.db(db);
 	}
 
-	/**
-	 * @param config
-	 *            - encapsulate all configuration option of mongo db driver
-	 *            server address, port, write concern, credintial ...
-	 * @see <a href=
-	 *      "http://www.allanbank.com/mongodb-async-driver/apidocs/com/allanbank/mongodb/MongoClientConfiguration.html"
-	 *      >com.allanbank.mongodb.MongoClientConfiguration</a>
-	 */
 	public void setConfig(MongoClientConfiguration config) {
 		configurer.config(config);
 	}

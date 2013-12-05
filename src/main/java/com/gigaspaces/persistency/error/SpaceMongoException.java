@@ -24,12 +24,11 @@ public class SpaceMongoException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	public SpaceMongoException(String message, Throwable e) {
+    public SpaceMongoException(String message) {
+        super(message);
+    }
+
+    public SpaceMongoException(String message, Throwable e) {
 		super(message, e);
 	}
-
-	public SpaceMongoException(String message) {
-		super(message);
-	}
-
 }
