@@ -94,8 +94,8 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 	}
 
-	private PojoRepository repository = new PojoRepository();
-	private SpaceTypeDescriptor spaceTypeDescriptor;
+	private final PojoRepository repository = new PojoRepository();
+	private final SpaceTypeDescriptor spaceTypeDescriptor;
 
 	public AsyncSpaceDocumentMapper(SpaceTypeDescriptor spaceTypeDescriptor) {
 		this.spaceTypeDescriptor = spaceTypeDescriptor;

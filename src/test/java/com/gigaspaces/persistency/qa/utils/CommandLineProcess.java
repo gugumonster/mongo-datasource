@@ -14,11 +14,11 @@ import com.j_spaces.jms.utils.StringsUtils;
 
 public class CommandLineProcess implements Runnable {
 
-	private List<String> command;
+	private final List<String> command;
 	private int exitValue;
 	Process process;
-	private Map<String, String> env = new HashMap<String, String>();
-	private String workingDir;
+	private final Map<String, String> env = new HashMap<String, String>();
+	private final String workingDir;
 
 	public CommandLineProcess(List<String> cmd, String workingDir) {
 
