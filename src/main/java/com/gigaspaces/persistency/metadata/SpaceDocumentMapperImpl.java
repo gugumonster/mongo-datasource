@@ -472,13 +472,13 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 		BasicDBList list = new BasicDBList();
 
 		@SuppressWarnings("rawtypes")
-		Map map = (Map) property;
+        Map<?,?> map = (Map) property;
 		int index = 0;
 		list.add(index++, property.getClass().getName());
 
-		for (Object key : map.keySet()) {
-			list.add(index++, toObject(key));
-			list.add(index++, toObject(map.get(key)));
+		for (Map.Entry<?,?> entry : map.entrySet()) {
+			list.add(index++, toObject(entry.getKey()));
+			list.add(index++, toObject(entry.getValue()));
 		}
 
 		return list;
@@ -520,7 +520,7 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 			return null;
 
 		if (value instanceof String)
-			return new Character(((String) value).charAt(0));
+			return ((String) value).charAt(0);
 
 		throw new IllegalArgumentException("invalid value for Character: "
 				+ value);

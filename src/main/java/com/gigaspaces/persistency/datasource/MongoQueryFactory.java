@@ -119,7 +119,7 @@ public class MongoQueryFactory {
 				.start(Json.parse(sb1.toString()));
 
 		if (parameters != null) {
-			query = replaceParameters(parameters, mapper, query,new Integer(0));
+			query = replaceParameters(parameters, mapper, query, 0);
 		}
 
 		return query;

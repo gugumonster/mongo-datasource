@@ -189,7 +189,7 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
                 }
 
 				if (type(setter.getParameterTypes()[0]) == TYPE_SHORT)
-					val = Short.valueOf(val.toString()).shortValue();
+					val = Short.valueOf(val.toString());
 
 				setter.set(pojo, val);
 			}
@@ -353,7 +353,7 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 						v, SpaceDocumentSupport.CONVERT);
 
 			if (type(type.getComponentType()) == TYPE_SHORT)
-				v = Short.valueOf(v.toString()).shortValue();
+				v = Short.valueOf(v.toString());
 
 			Array.set(array, i - 1, v);
 		}
@@ -505,13 +505,13 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 		ArrayBuilder builder = BuilderFactory.startArray();
 		@SuppressWarnings("rawtypes")
-		Map map = (Map) property;
+		Map<?,?> map = (Map) property;
 
 		builder.add(property.getClass().getName());
 
-		for (Object key : map.keySet()) {
-			builder.add(toObject(key));
-			builder.add(toObject(map.get(key)));
+		for (Map.Entry<?,?> entry : map.entrySet()) {
+			builder.add(toObject(entry.getKey()));
+			builder.add(toObject(entry.getValue()));
 		}
 
 		return builder.build();
@@ -573,7 +573,7 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 			return null;
 
 		if (value instanceof String)
-			return new Character(((String) value).charAt(0));
+			return ((String) value).charAt(0);
 
 		throw new IllegalArgumentException("invalid value for Character: "
 				+ value);
