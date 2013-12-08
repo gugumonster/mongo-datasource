@@ -169,7 +169,7 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 		// test if value is true | false
 		isValue = booleanPattern.matcher(val).matches();
 		if (isValue) {
-			return Boolean.parseBoolean(val);
+			return Boolean.valueOf(val);
 		}
 
 		// test if number value
@@ -178,10 +178,10 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 			int floatIndex = val.indexOf('.');
 
 			if (floatIndex > -1) {
-				return Double.parseDouble(val);
+				return Double.valueOf(val);
 			}
 
-			return Long.parseLong(val);
+			return Long.valueOf(val);
 		}
 
 		throw new IllegalArgumentException(val);
