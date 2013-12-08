@@ -48,33 +48,33 @@ public class MongoQueryFactory {
 	private static final String LIKE = "like()";
 	private static final String RLIKE = "rlike()";
 	private static final String PARAM_PLACEHOLDER = "'%{}'";
-	private static final Map<SpaceTypeDescriptor, Map<String, StringBuilder>> cachedQuery = new ConcurrentHashMap<SpaceTypeDescriptor, Map<String, StringBuilder>>();
+	private static final Map<SpaceTypeDescriptor, Map<String, String>> cachedQuery = new ConcurrentHashMap<SpaceTypeDescriptor, Map<String, String>>();
 
 	public static DocumentBuilder create(DataSourceQuery sql) {
-		Map<String, StringBuilder> b = cachedQuery.get(sql.getTypeDescriptor());
+		Map<String, String> cache = cachedQuery.get(sql.getTypeDescriptor());
 
-		if (b == null) {
-			b = new HashMap<String, StringBuilder>();
+		if (cache == null) {
+			cache = new HashMap<String, String>();
 
-			cachedQuery.put(sql.getTypeDescriptor(), b);
+			cachedQuery.put(sql.getTypeDescriptor(), cache);
 		}
 
-		String q = sql.getAsSQLQuery().getQuery();
+		String query = sql.getAsSQLQuery().getQuery();
 
-		StringBuilder sb = b.get(q);
+        String parsedQuery = cache.get(query);
 
-		if (sb == null) {
-			sb = parse(q);
+		if (parsedQuery == null) {
+			parsedQuery = parse(query);
 
-			b.put(q, sb);
+			cache.put(query, parsedQuery);
 		}
 
-		DocumentBuilder qResult = bind(sb, sql.getAsSQLQuery()
+		DocumentBuilder queryResult = bind(parsedQuery, sql.getAsSQLQuery()
 				.getQueryParameters(), sql.getTypeDescriptor());
 
-		replaceIdProperty(qResult, sql.getTypeDescriptor());
+		replaceIdProperty(queryResult, sql.getTypeDescriptor());
 
-		return qResult;
+		return queryResult;
 	}
 
 	private static void replaceIdProperty(DocumentBuilder qResult,
@@ -91,7 +91,7 @@ public class MongoQueryFactory {
 		}
 	}
 
-	private static StringBuilder parse(String sql) {
+	private static String parse(String sql) {
 		ANTLRInputStream charstream = new ANTLRInputStream(sql);
 
 		SQL2MongoLexer lexer = new SQL2MongoLexer(charstream);
@@ -104,19 +104,15 @@ public class MongoQueryFactory {
 
 		parser.parse().accept(visitor);
 
-		return new StringBuilder(visitor.getQuery().toString());
+		return visitor.getQuery().toString();
 	}
 
-	public static DocumentBuilder bind(StringBuilder sb, Object[] parameters,
+	public static DocumentBuilder bind(String parsedQuery, Object[] parameters,
 			SpaceTypeDescriptor spaceTypeDescriptor) {
 
-		StringBuilder sb1 = new StringBuilder(sb.toString());
+		SpaceDocumentMapper<Document> mapper = new AsyncSpaceDocumentMapper(spaceTypeDescriptor);
 
-		SpaceDocumentMapper<Document> mapper = new AsyncSpaceDocumentMapper(
-				spaceTypeDescriptor);
-
-		DocumentBuilder query = BuilderFactory
-				.start(Json.parse(sb1.toString()));
+		DocumentBuilder query = BuilderFactory.start(Json.parse(parsedQuery));
 
 		if (parameters != null) {
 			query = replaceParameters(parameters, mapper, query, 0);
@@ -129,13 +125,12 @@ public class MongoQueryFactory {
 			SpaceDocumentMapper<Document> mapper, DocumentBuilder builder,Integer index) {
 		
 
-		DocumentBuilder builder1 = BuilderFactory.start();
+		DocumentBuilder newBuilder = BuilderFactory.start();
 
 		for (Element e : builder.asDocument().getElements()) {
 
 			String field = e.getName();
-
-			Object ph = builder.asDocument().get(field).getValueAsObject();
+			Object ph = e.getValueAsObject();
 
 			if (index >= parameters.length)
 				return builder;
@@ -143,7 +138,7 @@ public class MongoQueryFactory {
 			if (ph instanceof String) {
 
 				if (PARAM_PLACEHOLDER.equals(ph)) {
-					builder1.add(field, mapper.toObject(parameters[index++]))
+					newBuilder.add(field, mapper.toObject(parameters[index++]))
 							.build();
 				}
 			} else {
@@ -156,12 +151,12 @@ public class MongoQueryFactory {
 							continue;
 
 						if (LIKE.equalsIgnoreCase(e1.getValueAsString())) {
-							builder1.add(
-									field,
-									convertLikeExpression((String) parameters[index++]));
+							newBuilder.add(
+                                    field,
+                                    convertLikeExpression((String) parameters[index++]));
 						} else if (RLIKE
 								.equalsIgnoreCase(e1.getValueAsString()))
-							builder1.add(field, Pattern
+							newBuilder.add(field, Pattern
 									.compile((String) parameters[index++],Pattern.CASE_INSENSITIVE));
 
 					}
@@ -169,12 +164,12 @@ public class MongoQueryFactory {
 					DocumentBuilder doc = replaceParameters(parameters, mapper,
 							BuilderFactory.start(element),index);
 
-					builder1.add(field, doc);
+					newBuilder.add(field, doc);
 				}
 			}
 		}
 
-		return builder1;
+		return newBuilder;
 	}
 
 	private static Pattern convertLikeExpression(String val) {
