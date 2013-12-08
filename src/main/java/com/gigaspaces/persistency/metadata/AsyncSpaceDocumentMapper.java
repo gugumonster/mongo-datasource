@@ -151,11 +151,9 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 		String className = bson.get(TYPE).getValueAsString();
 
-		Object pojo = null;
-
 		try {
 			Class<?> type = getClassFor(className);
-			pojo = repository.getConstructor(getClassFor(className))
+            Object pojo = repository.getConstructor(getClassFor(className))
 					.newInstance();
 
 			for (Element element : bson.getElements()) {
@@ -181,19 +179,21 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 				ISetterMethod<Object> setter = repository.getSetter(type,
 						property);
-				Object val = null;
 
+                Object val;
 				if (isArray) {
 					val = toExtractArray((ArrayElement) value,
 							setter.getParameterTypes()[0]);
-				} else
+				} else {
 					val = fromDBObject(value);
+                }
 
 				if (type(setter.getParameterTypes()[0]) == TYPE_SHORT)
 					val = Short.valueOf(val.toString()).shortValue();
 
 				setter.set(pojo, val);
 			}
+            return pojo;
 		} catch (InvocationTargetException e) {
 			throw new SpaceMongoException(
 					"can not invoke constructor or method: " + bson, e);
@@ -204,7 +204,6 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 			throw new SpaceMongoException(
 					"can not access constructor or method: " + bson, e);
 		}
-		return pojo;
 	}
 
 	private Object toSpaceDocument(Document bson) {
@@ -388,15 +387,12 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 	}
 
 	public Class<?> getClassFor(String type) {
-		Class<?> clazz = null;
 		try {
-			clazz = Class.forName(type);
+			return Class.forName(type);
 		} catch (ClassNotFoundException e) {
 			throw new SpaceMongoException("Could not resolve type for type: "
 					+ type, e);
 		}
-
-		return clazz;
 	}
 
 	public Document toDBObject(Object document) {
