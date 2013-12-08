@@ -10,8 +10,6 @@ import java.util.Map;
 
 import org.springframework.util.StringUtils;
 
-import com.j_spaces.jms.utils.StringsUtils;
-
 public class CommandLineProcess implements Runnable {
 
 	private final List<String> command;
