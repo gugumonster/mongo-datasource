@@ -42,7 +42,7 @@ import com.gigaspaces.sync.DataSyncOperationType;
 @SuppressWarnings("restriction")
 public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private static final Log logger = LogFactory.getLog(MongoArchiveOperationHandler.class);
 
 	// injected(required)
 	private GigaSpace gigaSpace;
