@@ -336,15 +336,15 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 			}
 
 		} catch (InvocationTargetException e) {
-			new SpaceMongoException(
+			throw new SpaceMongoException(
 					"Could not find default constructor for type: "
 							+ type.getName(), e);
 		} catch (InstantiationException e) {
-			new SpaceMongoException(
+            throw new SpaceMongoException(
 					"Could not find default constructor for type: "
 							+ type.getName(), e);
 		} catch (IllegalAccessException e) {
-			new SpaceMongoException(
+            throw new SpaceMongoException(
 					"Could not find default constructor for type: "
 							+ type.getName(), e);
 		}
