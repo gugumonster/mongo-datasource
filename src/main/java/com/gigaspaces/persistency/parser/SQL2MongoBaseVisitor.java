@@ -37,13 +37,18 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 
 	private static final String PARAMETER_PLACEHOLDER = "'%{}'";
 
+    private static final Pattern stringPattern = Pattern.compile("'[^']*'");
+    private static final Pattern booleanPattern = Pattern.compile("(true|false)");
+    private static final Pattern numberPattern = Pattern.compile("[0-9\\.]+");
+
+
 	private DBObject query;
 
-	Stack<String> stack = new Stack<String>();
+    private final Stack<String> stack = new Stack<String>();
 
-	QueryBuilder atom = QueryBuilder.start();
-	LinkedList<DBObject> ands = new LinkedList<DBObject>();
-	LinkedList<DBObject> ors = new LinkedList<DBObject>();
+    private QueryBuilder atom = QueryBuilder.start();
+	private final LinkedList<DBObject> ands = new LinkedList<DBObject>();
+    private final LinkedList<DBObject> ors = new LinkedList<DBObject>();
 
 	public SQL2MongoBaseVisitor() {
 		this.query = new BasicDBObject();
@@ -142,7 +147,7 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 
 	/**
 	 * Evaluate string presentation to object
-	 * 
+	 *
 	 * @param val
 	 *            - string presentation of value
 	 * @return Object instance type
@@ -152,34 +157,31 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 		if (val == null || val.isEmpty())
 			return null;
 
-		if (val.equals("?"))
+		if ("?".equals(val))
 			return PARAMETER_PLACEHOLDER;
 
-		boolean isValue = val.matches("'[^']*'");
-		// test if value is String
+        // test if value is String
+		boolean isValue = stringPattern.matcher(val).matches();
 		if (isValue) {
-
 			return val.substring(1, val.length() - 1);
 		}
 
 		// test if value is true | false
-		isValue = val.matches("(true|false)");
-
+		isValue = booleanPattern.matcher(val).matches();
 		if (isValue) {
-			return Boolean.parseBoolean(val);
+			return Boolean.valueOf(val);
 		}
 
 		// test if number value
-		isValue = val.matches("[0-9\\.]+");
-
+		isValue = numberPattern.matcher(val).matches();
 		if (isValue) {
 			int floatIndex = val.indexOf('.');
 
 			if (floatIndex > -1) {
-				return Double.parseDouble(val);
-			} else {
-				return Long.parseLong(val);
+				return Double.valueOf(val);
 			}
+
+			return Long.valueOf(val);
 		}
 
 		throw new IllegalArgumentException(val);

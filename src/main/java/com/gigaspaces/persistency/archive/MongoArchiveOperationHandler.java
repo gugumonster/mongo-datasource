@@ -16,7 +16,7 @@
 package com.gigaspaces.persistency.archive;
 
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -42,7 +42,7 @@ import com.gigaspaces.sync.DataSyncOperationType;
 @SuppressWarnings("restriction")
 public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private static final Log logger = LogFactory.getLog(MongoArchiveOperationHandler.class);
 
 	// injected(required)
 	private GigaSpace gigaSpace;
@@ -65,7 +65,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	 */
 	public void archive(Object... objects) {
 
-		List<BatchUnit> rows = new LinkedList<BatchUnit>();
+		List<BatchUnit> rows = new ArrayList<BatchUnit>(objects.length);
 
 		for (Object object : objects) {
 

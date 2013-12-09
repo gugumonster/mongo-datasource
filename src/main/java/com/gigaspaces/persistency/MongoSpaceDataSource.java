@@ -16,9 +16,7 @@
 package com.gigaspaces.persistency;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,9 +111,9 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 			logger.debug("MongoSpaceDataSource.getById(" + idQuery + ")");
 
 		SpaceDocumentMapper<Document> mapper = new AsyncSpaceDocumentMapper(idQuery.getTypeDescriptor());
-		DocumentBuilder q = BuilderFactory.start().add(Constants.ID_PROPERTY, mapper.toObject(idQuery.getId()));
-		MongoCollection c = mongoClient.getCollection(idQuery.getTypeDescriptor().getTypeName());
-		Document result = c.findOne(q);
+		DocumentBuilder documentBuilder = BuilderFactory.start().add(Constants.ID_PROPERTY, mapper.toObject(idQuery.getId()));
+		MongoCollection mongoCollection = mongoClient.getCollection(idQuery.getTypeDescriptor().getTypeName());
+		Document result = mongoCollection.findOne(documentBuilder);
 		return mapper.toDocument(result);
 	}
 
@@ -128,10 +126,10 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		DocumentAssignable[] ors = new DocumentAssignable[idsQuery.getIds().length];
 		for (int i=0 ; i < ors.length ; i++)
 			ors[i] = BuilderFactory.start().add(Constants.ID_PROPERTY, idsQuery.getIds()[i]);
-		Document q = QueryBuilder.or(ors);
+		Document document = QueryBuilder.or(ors);
 
-		MongoCollection c = mongoClient.getCollection(idsQuery.getTypeDescriptor().getTypeName());
-		MongoIterator<Document> results = c.find(q);
+		MongoCollection mongoCollection = mongoClient.getCollection(idsQuery.getTypeDescriptor().getTypeName());
+		MongoIterator<Document> results = mongoCollection.find(document);
 		return new DefaultMongoDataIterator(results, idsQuery.getTypeDescriptor());
 	}
 }

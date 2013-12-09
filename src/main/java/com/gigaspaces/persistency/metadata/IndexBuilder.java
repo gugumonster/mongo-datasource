@@ -43,8 +43,7 @@ public class IndexBuilder {
 		String id = spaceTypeDescriptor.getIdPropertyName();
 		String routing = spaceTypeDescriptor.getRoutingPropertyName();
 
-		for (String key : indexes.keySet()) {
-			SpaceIndex idx = indexes.get(key);
+		for (SpaceIndex idx : indexes.values()) {
 
 			if (idx.getIndexType() == SpaceIndexType.NONE
 					|| idx.getName().equals(id)

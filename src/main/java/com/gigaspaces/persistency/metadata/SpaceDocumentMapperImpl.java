@@ -141,11 +141,9 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 	private Object toPojo(DBObject bson) {
 
 		String className = (String) bson.get(TYPE);
-		Object pojo = null;
-
 		try {
 			Class<?> type = getClassFor(className);
-			pojo = repository.getConstructor(getClassFor(className))
+            Object pojo = repository.getConstructor(getClassFor(className))
 					.newInstance();
 
 			for (String property : bson.keySet()) {
@@ -168,6 +166,7 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 
 				setter.set(pojo, val);
 			}
+            return pojo;
 		} catch (InvocationTargetException e) {
 			throw new SpaceMongoException(
 					"can not invoke constructor or method: " + bson, e);
@@ -178,7 +177,7 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 			throw new SpaceMongoException(
 					"can not access constructor or method: " + bson, e);
 		}
-		return pojo;
+
 	}
 
 	private Object toSpaceDocument(DBObject bson) {
@@ -337,15 +336,15 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 			}
 
 		} catch (InvocationTargetException e) {
-			new SpaceMongoException(
+			throw new SpaceMongoException(
 					"Could not find default constructor for type: "
 							+ type.getName(), e);
 		} catch (InstantiationException e) {
-			new SpaceMongoException(
+            throw new SpaceMongoException(
 					"Could not find default constructor for type: "
 							+ type.getName(), e);
 		} catch (IllegalAccessException e) {
-			new SpaceMongoException(
+            throw new SpaceMongoException(
 					"Could not find default constructor for type: "
 							+ type.getName(), e);
 		}
@@ -354,15 +353,12 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 	}
 
 	public Class<?> getClassFor(String type) {
-		Class<?> clazz = null;
 		try {
-			clazz = Class.forName(type);
+			return Class.forName(type);
 		} catch (ClassNotFoundException e) {
 			throw new SpaceMongoException("Could not resolve type for type: "
 					+ type, e);
 		}
-
-		return clazz;
 	}
 
 	public DBObject toDBObject(Object document) {
@@ -476,13 +472,13 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 		BasicDBList list = new BasicDBList();
 
 		@SuppressWarnings("rawtypes")
-		Map map = (Map) property;
+        Map<?,?> map = (Map) property;
 		int index = 0;
 		list.add(index++, property.getClass().getName());
 
-		for (Object key : map.keySet()) {
-			list.add(index++, toObject(key));
-			list.add(index++, toObject(map.get(key)));
+		for (Map.Entry<?,?> entry : map.entrySet()) {
+			list.add(index++, toObject(entry.getKey()));
+			list.add(index++, toObject(entry.getValue()));
 		}
 
 		return list;
@@ -524,7 +520,7 @@ public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {
 			return null;
 
 		if (value instanceof String)
-			return new Character(((String) value).charAt(0));
+			return ((String) value).charAt(0);
 
 		throw new IllegalArgumentException("invalid value for Character: "
 				+ value);

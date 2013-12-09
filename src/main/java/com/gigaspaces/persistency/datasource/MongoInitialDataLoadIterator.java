@@ -34,7 +34,6 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 	private MongoIterator<Document> currentCursor;
 	private final MongoClientConnector mongoClient;
 	private final Iterator<SpaceTypeDescriptor> types;
-	private SpaceTypeDescriptor typeDescriptor;
 	private SpaceDocumentMapper<Document> pojoMapper;
 
 	public MongoInitialDataLoadIterator(MongoClientConnector client) {
@@ -72,7 +71,7 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 		if (!types.hasNext())
 			return null;
 
-		typeDescriptor = types.next();
+        SpaceTypeDescriptor typeDescriptor = types.next();
 		this.pojoMapper = new AsyncSpaceDocumentMapper(typeDescriptor);
 		return mongoClient.getCollection(typeDescriptor.getTypeName()).find(BuilderFactory.start());
 	}
