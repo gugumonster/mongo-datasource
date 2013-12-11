@@ -18,9 +18,11 @@ package com.gigaspaces.persistency;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -232,7 +234,8 @@ public class MongoClientConnector {
 	private void readMetadata(Object b) {
 		try {
 
-			ObjectInput in = new ObjectInputStream(new ByteArrayInputStream((byte[]) b));
+			ObjectInput in = new CustomClassLoaderObjectInputStream(MongoClientConnector.class.getClassLoader(),
+			                                                        new ByteArrayInputStream((byte[]) b));
 			Serializable typeDescWrapper = IOUtils.readObject(in);
 			SpaceTypeDescriptor typeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils.fromSerializableForm(
                     typeDescWrapper);
@@ -305,4 +308,24 @@ public class MongoClientConnector {
 
         return total;
     }
+    
+    /**
+     * Object input stream that uses a custom class loader to resolve classes 
+     */
+    static class CustomClassLoaderObjectInputStream extends ObjectInputStream {
+      
+      private final ClassLoader classLoader;
+      
+      CustomClassLoaderObjectInputStream(ClassLoader classLoader, InputStream is) throws IOException { 
+        super(is);
+        this.classLoader = classLoader;
+      }
+      
+      @Override
+      protected Class<?> resolveClass(ObjectStreamClass desc) throws ClassNotFoundException {
+        return Class.forName(desc.getName(), false, classLoader);
+      }
+      
+    }
+    
 }
