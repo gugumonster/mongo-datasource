@@ -1,0 +1,7 @@
+language: java
+jdk:
+  - oraclejdk7
+  
+install: "mvn install -f ./mongo-datasource/pom.xml -DskipTests=true"
+script: "mvn test -f ./mongo-datasource/pom.xml"
+#after_script: "ant -f ./mongo-datasource/build.xml mongo-datasource.zip"
