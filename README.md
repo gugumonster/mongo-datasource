@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/CloudifySource/cloudify.png)](http://travis-ci.org/Gigaspaces/mongo-datasource)
+
 Overview
 ================
 
