@@ -120,6 +120,9 @@
 							<goal>jar</goal>
 						</goals>
 						<phase>package</phase>
+						<configuration>
+                                                       <finalName>${project.artifactId}</finalName> 
+                                                </configuration>
 					</execution>
 					<execution>
 						<goals>
