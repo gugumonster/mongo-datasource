@@ -35,8 +35,6 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openspaces.persistency.cassandra.meta.mapping.TypeHierarcyTopologySorter;
-import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
 
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoCollection;
@@ -60,6 +58,8 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
+import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
+import org.openspaces.persistency.support.TypeDescriptorUtils;
 
 /**
  * MongoDB driver client wrapper
@@ -217,7 +217,7 @@ public class MongoClientConnector {
 
     public Collection<SpaceTypeDescriptor> getSortedTypes() {
 
-        return TypeHierarcyTopologySorter.getSortedList(types);
+        return TypeDescriptorUtils.sort(types);
     }
 
     private void cacheTypeDescriptor(SpaceTypeDescriptor typeDescriptor) {
