@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.openspaces.itest.persistency.cassandra.data.MyCassandraPojo2;
-import org.openspaces.itest.persistency.cassandra.mock.MockOperationsBatchDataBuilder;
+import org.openspaces.itest.persistency.common.mock.MockOperationsBatchDataBuilder;
 
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.document.SpaceDocument;

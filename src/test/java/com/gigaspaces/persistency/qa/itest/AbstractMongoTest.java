@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
-import org.openspaces.itest.persistency.cassandra.mock.MockIntroduceTypeData;
+import org.openspaces.itest.persistency.common.mock.MockIntroduceTypeData;
 
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
