@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.openspaces.itest.persistency.cassandra.data.MyCassandraPojo2;
+import org.openspaces.itest.persistency.common.data.TestPojo2;
 import org.openspaces.itest.persistency.common.mock.MockOperationsBatchDataBuilder;
 
 import com.gigaspaces.datasource.DataIterator;
@@ -162,7 +162,7 @@ public class InitialDataLoadMongoTest extends AbstractMongoTest {
 
 	private static class DataClassKeyGenerator implements KeyGenerator {
 		public Object getKey() {
-			return new MyCassandraPojo2("name", random.nextInt());
+			return new TestPojo2("name", random.nextInt());
 		}
 
 	}

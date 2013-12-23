@@ -3,7 +3,7 @@ package com.gigaspaces.persistency.qa.itest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openspaces.itest.persistency.cassandra.data.MyCassandraPojoWithPrimitives;
+import org.openspaces.itest.persistency.common.data.TestPojoWithPrimitives;
 import org.openspaces.itest.persistency.common.mock.MockOperationsBatchDataBuilder;
 
 import com.gigaspaces.datasource.DataIterator;
@@ -43,8 +43,8 @@ public class PojoWithPrimitiveTypesMongoTest extends AbstractMongoTest {
 				fixedPropertyName, createPojo());
 	}
 
-	private MyCassandraPojoWithPrimitives createPojo() {
-		MyCassandraPojoWithPrimitives result = new MyCassandraPojoWithPrimitives();
+	private TestPojoWithPrimitives createPojo() {
+		TestPojoWithPrimitives result = new TestPojoWithPrimitives();
 
 		result.setBooleanProperty(true);
 		result.setByteProperty((byte) 1);

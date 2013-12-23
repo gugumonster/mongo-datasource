@@ -3,12 +3,12 @@ package com.gigaspaces.persistency.qa.itest;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.openspaces.itest.persistency.cassandra.data.MyCassandraDocumentWrapper;
-import org.openspaces.itest.persistency.cassandra.data.MyCassandraPojo1;
-import org.openspaces.itest.persistency.cassandra.data.MyCassandraPojo2;
-import org.openspaces.itest.persistency.cassandra.data.MyCassandraPojo3;
-import org.openspaces.itest.persistency.cassandra.data.MyCassandraPojo4;
-import org.openspaces.itest.persistency.cassandra.data.MyCassandraPojoWithPrimitives;
+import org.openspaces.itest.persistency.common.data.TestDocumentWrapper;
+import org.openspaces.itest.persistency.common.data.TestPojoWithPrimitives;
+import org.openspaces.itest.persistency.common.data.TestPojo1;
+import org.openspaces.itest.persistency.common.data.TestPojo2;
+import org.openspaces.itest.persistency.common.data.TestPojo3;
+import org.openspaces.itest.persistency.common.data.TestPojo4;
 import org.openspaces.itest.persistency.common.mock.MockIntroduceTypeData;
 import org.openspaces.utest.persistency.cassandra.meta.mapping.TestSpaceTypeDescriptorUtils;
 
@@ -40,25 +40,25 @@ public class MetadataSpaceTypeDescriptorConversionTest extends
 				.addFifoGroupingIndex("fifoGroupingIndexPath.2")
 				.addFixedProperty("namedProperty", "namePropertyType")
 				.addFixedProperty("typedProperty",
-						MyCassandraPojoWithPrimitives.class)
+						TestPojoWithPrimitives.class)
 				.addFixedProperty("propertyDocumentSupportConvert",
-						MyCassandraPojo1.class, SpaceDocumentSupport.CONVERT)
+						TestPojo1.class, SpaceDocumentSupport.CONVERT)
 				.addFixedProperty("propertyDocumentSupportCopy",
-						MyCassandraPojo2.class, SpaceDocumentSupport.COPY)
+						TestPojo2.class, SpaceDocumentSupport.COPY)
 				.addFixedProperty("propertyDocumentSupportDefault",
-						MyCassandraPojo2.class, SpaceDocumentSupport.DEFAULT)
+						TestPojo2.class, SpaceDocumentSupport.DEFAULT)
 				.addFixedProperty("propertyStorageTypeDefault",
-						MyCassandraPojo3.class, StorageType.DEFAULT)
+						TestPojo3.class, StorageType.DEFAULT)
 				.addFixedProperty("propertyStorageTypeObject",
-						MyCassandraPojo3.class, StorageType.OBJECT)
+						TestPojo3.class, StorageType.OBJECT)
 				.addFixedProperty("propertyStorageTypeBinary",
-						MyCassandraPojo4.class, StorageType.BINARY)
+						TestPojo4.class, StorageType.BINARY)
 				.addFixedProperty("propertyStorageTypeCompressed",
-						MyCassandraPojo4.class, StorageType.COMPRESSED)
+						TestPojo4.class, StorageType.COMPRESSED)
 				.addPathIndex("path.index.basic", SpaceIndexType.BASIC)
 				.addPathIndex("path.index.extended", SpaceIndexType.EXTENDED)
 				.addPathIndex("path.index.none", SpaceIndexType.NONE)
-				.documentWrapperClass(MyCassandraDocumentWrapper.class)
+				.documentWrapperClass(TestDocumentWrapper.class)
 				.fifoGroupingProperty("fifo.grouping.path")
 				.fifoSupport(FifoSupport.ALL)
 				.idProperty("idPropertyName", true).replicable(true)
