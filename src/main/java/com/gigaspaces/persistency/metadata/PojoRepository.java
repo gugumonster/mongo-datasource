@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.openspaces.persistency.cassandra.meta.mapping.node.ProcedureCache;
+import org.openspaces.persistency.support.ProcedureCache;
 
 import com.gigaspaces.internal.reflection.IConstructor;
 import com.gigaspaces.internal.reflection.IGetterMethod;
