@@ -35,8 +35,8 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openspaces.persistency.cassandra.meta.mapping.SpaceTypeDescriptorHolder;
 import org.openspaces.persistency.cassandra.meta.mapping.TypeHierarcyTopologySorter;
+import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
 
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoCollection;
@@ -78,7 +78,8 @@ public class MongoClientConnector {
     private final IndexBuilder indexBuilder;
 
 	// TODO: shadi must add documentation
-	private static final Map<String, SpaceTypeDescriptorHolder> types = new ConcurrentHashMap<String, SpaceTypeDescriptorHolder>();
+	private static final Map<String, SpaceTypeDescriptorContainer> types = new ConcurrentHashMap<String,
+            SpaceTypeDescriptorContainer>();
 	private static final Map<String, SpaceDocumentMapper<Document>> mappingCache = new ConcurrentHashMap<String, SpaceDocumentMapper<Document>>();
 
 	public MongoClientConnector(MongoClient client, String db) {
@@ -160,9 +161,8 @@ public class MongoClientConnector {
 
         for (BatchUnit row : rows) {
             SpaceDocument spaceDoc = row.getSpaceDocument();
-            SpaceTypeDescriptorHolder typeDescriptorHolder = types.get(row.getTypeName());
-
-            SpaceDocumentMapper<Document> mapper = getMapper(typeDescriptorHolder.getTypeDescriptor());
+            SpaceTypeDescriptor typeDescriptor = types.get(row.getTypeName()).getTypeDescriptor();
+            SpaceDocumentMapper<Document> mapper = getMapper(typeDescriptor);
 
             DocumentAssignable obj = mapper.toDBObject(spaceDoc);
 
@@ -228,7 +228,7 @@ public class MongoClientConnector {
         if (!types.containsKey(typeDescriptor.getTypeName()))
             introduceType(typeDescriptor);
 
-        types.put(typeDescriptor.getTypeName(), new SpaceTypeDescriptorHolder(typeDescriptor));
+        types.put(typeDescriptor.getTypeName(), new SpaceTypeDescriptorContainer(typeDescriptor));
     }
 
 	private void readMetadata(Object b) {
