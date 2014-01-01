@@ -58,28 +58,30 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
+
 import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
 import org.openspaces.persistency.support.TypeDescriptorUtils;
 
 /**
  * MongoDB driver client wrapper
- *
+ * 
  * @author Shadi Massalha
  */
 public class MongoClientConnector {
 
+	private static final String DOLLAR_SIGN = "__d_s__";
 	private static final String TYPE_DESCRIPTOR_FIELD_NAME = "value";
 	private static final String METADATA_COLLECTION_NAME = "metadata";
 
-	private static final Log logger = LogFactory.getLog(MongoClientConnector.class);
+	private static final Log logger = LogFactory
+			.getLog(MongoClientConnector.class);
 
 	private final MongoClient client;
 	private final String dbName;
-    private final IndexBuilder indexBuilder;
+	private final IndexBuilder indexBuilder;
 
 	// TODO: shadi must add documentation
-	private static final Map<String, SpaceTypeDescriptorContainer> types = new ConcurrentHashMap<String,
-            SpaceTypeDescriptorContainer>();
+	private static final Map<String, SpaceTypeDescriptorContainer> types = new ConcurrentHashMap<String, SpaceTypeDescriptorContainer>();
 	private static final Map<String, SpaceDocumentMapper<Document>> mappingCache = new ConcurrentHashMap<String, SpaceDocumentMapper<Document>>();
 
 	public MongoClientConnector(MongoClient client, String db) {
@@ -89,27 +91,30 @@ public class MongoClientConnector {
 		this.indexBuilder = new IndexBuilder(this);
 	}
 
-    public void close() throws IOException {
+	public void close() throws IOException {
 
-        client.close();
-    }
+		client.close();
+	}
 
-    public void introduceType(IntroduceTypeData introduceTypeData) {
+	public void introduceType(IntroduceTypeData introduceTypeData) {
 
 		introduceType(introduceTypeData.getTypeDescriptor());
 	}
 
 	public void introduceType(SpaceTypeDescriptor typeDescriptor) {
 
-        MongoCollection m = getConnection().getCollection(METADATA_COLLECTION_NAME);
+		MongoCollection m = getConnection().getCollection(
+				METADATA_COLLECTION_NAME);
 
-		DocumentBuilder builder = BuilderFactory.start()
-		    .add(Constants.ID_PROPERTY, typeDescriptor.getTypeName());
+		DocumentBuilder builder = BuilderFactory.start().add(
+				Constants.ID_PROPERTY, typeDescriptor.getTypeName());
 
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			ObjectOutputStream out = new ObjectOutputStream(bos);
-			IOUtils.writeObject(out, SpaceTypeDescriptorVersionedSerializationUtils.toSerializableForm(typeDescriptor));
+			IOUtils.writeObject(out,
+					SpaceTypeDescriptorVersionedSerializationUtils
+							.toSerializableForm(typeDescriptor));
 
 			builder.add(TYPE_DESCRIPTOR_FIELD_NAME, bos.toByteArray());
 
@@ -123,35 +128,38 @@ public class MongoClientConnector {
 		} catch (IOException e) {
 			logger.error(e);
 
-			throw new SpaceMongoException("error occurs while serialize and save type descriptor: " + typeDescriptor, e);
+			throw new SpaceMongoException(
+					"error occurs while serialize and save type descriptor: "
+							+ typeDescriptor, e);
 		}
 	}
 
 	public MongoDatabase getConnection() {
-        return client.getDatabase(dbName);
+		return client.getDatabase(dbName);
 	}
 
 	public MongoCollection getCollection(String collectionName) {
 
-		return getConnection().getCollection(collectionName);
+		return getConnection().getCollection(
+				collectionName.replace("$", DOLLAR_SIGN));
 	}
 
-    public void performBatch(DataSyncOperation[] operations) {
-        List<BatchUnit> rows = new LinkedList<BatchUnit>();
+	public void performBatch(DataSyncOperation[] operations) {
+		List<BatchUnit> rows = new LinkedList<BatchUnit>();
 
-        for (DataSyncOperation operation : operations) {
+		for (DataSyncOperation operation : operations) {
 
-            BatchUnit bu = new BatchUnit();
-            cacheTypeDescriptor(operation.getTypeDescriptor());
-            bu.setSpaceDocument(operation.getDataAsDocument());
-            bu.setDataSyncOperationType(operation.getDataSyncOperationType());
-            rows.add(bu);
-        }
+			BatchUnit bu = new BatchUnit();
+			cacheTypeDescriptor(operation.getTypeDescriptor());
+			bu.setSpaceDocument(operation.getDataAsDocument());
+			bu.setDataSyncOperationType(operation.getDataSyncOperationType());
+			rows.add(bu);
+		}
 
-        performBatch(rows);
-    }
+		performBatch(rows);
+	}
 
-    public void performBatch(List<BatchUnit> rows) {
+	public void performBatch(List<BatchUnit> rows) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("MongoClientWrapper.performBatch(" + rows + ")");
 			logger.trace("Batch size to be performed is " + rows.size());
@@ -159,39 +167,43 @@ public class MongoClientConnector {
 
 		List<Future<? extends Number>> pending = new ArrayList<Future<? extends Number>>();
 
-        for (BatchUnit row : rows) {
-            SpaceDocument spaceDoc = row.getSpaceDocument();
-            SpaceTypeDescriptor typeDescriptor = types.get(row.getTypeName()).getTypeDescriptor();
-            SpaceDocumentMapper<Document> mapper = getMapper(typeDescriptor);
+		for (BatchUnit row : rows) {
+			SpaceDocument spaceDoc = row.getSpaceDocument();
+			SpaceTypeDescriptor typeDescriptor = types.get(row.getTypeName())
+					.getTypeDescriptor();
+			SpaceDocumentMapper<Document> mapper = getMapper(typeDescriptor);
 
-            DocumentAssignable obj = mapper.toDBObject(spaceDoc);
+			DocumentAssignable obj = mapper.toDBObject(spaceDoc);
 
-            MongoCollection col = getCollection(row.getTypeName());
+			MongoCollection col = getCollection(row.getTypeName());
 
-            switch (row.getDataSyncOperationType()) {
+			switch (row.getDataSyncOperationType()) {
 
-                case WRITE:
-                case UPDATE:
-                    pending.add(col.saveAsync(obj));
-                    break;
-                case PARTIAL_UPDATE:
-                case CHANGE:
-                    Document query = BuilderFactory.start()
-                            .add(Constants.ID_PROPERTY, ((Document) obj).get(Constants.ID_PROPERTY).getValueAsObject())
-                            .build();
+			case WRITE:
+			case UPDATE:
+				pending.add(col.saveAsync(obj));
+				break;
+			case PARTIAL_UPDATE:
+			case CHANGE:
+				Document query = BuilderFactory
+						.start()
+						.add(Constants.ID_PROPERTY,
+								((Document) obj).get(Constants.ID_PROPERTY)
+										.getValueAsObject()).build();
 
-                    Document update = normalize((Document) obj);
-                    pending.add(col.updateAsync(query, update));
-                    break;
-                // case REMOVE_BY_UID: // Not supported by this implementation
-                case REMOVE:
-                    pending.add(col.deleteAsync(obj, false));
-                    break;
-                default:
-                    throw new IllegalStateException("Unsupported data sync operation type: "
-                            + row.getDataSyncOperationType());
-            }
-        }
+				Document update = normalize((Document) obj);
+				pending.add(col.updateAsync(query, update));
+				break;
+			// case REMOVE_BY_UID: // Not supported by this implementation
+			case REMOVE:
+				pending.add(col.deleteAsync(obj, false));
+				break;
+			default:
+				throw new IllegalStateException(
+						"Unsupported data sync operation type: "
+								+ row.getDataSyncOperationType());
+			}
+		}
 
 		long totalCount = waitFor(pending);
 
@@ -200,11 +212,12 @@ public class MongoClientConnector {
 		}
 	}
 
-    public Collection<SpaceTypeDescriptor> loadMetadata() {
+	public Collection<SpaceTypeDescriptor> loadMetadata() {
 
 		MongoCollection metadata = getCollection(METADATA_COLLECTION_NAME);
 
-		MongoIterator<Document> cursor = metadata.find(BuilderFactory.start().build());
+		MongoIterator<Document> cursor = metadata.find(BuilderFactory.start()
+				.build());
 
 		while (cursor.hasNext()) {
 			Document type = cursor.next();
@@ -215,40 +228,44 @@ public class MongoClientConnector {
 		return getSortedTypes();
 	}
 
-    public Collection<SpaceTypeDescriptor> getSortedTypes() {
+	public Collection<SpaceTypeDescriptor> getSortedTypes() {
 
-        return TypeDescriptorUtils.sort(types);
-    }
+		return TypeDescriptorUtils.sort(types);
+	}
 
-    private void cacheTypeDescriptor(SpaceTypeDescriptor typeDescriptor) {
+	private void cacheTypeDescriptor(SpaceTypeDescriptor typeDescriptor) {
 
-        if (typeDescriptor == null)
-            throw new IllegalArgumentException("typeDescriptor can not be null");
+		if (typeDescriptor == null)
+			throw new IllegalArgumentException("typeDescriptor can not be null");
 
-        if (!types.containsKey(typeDescriptor.getTypeName()))
-            introduceType(typeDescriptor);
+		if (!types.containsKey(typeDescriptor.getTypeName()))
+			introduceType(typeDescriptor);
 
-        types.put(typeDescriptor.getTypeName(), new SpaceTypeDescriptorContainer(typeDescriptor));
-    }
+		types.put(typeDescriptor.getTypeName(),
+				new SpaceTypeDescriptorContainer(typeDescriptor));
+	}
 
 	private void readMetadata(Object b) {
 		try {
 
-			ObjectInput in = new CustomClassLoaderObjectInputStream(MongoClientConnector.class.getClassLoader(),
-			                                                        new ByteArrayInputStream((byte[]) b));
+			ObjectInput in = new CustomClassLoaderObjectInputStream(
+					MongoClientConnector.class.getClassLoader(),
+					new ByteArrayInputStream((byte[]) b));
 			Serializable typeDescWrapper = IOUtils.readObject(in);
-			SpaceTypeDescriptor typeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils.fromSerializableForm(
-                    typeDescWrapper);
+			SpaceTypeDescriptor typeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils
+					.fromSerializableForm(typeDescWrapper);
 			indexBuilder.ensureIndexes(typeDescriptor);
 
 			cacheTypeDescriptor(typeDescriptor);
 
 		} catch (ClassNotFoundException e) {
 			logger.error(e);
-			throw new SpaceMongoDataSourceException("Failed to deserialize: " + b, e);
+			throw new SpaceMongoDataSourceException("Failed to deserialize: "
+					+ b, e);
 		} catch (IOException e) {
 			logger.error(e);
-            throw new SpaceMongoDataSourceException("Failed to deserialize: " + b, e);
+			throw new SpaceMongoDataSourceException("Failed to deserialize: "
+					+ b, e);
 		}
 	}
 
@@ -256,76 +273,82 @@ public class MongoClientConnector {
 		indexBuilder.ensureIndexes(addIndexData);
 	}
 
-    private static SpaceDocumentMapper<Document> getMapper(SpaceTypeDescriptor typeDescriptor) {
+	private static SpaceDocumentMapper<Document> getMapper(
+			SpaceTypeDescriptor typeDescriptor) {
 
-        SpaceDocumentMapper<Document> mapper = mappingCache.get(typeDescriptor.getTypeName());
-        if (mapper == null) {
-            mapper = new AsyncSpaceDocumentMapper(typeDescriptor);
-            mappingCache.put(typeDescriptor.getTypeName(), mapper);
-        }
+		SpaceDocumentMapper<Document> mapper = mappingCache.get(typeDescriptor
+				.getTypeName());
+		if (mapper == null) {
+			mapper = new AsyncSpaceDocumentMapper(typeDescriptor);
+			mappingCache.put(typeDescriptor.getTypeName(), mapper);
+		}
 
-        return mapper;
-    }
+		return mapper;
+	}
 
-    private static Document normalize(Document obj) {
+	private static Document normalize(Document obj) {
 
-        DocumentBuilder builder = BuilderFactory.start();
+		DocumentBuilder builder = BuilderFactory.start();
 
-        for (Element e : obj.getElements()) {
+		for (Element e : obj.getElements()) {
 
-            String key = e.getName();
+			String key = e.getName();
 
-            if (Constants.ID_PROPERTY.equals(key))
-                continue;
+			if (Constants.ID_PROPERTY.equals(key))
+				continue;
 
-            Object value = obj.get(key).getValueAsObject();
+			Object value = obj.get(key).getValueAsObject();
 
-            if (value == null)
-                continue;
-//
-//			if (value instanceof DocumentAssignable) {
-//				builder.push("$set").add(key, (Document) value);
-//			} else
-            builder.push("$set").add(key, value);
-        }
+			if (value == null)
+				continue;
+			//
+			// if (value instanceof DocumentAssignable) {
+			// builder.push("$set").add(key, (Document) value);
+			// } else
+			builder.push("$set").add(key, value);
+		}
 
-        return builder.build();
-    }
+		return builder.build();
+	}
 
-    private static long waitFor(List<Future<? extends Number>> replies) {
+	private static long waitFor(List<Future<? extends Number>> replies) {
 
-        long total = 0;
+		long total = 0;
 
-        for (Future<? extends Number> future : replies) {
-            try {
-                total += future.get().longValue();
-            } catch (InterruptedException e) {
-                throw new SpaceMongoException("Number of async operations: " + replies.size(), e);
-            } catch (ExecutionException e) {
-                throw new SpaceMongoException("Number of async operations: " + replies.size(), e);
-            }
-        }
+		for (Future<? extends Number> future : replies) {
+			try {
+				total += future.get().longValue();
+			} catch (InterruptedException e) {
+				throw new SpaceMongoException("Number of async operations: "
+						+ replies.size(), e);
+			} catch (ExecutionException e) {
+				throw new SpaceMongoException("Number of async operations: "
+						+ replies.size(), e);
+			}
+		}
 
-        return total;
-    }
-    
-    /**
-     * Object input stream that uses a custom class loader to resolve classes 
-     */
-    static class CustomClassLoaderObjectInputStream extends ObjectInputStream {
-      
-      private final ClassLoader classLoader;
-      
-      CustomClassLoaderObjectInputStream(ClassLoader classLoader, InputStream is) throws IOException { 
-        super(is);
-        this.classLoader = classLoader;
-      }
-      
-      @Override
-      protected Class<?> resolveClass(ObjectStreamClass desc) throws ClassNotFoundException {
-        return Class.forName(desc.getName(), false, classLoader);
-      }
-      
-    }
-    
+		return total;
+	}
+
+	/**
+	 * Object input stream that uses a custom class loader to resolve classes
+	 */
+	static class CustomClassLoaderObjectInputStream extends ObjectInputStream {
+
+		private final ClassLoader classLoader;
+
+		CustomClassLoaderObjectInputStream(ClassLoader classLoader,
+				InputStream is) throws IOException {
+			super(is);
+			this.classLoader = classLoader;
+		}
+
+		@Override
+		protected Class<?> resolveClass(ObjectStreamClass desc)
+				throws ClassNotFoundException {
+			return Class.forName(desc.getName(), false, classLoader);
+		}
+
+	}
+
 }
