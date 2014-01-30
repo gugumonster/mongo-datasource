@@ -10,12 +10,7 @@
 		<junitVersion>4.8.2</junitVersion>
 	</properties>
 
-	<repositories>
-		<repository>
-         	<id>local-nexus</id>
-	       	<name>local-nexus</name>
-       		<url>http://nexus.gsdev.info:8088/nexus</url>
-         </repository>
+	<repositories>		
 		<repository>
 			<id>org.openspaces</id>
 			<name>OpenSpaces</name>
@@ -38,21 +33,13 @@
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
 			<artifactId>gs-openspaces</artifactId>
-<<<<<<< HEAD
-			<version>10.0.0-SNAPSHOT</version>
-=======
 			<version>9.7.1-SNAPSHOT</version>
->>>>>>> 8be1f1286e5aaa458fd825f473b775767adfb41d
 		</dependency>
 
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
 			<artifactId>gs-openspaces</artifactId>
-<<<<<<< HEAD
-			<version>10.0.0-SNAPSHOT</version>
-=======
 			<version>9.7.1-SNAPSHOT</version>
->>>>>>> 8be1f1286e5aaa458fd825f473b775767adfb41d
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
