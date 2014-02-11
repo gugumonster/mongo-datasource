@@ -4,7 +4,7 @@ Overview
 ================
 
 Implementation for XAP mongodb persistency SpaceDataSource and SpaceSynchronizationEndpoint
-
+It uses allanbank async mongodb driver. See license [async driver](http://www.allanbank.com/mongodb-async-driver/license.html)
 Prerequisites
 =============
 * [MongoDB](http://www.mongodb.org/)
