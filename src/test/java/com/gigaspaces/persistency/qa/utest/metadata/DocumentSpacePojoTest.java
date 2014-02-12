@@ -1,6 +1,5 @@
 package com.gigaspaces.persistency.qa.utest.metadata;
 
-
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,20 +9,19 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.Element;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
-import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.MongoDocumentObjectConverter;
 import com.gigaspaces.persistency.qa.model.Priority;
 import com.gigaspaces.persistency.qa.model.TestDataTypeWithDynamicPropsPojo;
 import com.gigaspaces.persistency.qa.model.TestDataTypeWithDynamicPropsUtils;
+import com.mongodb.DBObject;
 
 public class DocumentSpacePojoTest {
 
-	private AsyncSpaceDocumentMapper converter = new AsyncSpaceDocumentMapper(
+	private DefaultSpaceDocumentMapper converter = new DefaultSpaceDocumentMapper(
 			createMockedSpaceTypeDescriptor());
 
 	private static final String TEST_TYPE_NAME = "TestType";
@@ -185,7 +183,7 @@ public class DocumentSpacePojoTest {
 	public void testBasicPojo() {
 		PojoTestType pojo = new PojoTestType();
 
-		Document bson = converter.toDBObject(pojo);
+		DBObject bson = converter.toDBObject(pojo);
 
 		System.out.println(bson);
 
@@ -239,7 +237,7 @@ public class DocumentSpacePojoTest {
 				.setProperty(DYNAMIC_FIELD_7, DYNAMIC_FIELD_7_VAL)
 				.setProperty(DYNAMIC_FIELD_8, DYNAMIC_FIELD_8_VAL);
 
-		Document bson = converter.toDBObject(spaceDoc);
+		DBObject bson = converter.toDBObject(spaceDoc);
 
 		System.out.println(bson);
 
@@ -289,11 +287,12 @@ public class DocumentSpacePojoTest {
 		SpaceDocument doc1 = MongoDocumentObjectConverter.instance()
 				.toSpaceDocument(data1);
 
-		Document bson = converter.toDBObject(doc1);
+		DBObject bson = converter.toDBObject(doc1);
 
 		System.out.println(bson);
 
-		TestDataTypeWithDynamicPropsPojo data2 = (TestDataTypeWithDynamicPropsPojo) converter.toDocument(bson);
+		TestDataTypeWithDynamicPropsPojo data2 = (TestDataTypeWithDynamicPropsPojo) converter
+				.toDocument(bson);
 
 		TestDataTypeWithDynamicPropsUtils.assertTestDataEquals(data1, data2);
 	}
@@ -305,9 +304,9 @@ public class DocumentSpacePojoTest {
 
 		doc.setProperty("enumProperty", Priority.MAJOR);
 
-		Document bson = converter.toDBObject(doc);
+		DBObject bson = converter.toDBObject(doc);
 
-		Element e = bson.get("enumProperty");
+		Object e = bson.get("enumProperty");
 
 		Priority priority = (Priority) converter.fromDBObject(e);
 

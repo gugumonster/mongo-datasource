@@ -17,9 +17,9 @@ package com.gigaspaces.persistency;
 
 import org.springframework.util.StringUtils;
 
-import com.allanbank.mongodb.MongoClient;
-import com.allanbank.mongodb.MongoClientConfiguration;
-import com.allanbank.mongodb.MongoFactory;
+import com.mongodb.MongoClient;
+import com.mongodb.WriteConcern;
+
 
 /**
  * @author Shadi Massalha
@@ -27,10 +27,10 @@ import com.allanbank.mongodb.MongoFactory;
 public class MongoClientConnectorConfigurer {
 
 	private String db;
-	private MongoClientConfiguration config;
-
-	public MongoClientConnectorConfigurer config(MongoClientConfiguration config) {
-		this.config = config;
+	private MongoClient client;
+	
+	public MongoClientConnectorConfigurer client(MongoClient client) {
+		this.client = client;
 		return this;
 	}
 
@@ -44,11 +44,9 @@ public class MongoClientConnectorConfigurer {
 		if (!StringUtils.hasLength(db))
 			throw new IllegalArgumentException("Argument cannot be null or empty: db");
 
-		if (config == null)
+		if (client == null)
             throw new IllegalArgumentException("Argument cannot be null or empty: config");
-
-		MongoClient client = MongoFactory.createClient(config);
-
+		
 		return new MongoClientConnector(client, db);
 	}
 }

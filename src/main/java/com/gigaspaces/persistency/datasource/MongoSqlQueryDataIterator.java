@@ -15,22 +15,21 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.datasource;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.allanbank.mongodb.MongoCollection;
-import com.allanbank.mongodb.MongoIterator;
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.datasource.DataSourceQuery;
-
 import com.gigaspaces.persistency.MongoClientConnector;
-
 import com.gigaspaces.persistency.error.UnSupportedQueryException;
-import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 /**
  * @author Shadi Massalha
@@ -42,20 +41,24 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	private final MongoClientConnector client;
 	private final DataSourceQuery query;
-    private final SpaceDocumentMapper<Document> pojoMapper;
-	private MongoIterator<Document> cursor;
+	private final SpaceDocumentMapper<DBObject> pojoMapper;
+	private DBCursor cursor;
 
-	public MongoSqlQueryDataIterator(MongoClientConnector client, DataSourceQuery query) {
+	public MongoSqlQueryDataIterator(MongoClientConnector client,
+			DataSourceQuery query) {
 		if (client == null)
-			throw new IllegalArgumentException("Argument cannot be null - client");
+			throw new IllegalArgumentException(
+					"Argument cannot be null - client");
 		if (query == null)
-            throw new IllegalArgumentException("Argument cannot be null - query");
+			throw new IllegalArgumentException(
+					"Argument cannot be null - query");
 		if (!(query.supportsAsSQLQuery() || query.supportsTemplateAsDocument()))
 			throw new UnSupportedQueryException("not sql query");
 
 		this.client = client;
 		this.query = query;
-		this.pojoMapper = new AsyncSpaceDocumentMapper(query.getTypeDescriptor());
+		this.pojoMapper = new DefaultSpaceDocumentMapper(
+				query.getTypeDescriptor());
 	}
 
 	public boolean hasNext() {
@@ -68,24 +71,31 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 
 	public Object next() {
 
-        return pojoMapper.toDocument(cursor.next());
+		return pojoMapper.toDocument(cursor.next());
 	}
 
 	private void init() {
-		MongoCollection collection = client.getCollection(query.getTypeDescriptor().getTypeName());
+		DBCollection collection = client.getCollection(query
+				.getTypeDescriptor().getTypeName());
 
-		DocumentBuilder q = BuilderFactory.start();
+		BasicDBObjectBuilder q = BasicDBObjectBuilder.start();
 
 		logger.debug(query);
 
 		if (query.supportsAsSQLQuery())
 			q = MongoQueryFactory.create(query);
-		else if (query.supportsTemplateAsDocument())
-			q = BuilderFactory.start(new AsyncSpaceDocumentMapper(query
-					.getTypeDescriptor()).toDBObject(query
-					.getTemplateAsDocument()));
+		else if (query.supportsTemplateAsDocument()) {
+			Map m = new DefaultSpaceDocumentMapper(query.getTypeDescriptor())
+					.toDBObject(query.getTemplateAsDocument()).toMap();
+			
+			q = BasicDBObjectBuilder.start(m);
 
-		cursor = collection.find(q);
+			// q = BasicDBObjectBuilder.start(new
+			// DefaultSpaceDocumentMapper(query
+			// .getTypeDescriptor()).toDBObject(query
+			// .getTemplateAsDocument()));
+		}
+		cursor = collection.find(q.get());
 	}
 
 	public void remove() {

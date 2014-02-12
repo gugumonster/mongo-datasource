@@ -16,6 +16,7 @@
 package com.gigaspaces.persistency.datasource;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -24,19 +25,18 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStream;
 
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.bson.json.Json;
 import com.gigaspaces.datasource.DataSourceQuery;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitor;
 import com.gigaspaces.persistency.parser.SQL2MongoLexer;
 import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBObject;
+import com.mongodb.QueryBuilder;
+import com.mongodb.util.JSON;
 
 /**
  * @author Shadi Massalha
@@ -50,7 +50,7 @@ public class MongoQueryFactory {
 	private static final String PARAM_PLACEHOLDER = "'%{}'";
 	private static final Map<SpaceTypeDescriptor, Map<String, String>> cachedQuery = new ConcurrentHashMap<SpaceTypeDescriptor, Map<String, String>>();
 
-	public static DocumentBuilder create(DataSourceQuery sql) {
+	public static BasicDBObjectBuilder create(DataSourceQuery sql) {
 		Map<String, String> cache = cachedQuery.get(sql.getTypeDescriptor());
 
 		if (cache == null) {
@@ -61,7 +61,7 @@ public class MongoQueryFactory {
 
 		String query = sql.getAsSQLQuery().getQuery();
 
-        String parsedQuery = cache.get(query);
+		String parsedQuery = cache.get(query);
 
 		if (parsedQuery == null) {
 			parsedQuery = parse(query);
@@ -69,25 +69,29 @@ public class MongoQueryFactory {
 			cache.put(query, parsedQuery);
 		}
 
-		DocumentBuilder queryResult = bind(parsedQuery, sql.getAsSQLQuery()
-				.getQueryParameters(), sql.getTypeDescriptor());
+		BasicDBObjectBuilder queryResult = bind(parsedQuery, sql
+				.getAsSQLQuery().getQueryParameters(), sql.getTypeDescriptor());
 
 		replaceIdProperty(queryResult, sql.getTypeDescriptor());
 
 		return queryResult;
 	}
 
-	private static void replaceIdProperty(DocumentBuilder qResult,
+	@SuppressWarnings("static-access")
+	private static void replaceIdProperty(BasicDBObjectBuilder qResult,
 			SpaceTypeDescriptor typeDescriptor) {
+		// TODO: check this code
+		DBObject q = qResult.get();
 
-		if (qResult.asDocument().contains(typeDescriptor.getIdPropertyName())) {
+		if (q.containsField(typeDescriptor.getIdPropertyName())) {
 
-			Object value = qResult.asDocument()
-					.get(typeDescriptor.getIdPropertyName()).getValueAsObject();
+			Object value = q.get(typeDescriptor.getIdPropertyName());// .getValueAsObject();
 
-			qResult.remove(typeDescriptor.getIdPropertyName());
+			q.removeField(typeDescriptor.getIdPropertyName());
 
-			qResult.add("_id", value);
+			q.put("_id", value);
+
+			qResult.start(q.toMap());
 		}
 	}
 
@@ -107,12 +111,18 @@ public class MongoQueryFactory {
 		return visitor.getQuery().toString();
 	}
 
-	public static DocumentBuilder bind(String parsedQuery, Object[] parameters,
-			SpaceTypeDescriptor spaceTypeDescriptor) {
+	public static BasicDBObjectBuilder bind(String parsedQuery,
+			Object[] parameters, SpaceTypeDescriptor spaceTypeDescriptor) {
 
-		SpaceDocumentMapper<Document> mapper = new AsyncSpaceDocumentMapper(spaceTypeDescriptor);
+		SpaceDocumentMapper<DBObject> mapper = new DefaultSpaceDocumentMapper(
+				spaceTypeDescriptor);
 
-		DocumentBuilder query = BuilderFactory.start(Json.parse(parsedQuery));
+		// DocumentBuilder query =
+		// BuilderFactory.start(Json.parse(parsedQuery));
+		// TODO: check thislogic
+		DBObject obj = (DBObject) JSON.parse(parsedQuery);
+
+		BasicDBObjectBuilder query = BasicDBObjectBuilder.start(obj.toMap());
 
 		if (parameters != null) {
 			query = replaceParameters(parameters, mapper, query, 0);
@@ -121,53 +131,135 @@ public class MongoQueryFactory {
 		return query;
 	}
 
-	private static DocumentBuilder replaceParameters(Object[] parameters,
-			SpaceDocumentMapper<Document> mapper, DocumentBuilder builder,Integer index) {
-		
+	// TODO: check this logic
+	private static BasicDBObjectBuilder replaceParameters(Object[] parameters,
+			SpaceDocumentMapper<DBObject> mapper, BasicDBObjectBuilder builder,
+			Integer index) {
 
-		DocumentBuilder newBuilder = BuilderFactory.start();
+		BasicDBObjectBuilder newBuilder = BasicDBObjectBuilder.start();
 
-		for (Element e : builder.asDocument().getElements()) {
+		DBObject document = builder.get();
 
-			String field = e.getName();
-			Object ph = e.getValueAsObject();
+		Iterator<String> iterator = document.keySet().iterator();
+
+		while (iterator.hasNext()) {
+			String field = iterator.next();
+			Object ph = document.get(field);
 
 			if (index >= parameters.length)
 				return builder;
 
 			if (ph instanceof String) {
-
 				if (PARAM_PLACEHOLDER.equals(ph)) {
-					newBuilder.add(field, mapper.toObject(parameters[index++]))
-							.build();
+					newBuilder.add(field, mapper.toObject(parameters[index++]));
 				}
+			} else if (ph instanceof Pattern) {
+				Pattern p = (Pattern) ph;
+
+				if (LIKE.equalsIgnoreCase(p.pattern())) {
+					newBuilder
+							.add(field,
+									convertLikeExpression((String) parameters[index++]));
+				} else if (RLIKE.equalsIgnoreCase(p.pattern()))
+					newBuilder.add(field, Pattern.compile(
+							(String) parameters[index++],
+							Pattern.CASE_INSENSITIVE));
 			} else {
-				Document element = (Document) ph;
+				// TODO : check this logic
+				DBObject element = (DBObject) ph;
+				//
+				// if (element.containsField($REGEX)) {
+				//
+				// Iterator<String> i = element.keySet().iterator();
+				//
+				// while (i.hasNext()) {
+				//
+				// String k = i.next();
+				//
+				// if (!$REGEX.equals(k))
+				// continue;
+				//
+				// String e1 = (String) element.get(k);
+				//
+				// if (LIKE.equalsIgnoreCase(e1/* .getValueAsString() */)) {
+				// newBuilder
+				// .add(field,
+				// convertLikeExpression((String) parameters[index++]));
+				// } else if (RLIKE.equalsIgnoreCase(e1/*
+				// * .getValueAsString(
+				// * )
+				// */))
+				// newBuilder.add(field, Pattern.compile(
+				// (String) parameters[index++],
+				// Pattern.CASE_INSENSITIVE));
+				// }
 
-				if (element.contains($REGEX)) {
-					for (Element e1 : element.getElements()) {
+				/*
+				 * for (Element e1 : element.getElements()) {
+				 * 
+				 * if (!$REGEX.equals(e1.getName())) continue;
+				 * 
+				 * if (LIKE.equalsIgnoreCase(e1.getValueAsString())) {
+				 * newBuilder .add(field, convertLikeExpression((String)
+				 * parameters[index++])); } else if (RLIKE
+				 * .equalsIgnoreCase(e1.getValueAsString()))
+				 * newBuilder.add(field, Pattern.compile( (String)
+				 * parameters[index++], Pattern.CASE_INSENSITIVE));
+				 * 
+				 * }
+				 */
+				// } else {
+				BasicDBObjectBuilder doc = replaceParameters(parameters,
+						mapper, BasicDBObjectBuilder.start(element.toMap()),
+						index);
 
-						if (!$REGEX.equals(e1.getName()))
-							continue;
-
-						if (LIKE.equalsIgnoreCase(e1.getValueAsString())) {
-							newBuilder.add(
-                                    field,
-                                    convertLikeExpression((String) parameters[index++]));
-						} else if (RLIKE
-								.equalsIgnoreCase(e1.getValueAsString()))
-							newBuilder.add(field, Pattern
-									.compile((String) parameters[index++],Pattern.CASE_INSENSITIVE));
-
-					}
-				} else {
-					DocumentBuilder doc = replaceParameters(parameters, mapper,
-							BuilderFactory.start(element),index);
-
-					newBuilder.add(field, doc);
-				}
+				newBuilder.add(field, doc.get());
+				// }
 			}
 		}
+		// DocumentBuilder newBuilder = BuilderFactory.start();
+		//
+		// for (Element e : builder.asDocument().getElements()) {
+		//
+		// String field = e.getName();
+		// Object ph = e.getValueAsObject();
+		//
+		// if (index >= parameters.length)
+		// return builder;
+		//
+		// if (ph instanceof String) {
+		//
+		// if (PARAM_PLACEHOLDER.equals(ph)) {
+		// newBuilder.add(field, mapper.toObject(parameters[index++]))
+		// .build();
+		// }
+		// } else {
+		// Document element = (Document) ph;
+		//
+		// if (element.contains($REGEX)) {
+		// for (Element e1 : element.getElements()) {
+		//
+		// if (!$REGEX.equals(e1.getName()))
+		// continue;
+		//
+		// if (LIKE.equalsIgnoreCase(e1.getValueAsString())) {
+		// newBuilder.add(
+		// field,
+		// convertLikeExpression((String) parameters[index++]));
+		// } else if (RLIKE
+		// .equalsIgnoreCase(e1.getValueAsString()))
+		// newBuilder.add(field, Pattern
+		// .compile((String) parameters[index++],Pattern.CASE_INSENSITIVE));
+		//
+		// }
+		// } else {
+		// DocumentBuilder doc = replaceParameters(parameters, mapper,
+		// BuilderFactory.start(element),index);
+		//
+		// newBuilder.add(field, doc);
+		// }
+		// }
+		// }
 
 		return newBuilder;
 	}

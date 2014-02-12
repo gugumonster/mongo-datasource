@@ -17,7 +17,9 @@ package com.gigaspaces.persistency.archive;
 
 import org.openspaces.core.GigaSpace;
 
-import com.allanbank.mongodb.MongoClientConfiguration;
+import com.mongodb.MongoClient;
+
+//import com.allanbank.mongodb.MongoClientConfiguration;
 
 /**
  * @author Shadi Massalha
@@ -44,7 +46,7 @@ public class MongoArchiveOperationHandlerConfigurer {
 	 * @see MongoArchiveOperationHandler#setConfig(MongoClientConfiguration)
 	 */
 	public MongoArchiveOperationHandlerConfigurer config(
-			MongoClientConfiguration config) {
+			MongoClient config) {
 		handler.setConfig(config);
 		return this;
 	}

@@ -19,7 +19,9 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.allanbank.mongodb.MongoClientConfiguration;
+import com.mongodb.MongoClient;
+
+//import com.allanbank.mongodb.MongoClientConfiguration;
 
 /**
  * Default spring bean factory implementation that can get external
@@ -39,8 +41,8 @@ public class MongoClientConnectorBeanFactory implements
 		configurer.db(db);
 	}
 
-	public void setConfig(MongoClientConfiguration config) {
-		configurer.config(config);
+	public void setConfig(MongoClient config) {
+		configurer.client(config);
 	}
 
 	public void destroy() throws Exception {
@@ -48,7 +50,6 @@ public class MongoClientConnectorBeanFactory implements
 	}
 
 	private MongoClientConnectorConfigurer getConfigurer() {
-
 		return new MongoClientConnectorConfigurer();
 	}
 

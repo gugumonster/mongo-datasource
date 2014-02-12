@@ -28,18 +28,17 @@ import org.openspaces.archive.ArchiveOperationHandler;
 import org.openspaces.core.GigaSpace;
 import org.springframework.beans.factory.annotation.Required;
 
-import com.allanbank.mongodb.MongoClientConfiguration;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.persistency.MongoClientConnector;
 import com.gigaspaces.persistency.MongoClientConnectorConfigurer;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.metadata.BatchUnit;
 import com.gigaspaces.sync.DataSyncOperationType;
+import com.mongodb.MongoClient;
 
 /**
  * @author Shadi Massalha
  */
-@SuppressWarnings("restriction")
 public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	private static final Log logger = LogFactory.getLog(MongoArchiveOperationHandler.class);
@@ -49,7 +48,8 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	private MongoClientConnector client;
 
-	private MongoClientConfiguration config;
+	private MongoClient config;
+	
 	private String db;
 
 	@Required
@@ -113,7 +113,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	private void createMongoClient() {
 
-		client = new MongoClientConnectorConfigurer().config(config).db(db)
+		client = new MongoClientConnectorConfigurer().client(config).db(db)
 				.create();
 	}
 
@@ -131,10 +131,10 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	}
 
 	/**
-	 * @see MongoClientConnectorConfigurer#config(MongoClientConfiguration)
+	 * @see MongoClientConnectorConfigurer#client(MongoClientConfiguration)
 	 */
 	@Required
-	public void setConfig(MongoClientConfiguration config) {
+	public void setConfig(MongoClient config) {
 		this.config = config;
 	}
 
@@ -150,7 +150,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 		}
 	}
 
-	public MongoClientConfiguration getConfig() {
+	public MongoClient getConfig() {
 		return config;
 	}
 }

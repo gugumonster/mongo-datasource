@@ -29,7 +29,7 @@ import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.OperationsBatchData;
 
 public class BasicMongoTest extends AbstractMongoTest {
-	  private static final String     TEST_CF            = "TestColumnFamily";
+	  	private static final String     TEST_CF            = "TestColumnFamily";
 	    private static final String     KEY_NAME           = "keyColumn";
 	    private static final UUID       KEY_VAL            = UUID.randomUUID();
 	    private static final String     LONG_COL           = "longColumn";

@@ -17,24 +17,23 @@ package com.gigaspaces.persistency.datasource;
 
 import java.util.Iterator;
 
-import com.allanbank.mongodb.MongoIterator;
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.MongoClientConnector;
+import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
-import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 /**
  * @author Shadi Massalha
  */
 public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
-	private MongoIterator<Document> currentCursor;
+	private DBCursor currentCursor;
 	private final MongoClientConnector mongoClient;
 	private final Iterator<SpaceTypeDescriptor> types;
-	private SpaceDocumentMapper<Document> pojoMapper;
+	private SpaceDocumentMapper<DBObject> pojoMapper;
 
 	public MongoInitialDataLoadIterator(MongoClientConnector client) {
 		if (client == null)
@@ -66,13 +65,13 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 		currentCursor.remove();
 	}
 
-	private MongoIterator<Document> nextDataIterator() {
+	private DBCursor nextDataIterator() {
 
 		if (!types.hasNext())
 			return null;
 
         SpaceTypeDescriptor typeDescriptor = types.next();
-		this.pojoMapper = new AsyncSpaceDocumentMapper(typeDescriptor);
-		return mongoClient.getCollection(typeDescriptor.getTypeName()).find(BuilderFactory.start());
+		this.pojoMapper = new DefaultSpaceDocumentMapper(typeDescriptor);
+		return mongoClient.getCollection(typeDescriptor.getTypeName()).find();
 	}
 }

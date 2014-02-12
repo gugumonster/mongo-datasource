@@ -17,16 +17,14 @@ package com.gigaspaces.persistency.metadata;
 
 import java.util.Map;
 
-import com.allanbank.mongodb.MongoCollection;
-import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.bson.builder.DocumentBuilder;
-import com.allanbank.mongodb.builder.Index;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.index.SpaceIndex;
 import com.gigaspaces.metadata.index.SpaceIndexType;
 import com.gigaspaces.persistency.MongoClientConnector;
 import com.gigaspaces.sync.AddIndexData;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 
 public class IndexBuilder {
 
@@ -55,36 +53,43 @@ public class IndexBuilder {
 
 		if (!id.equals(routing)) {
 			createIndex(spaceTypeDescriptor.getTypeName(), routing,
-					SpaceIndexType.BASIC, BuilderFactory.start());
+					SpaceIndexType.BASIC, BasicDBObjectBuilder.start());
 		}
 	}
 
-    public void ensureIndexes(AddIndexData addIndexData) {
-        for (SpaceIndex idx : addIndexData.getIndexes()) {
+	public void ensureIndexes(AddIndexData addIndexData) {
+		for (SpaceIndex idx : addIndexData.getIndexes()) {
 
-            if (idx.getIndexType() == SpaceIndexType.NONE)
-                continue;
+			if (idx.getIndexType() == SpaceIndexType.NONE)
+				continue;
 
-            createIndex(addIndexData.getTypeName(), idx);
-        }
-    }
+			createIndex(addIndexData.getTypeName(), idx);
+		}
+	}
 
-    private void createIndex(String collectionName, SpaceIndex idx) {
-        createIndex(collectionName, idx.getName(), idx.getIndexType(), BuilderFactory.start());
-    }
+	private void createIndex(String collectionName, SpaceIndex idx) {
+		createIndex(collectionName, idx.getName(), idx.getIndexType(),
+				BasicDBObjectBuilder.start());
+	}
 
-    private void createIndex(String typeSimpleName, String routing,
-			SpaceIndexType type, DocumentBuilder option) {
+	private void createIndex(String typeSimpleName, String routing,
+			SpaceIndexType type, BasicDBObjectBuilder option) {
 
-		MongoCollection c = client.getCollection(typeSimpleName);
+		// TODO: check code
+		DBCollection c = client.getCollection(typeSimpleName);
 
-		Element key;
+		DBObject key;
 
-		if (type == SpaceIndexType.BASIC)
-			key = Index.hashed(routing);
-		else
-			key = Index.asc(routing);
-
-		c.createIndex(routing, option.asDocument(), key);
+		if (type == SpaceIndexType.BASIC) {
+			key = BasicDBObjectBuilder.start(routing, "hashed").get();
+			// key = Index.hashed(routing);
+		} else {
+			key = BasicDBObjectBuilder.start(routing, 1).get();
+			// key = Index.asc(routing);
+		}
+		
+		c.ensureIndex(key, option.get());
+		
+		// c.createIndex(routing, option.get(), key);
 	}
 }

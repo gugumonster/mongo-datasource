@@ -11,13 +11,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.openspaces.itest.persistency.common.mock.MockIntroduceTypeData;
 
-import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.MongoClientConfiguration;
+//import com.allanbank.mongodb.Durability;
+//import com.allanbank.mongodb.MongoClientConfiguration;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
 import com.gigaspaces.metadata.index.SpaceIndexType;
 import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpoint;
+import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import com.mongodb.WriteConcern;
 import com.gigaspaces.persistency.MongoClientConnector;
 import com.gigaspaces.persistency.MongoClientConnectorConfigurer;
 import com.gigaspaces.persistency.MongoSpaceDataSource;
@@ -96,13 +98,15 @@ public abstract class AbstractMongoTest {
 			throw new AssertionError(e);
 		}
 
-		MongoClientConfiguration config = new MongoClientConfiguration();
+		MongoClient config = new MongoClient(addr);
 
-		config.addServer(addr.getSocketAddress());
-		config.setDefaultDurability(Durability.ACK);
+		// config.addServer(addr.getSocketAddress());
+		// config.setDefaultDurability(Durability.ACK);
+
+		config.setWriteConcern(WriteConcern.ACKNOWLEDGED);
 
 		MongoClientConnector client = new MongoClientConnectorConfigurer()
-				.config(config).db(dbName).create();
+				.client(config).db(dbName).create();
 
 		return client;
 	}

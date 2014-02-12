@@ -16,17 +16,6 @@
 			<name>OpenSpaces</name>
 			<url>http://maven-repository.openspaces.org</url>
 		</repository>
-		<repository>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<id>allanbank</id>
-			<name>Allanbank Releases</name>
-			<url>http://www.allanbank.com/repo/</url>
-			<layout>default</layout>
-		</repository>
 	</repositories>
 
 	<dependencies>
@@ -56,12 +45,6 @@
 			<artifactId>mongo-java-driver</artifactId>
 			<version>2.11.2</version>
 		</dependency>
-		<dependency>
-			<groupId>com.allanbank</groupId>
-			<artifactId>mongodb-async-driver</artifactId>
-			<version>1.2.3</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4-runtime</artifactId>

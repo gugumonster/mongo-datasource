@@ -56,9 +56,8 @@ public class MongoDBController {
 		} catch (UnknownHostException e) {
 			throw new AssertionError(e);
 		}
-		
-		client.getDB(QA_DB);
 
+		client.getDB(QA_DB);
 	}
 
 	public void startCluster() {
@@ -156,8 +155,8 @@ public class MongoDBController {
 	}
 
 	private CommandLineProcess start(List<String> cmd) {
-		String wd = FilenameUtils.normalize(System.getenv(MONGO_HOME)+"/bin");
-		CommandLineProcess process = new CommandLineProcess(cmd,wd);
+		String wd = FilenameUtils.normalize(System.getenv(MONGO_HOME) + "/bin");
+		CommandLineProcess process = new CommandLineProcess(cmd, wd);
 
 		Thread thread = new Thread(process);
 
@@ -179,6 +178,14 @@ public class MongoDBController {
 
 		return path;
 	}
+
+//	private String getWin(String fileName) {
+//		if ("\\".equals(File.separator))
+//			return fileName + ".exe";
+//
+//		return fileName;
+//
+//	}
 
 	public void startEmbedded() throws AssertionError {
 		try {

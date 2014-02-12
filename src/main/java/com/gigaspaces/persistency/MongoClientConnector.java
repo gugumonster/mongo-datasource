@@ -26,6 +26,7 @@ import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,32 +36,30 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
+import org.openspaces.persistency.support.TypeDescriptorUtils;
 
-import com.allanbank.mongodb.MongoClient;
-import com.allanbank.mongodb.MongoCollection;
-import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.MongoIterator;
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.DocumentAssignable;
-import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.builder.BuilderFactory;
-import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorVersionedSerializationUtils;
 import com.gigaspaces.persistency.error.SpaceMongoDataSourceException;
 import com.gigaspaces.persistency.error.SpaceMongoException;
-import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.BatchUnit;
+import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.IndexBuilder;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
-
-import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
-import org.openspaces.persistency.support.TypeDescriptorUtils;
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.WriteResult;
 
 /**
  * MongoDB driver client wrapper
@@ -82,7 +81,7 @@ public class MongoClientConnector {
 
 	// TODO: shadi must add documentation
 	private static final Map<String, SpaceTypeDescriptorContainer> types = new ConcurrentHashMap<String, SpaceTypeDescriptorContainer>();
-	private static final Map<String, SpaceDocumentMapper<Document>> mappingCache = new ConcurrentHashMap<String, SpaceDocumentMapper<Document>>();
+	private static final Map<String, SpaceDocumentMapper<DBObject>> mappingCache = new ConcurrentHashMap<String, SpaceDocumentMapper<DBObject>>();
 
 	public MongoClientConnector(MongoClient client, String db) {
 
@@ -103,12 +102,11 @@ public class MongoClientConnector {
 
 	public void introduceType(SpaceTypeDescriptor typeDescriptor) {
 
-		MongoCollection m = getConnection().getCollection(
-				METADATA_COLLECTION_NAME);
+		DBCollection m = getConnection()
+				.getCollection(METADATA_COLLECTION_NAME);
 
-		DocumentBuilder builder = BuilderFactory.start().add(
+		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start().add(
 				Constants.ID_PROPERTY, typeDescriptor.getTypeName());
-
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			ObjectOutputStream out = new ObjectOutputStream(bos);
@@ -118,7 +116,7 @@ public class MongoClientConnector {
 
 			builder.add(TYPE_DESCRIPTOR_FIELD_NAME, bos.toByteArray());
 
-			int wr = m.save(builder);
+			WriteResult wr = m.save(builder.get());
 
 			if (logger.isTraceEnabled())
 				logger.trace(wr);
@@ -134,11 +132,11 @@ public class MongoClientConnector {
 		}
 	}
 
-	public MongoDatabase getConnection() {
-		return client.getDatabase(dbName);
+	public DB getConnection() {
+		return client.getDB(dbName);
 	}
 
-	public MongoCollection getCollection(String collectionName) {
+	public DBCollection getCollection(String collectionName) {
 
 		return getConnection().getCollection(
 				collectionName.replace("$", DOLLAR_SIGN));
@@ -171,32 +169,43 @@ public class MongoClientConnector {
 			SpaceDocument spaceDoc = row.getSpaceDocument();
 			SpaceTypeDescriptor typeDescriptor = types.get(row.getTypeName())
 					.getTypeDescriptor();
-			SpaceDocumentMapper<Document> mapper = getMapper(typeDescriptor);
+			SpaceDocumentMapper<DBObject> mapper = getMapper(typeDescriptor);
 
-			DocumentAssignable obj = mapper.toDBObject(spaceDoc);
+			DBObject obj = mapper.toDBObject(spaceDoc);
 
-			MongoCollection col = getCollection(row.getTypeName());
-
+			DBCollection col = getCollection(row.getTypeName());
+			// TODO: check this code
 			switch (row.getDataSyncOperationType()) {
 
 			case WRITE:
 			case UPDATE:
-				pending.add(col.saveAsync(obj));
+				// pending.add(col.saveAsync(obj));
+				col.save(obj);
 				break;
 			case PARTIAL_UPDATE:
 			case CHANGE:
-				Document query = BuilderFactory
+				// Document query = BuilderFactory
+				// .start()
+				// .add(Constants.ID_PROPERTY,
+				// ((Document) obj).get(Constants.ID_PROPERTY)
+				// .getValueAsObject()).build();
+				//
+				// Document update = normalize((Document) obj);
+				// pending.add(col.updateAsync(query, update));
+
+				DBObject query = BasicDBObjectBuilder
 						.start()
 						.add(Constants.ID_PROPERTY,
-								((Document) obj).get(Constants.ID_PROPERTY)
-										.getValueAsObject()).build();
+								obj.get(Constants.ID_PROPERTY)).get();
+				
+				DBObject update = normalize(obj);
 
-				Document update = normalize((Document) obj);
-				pending.add(col.updateAsync(query, update));
+				col.update(query, update);
 				break;
 			// case REMOVE_BY_UID: // Not supported by this implementation
 			case REMOVE:
-				pending.add(col.deleteAsync(obj, false));
+				// pending.add(col.deleteAsync(obj, false));
+				col.remove(obj);
 				break;
 			default:
 				throw new IllegalStateException(
@@ -214,14 +223,15 @@ public class MongoClientConnector {
 
 	public Collection<SpaceTypeDescriptor> loadMetadata() {
 
-		MongoCollection metadata = getCollection(METADATA_COLLECTION_NAME);
+		DBCollection metadata = getCollection(METADATA_COLLECTION_NAME);
 
-		MongoIterator<Document> cursor = metadata.find(BuilderFactory.start()
-				.build());
+		DBCursor cursor = metadata.find(new BasicDBObject());
 
 		while (cursor.hasNext()) {
-			Document type = cursor.next();
-			Object b = type.get(TYPE_DESCRIPTOR_FIELD_NAME).getValueAsObject();
+			DBObject type = cursor.next();
+
+			Object b = type.get(TYPE_DESCRIPTOR_FIELD_NAME);// .getValueAsObject();
+
 			readMetadata(b);
 		}
 
@@ -273,31 +283,32 @@ public class MongoClientConnector {
 		indexBuilder.ensureIndexes(addIndexData);
 	}
 
-	private static SpaceDocumentMapper<Document> getMapper(
+	private static SpaceDocumentMapper<DBObject> getMapper(
 			SpaceTypeDescriptor typeDescriptor) {
 
-		SpaceDocumentMapper<Document> mapper = mappingCache.get(typeDescriptor
+		SpaceDocumentMapper<DBObject> mapper = mappingCache.get(typeDescriptor
 				.getTypeName());
 		if (mapper == null) {
-			mapper = new AsyncSpaceDocumentMapper(typeDescriptor);
+			mapper = new DefaultSpaceDocumentMapper(typeDescriptor);
 			mappingCache.put(typeDescriptor.getTypeName(), mapper);
 		}
 
 		return mapper;
 	}
 
-	private static Document normalize(Document obj) {
+	private static DBObject normalize(DBObject obj) {
+		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
 
-		DocumentBuilder builder = BuilderFactory.start();
+		Iterator<String> iterator = obj.keySet().iterator();
 
-		for (Element e : obj.getElements()) {
+		while (iterator.hasNext()) {
 
-			String key = e.getName();
+			String key = iterator.next();
 
 			if (Constants.ID_PROPERTY.equals(key))
 				continue;
 
-			Object value = obj.get(key).getValueAsObject();
+			Object value = obj.get(key);// TODO: check this .getValueAsObject();
 
 			if (value == null)
 				continue;
@@ -308,8 +319,33 @@ public class MongoClientConnector {
 			builder.push("$set").add(key, value);
 		}
 
-		return builder.build();
+		return builder.get();
 	}
+
+	// private static Document normalize(Document obj) {
+	//
+	// DocumentBuilder builder = BuilderFactory.start();
+	//
+	// for (Element e : obj.getElements()) {
+	//
+	// String key = e.getName();
+	//
+	// if (Constants.ID_PROPERTY.equals(key))
+	// continue;
+	//
+	// Object value = obj.get(key).getValueAsObject();
+	//
+	// if (value == null)
+	// continue;
+	// //
+	// // if (value instanceof DocumentAssignable) {
+	// // builder.push("$set").add(key, (Document) value);
+	// // } else
+	// builder.push("$set").add(key, value);
+	// }
+	//
+	// return builder.build();
+	// }
 
 	private static long waitFor(List<Future<? extends Number>> replies) {
 

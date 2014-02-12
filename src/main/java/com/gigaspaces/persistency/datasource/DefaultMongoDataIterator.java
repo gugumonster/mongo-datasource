@@ -15,29 +15,30 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.datasource;
 
-import com.allanbank.mongodb.MongoIterator;
-import com.allanbank.mongodb.bson.Document;
+
 import com.gigaspaces.datasource.DataIterator;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
-import com.gigaspaces.persistency.metadata.AsyncSpaceDocumentMapper;
+import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 /**
  * @author Shadi Massalha
  */
 public class DefaultMongoDataIterator implements DataIterator<Object> {
 
-	private MongoIterator<Document> iterator;
-	private SpaceDocumentMapper<Document> mapper;
+	private DBCursor iterator;
+	private SpaceDocumentMapper<DBObject> mapper;
 
-	public DefaultMongoDataIterator(MongoIterator<Document> iterator, SpaceTypeDescriptor typeDescriptor) {
+	public DefaultMongoDataIterator(DBCursor iterator, SpaceTypeDescriptor typeDescriptor) {
 		if (iterator == null)
 			throw new IllegalArgumentException("iterator can not be null");
 		if (typeDescriptor == null)
 			throw new IllegalArgumentException("typeDescriptor can not be null");
 
 		this.iterator = iterator;
-		this.mapper = new AsyncSpaceDocumentMapper(typeDescriptor);
+		this.mapper = new DefaultSpaceDocumentMapper(typeDescriptor);
 	}
 
 	public boolean hasNext() {
