@@ -174,25 +174,13 @@ public class MongoClientConnector {
 			DBObject obj = mapper.toDBObject(spaceDoc);
 
 			DBCollection col = getCollection(row.getTypeName());
-			// TODO: check this code
 			switch (row.getDataSyncOperationType()) {
 
 			case WRITE:
 			case UPDATE:
-				// pending.add(col.saveAsync(obj));
 				col.save(obj);
 				break;
 			case PARTIAL_UPDATE:
-			case CHANGE:
-				// Document query = BuilderFactory
-				// .start()
-				// .add(Constants.ID_PROPERTY,
-				// ((Document) obj).get(Constants.ID_PROPERTY)
-				// .getValueAsObject()).build();
-				//
-				// Document update = normalize((Document) obj);
-				// pending.add(col.updateAsync(query, update));
-
 				DBObject query = BasicDBObjectBuilder
 						.start()
 						.add(Constants.ID_PROPERTY,
@@ -204,7 +192,6 @@ public class MongoClientConnector {
 				break;
 			// case REMOVE_BY_UID: // Not supported by this implementation
 			case REMOVE:
-				// pending.add(col.deleteAsync(obj, false));
 				col.remove(obj);
 				break;
 			default:
@@ -214,11 +201,11 @@ public class MongoClientConnector {
 			}
 		}
 
-		long totalCount = waitFor(pending);
+		/*long totalCount = waitFor(pending);
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("total accepted replies is: " + totalCount);
-		}
+		}*/
 	}
 
 	public Collection<SpaceTypeDescriptor> loadMetadata() {
@@ -230,7 +217,7 @@ public class MongoClientConnector {
 		while (cursor.hasNext()) {
 			DBObject type = cursor.next();
 
-			Object b = type.get(TYPE_DESCRIPTOR_FIELD_NAME);// .getValueAsObject();
+			Object b = type.get(TYPE_DESCRIPTOR_FIELD_NAME);
 
 			readMetadata(b);
 		}
@@ -308,44 +295,16 @@ public class MongoClientConnector {
 			if (Constants.ID_PROPERTY.equals(key))
 				continue;
 
-			Object value = obj.get(key);// TODO: check this .getValueAsObject();
+			Object value = obj.get(key);
 
 			if (value == null)
 				continue;
-			//
-			// if (value instanceof DocumentAssignable) {
-			// builder.push("$set").add(key, (Document) value);
-			// } else
+			
 			builder.push("$set").add(key, value);
 		}
 
 		return builder.get();
 	}
-
-	// private static Document normalize(Document obj) {
-	//
-	// DocumentBuilder builder = BuilderFactory.start();
-	//
-	// for (Element e : obj.getElements()) {
-	//
-	// String key = e.getName();
-	//
-	// if (Constants.ID_PROPERTY.equals(key))
-	// continue;
-	//
-	// Object value = obj.get(key).getValueAsObject();
-	//
-	// if (value == null)
-	// continue;
-	// //
-	// // if (value instanceof DocumentAssignable) {
-	// // builder.push("$set").add(key, (Document) value);
-	// // } else
-	// builder.push("$set").add(key, value);
-	// }
-	//
-	// return builder.build();
-	// }
 
 	private static long waitFor(List<Future<? extends Number>> replies) {
 

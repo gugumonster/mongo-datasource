@@ -36,7 +36,6 @@ import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-//import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class SpaceDocumentMapperImpl implements SpaceDocumentMapper<DBObject> {

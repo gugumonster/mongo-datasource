@@ -107,11 +107,14 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 		if (logger.isDebugEnabled())
 			logger.debug("MongoSpaceDataSource.getById(" + idQuery + ")");
 
-		//TODO: check this code
 		SpaceDocumentMapper<DBObject> mapper = new DefaultSpaceDocumentMapper(idQuery.getTypeDescriptor());
+
 		BasicDBObjectBuilder documentBuilder = BasicDBObjectBuilder.start().add(Constants.ID_PROPERTY, mapper.toObject(idQuery.getId()));
+		
 		DBCollection mongoCollection = mongoClient.getCollection(idQuery.getTypeDescriptor().getTypeName());
+		
 		DBObject result = mongoCollection.findOne(documentBuilder.get());
+		
 		return mapper.toDocument(result);
 		
 	}
@@ -122,8 +125,8 @@ public class MongoSpaceDataSource extends SpaceDataSource {
         if (logger.isDebugEnabled())
             logger.debug("MongoSpaceDataSource.getDataIteratorByIds(" + idsQuery + ")");
 
-        //TODO: check this logic
 		DBObject[] ors = new DBObject[idsQuery.getIds().length];
+
 		for (int i=0 ; i < ors.length ; i++)
 			ors[i] = BasicDBObjectBuilder.start().add(Constants.ID_PROPERTY, idsQuery.getIds()[i]).get();
 		

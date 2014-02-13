@@ -139,7 +139,7 @@ public class DefaultSpaceDocumentMapper implements
 		if (bson == null)
 			return null;
 
-		String type = (String) bson.get(TYPE);// .getValueAsString();
+		String type = (String) bson.get(TYPE);
 
 		if (isDocument(type))
 			return toSpaceDocument(bson);
@@ -149,7 +149,7 @@ public class DefaultSpaceDocumentMapper implements
 
 	private Object toPojo(DBObject bson) {
 
-		String className = (String) bson.get(TYPE);// .getValueAsString();
+		String className = (String) bson.get(TYPE);
 
 		try {
 			Class<?> type = getClassFor(className);
@@ -160,8 +160,7 @@ public class DefaultSpaceDocumentMapper implements
 			Iterator<String> iterator = bson.keySet().iterator();
 
 			while (iterator.hasNext()) {
-				// for (Element element : bson.getElements()) {
-
+				
 				String property = iterator.next();
 
 				if (TYPE.equals(property))
@@ -173,10 +172,9 @@ public class DefaultSpaceDocumentMapper implements
 
 				if (value instanceof BasicDBList) {
 					isArray = true;
-					//value = ((DBObject) value);// .getValueAsObject();
-				} //else {
-//					isArray = true;
-//				}
+					
+				}
+				
 				if (value == null)
 					continue;
 
@@ -214,8 +212,7 @@ public class DefaultSpaceDocumentMapper implements
 
 	private Object toSpaceDocument(DBObject bson) {
 
-		SpaceDocument document = new SpaceDocument((String) bson.get(TYPE)
-		/* .getValueAsString() */);
+		SpaceDocument document = new SpaceDocument((String) bson.get(TYPE));
 		Iterator<String> iterator = bson.keySet().iterator();
 
 		while (iterator.hasNext()) {
@@ -225,7 +222,7 @@ public class DefaultSpaceDocumentMapper implements
 			if (TYPE.equals(property))
 				continue;
 
-			Object value = bson.get(property);// .getValueAsObject();
+			Object value = bson.get(property);
 
 			if (value == null)
 				continue;
@@ -255,7 +252,7 @@ public class DefaultSpaceDocumentMapper implements
 			return null;
 
 		switch (bsonType(value)) {
-		case TYPE_OBJECTID://TODO: check this code
+		case TYPE_OBJECTID:
 			return null;
 		case TYPE_ARRAY:
 			return toExactArray((BasicDBList) value);
@@ -273,17 +270,10 @@ public class DefaultSpaceDocumentMapper implements
 		if (bson.containsField(TYPE) && bson.containsField(VALUE)) {
 			try {
 				@SuppressWarnings("rawtypes")
-				Class type = Class.forName((String) bson.get(TYPE)/*
-																 * .getValueAsString
-																 * ()
-																 */);
+				Class type = Class.forName((String) bson.get(TYPE));
 
 				if (type.isEnum())
-					return Enum.valueOf(type, (String) bson.get(VALUE)/*
-																	 * .
-																	 * getValueAsString
-																	 * ( )
-																	 */);
+					return Enum.valueOf(type, (String) bson.get(VALUE));
 				else
 					return fromSpetialType((DBObject) value);
 
@@ -300,8 +290,7 @@ public class DefaultSpaceDocumentMapper implements
 			throw new IllegalStateException("Illegal BSON array size: "
 					+ value.size() + ", size must be at lest 1");
 
-		Class<?> type = getClassFor((String) value.get(0)
-		/* .getValueAsString() */);
+		Class<?> type = getClassFor((String) value.get(0));
 
 		return toExtractArray(value, type);
 	}
@@ -329,14 +318,11 @@ public class DefaultSpaceDocumentMapper implements
 				map = (Map) repository.getConstructor(type).newInstance();
 			} else {
 				map = (Map) repository.getConstructor(
-						getClassFor((String) value.get(0)
-						/* .getValueAsString() */)).newInstance();
+						getClassFor((String) value.get(0))).newInstance();
 			}
 			for (int i = 1; i < value.size(); i += 2) {
-				Object key = fromDBObject(value.get(i)
-						/*.getValueAsObject()*/);
-				Object val = fromDBObject(value.get(i + 1)
-						/*.getValueAsObject()*/);
+				Object key = fromDBObject(value.get(i));
+				Object val = fromDBObject(value.get(i + 1));
 
 				map.put(key, val);
 			}
@@ -364,8 +350,7 @@ public class DefaultSpaceDocumentMapper implements
 		Object array = Array.newInstance(type.getComponentType(), length);
 
 		for (int i = 1; i < length + 1; i++) {
-			Object v = fromDBObject(value.get(i)
-			/* .getValueAsObject() */);
+			Object v = fromDBObject(value.get(i));
 
 			if (SpaceDocument.class.isAssignableFrom(type.getComponentType()))
 				v = MongoDocumentObjectConverter.instance().toDocumentIfNeeded(
@@ -390,13 +375,11 @@ public class DefaultSpaceDocumentMapper implements
 						.newInstance();
 			} else {
 				collection = (Collection) repository.getConstructor(
-						getClassFor((String) value.get(0)
-						/* .getValueAsString() */)).newInstance();
+						getClassFor((String) value.get(0))).newInstance();
 			}
 
 			for (int i = 1; i < value.size(); i++)
-				collection.add(fromDBObject(value.get(i)
-				/* .getValueAsObject() */));
+				collection.add(fromDBObject(value.get(i)));
 
 			return collection;
 		} catch (InvocationTargetException e) {
@@ -531,7 +514,7 @@ public class DefaultSpaceDocumentMapper implements
 
 	private BasicDBList toMap(Object property) {
 
-		BasicDBList builder = new BasicDBList();// BuilderFactory.startArray();
+		BasicDBList builder = new BasicDBList();
 
 		@SuppressWarnings("rawtypes")
 		Map<?, ?> map = (Map) property;
@@ -548,7 +531,7 @@ public class DefaultSpaceDocumentMapper implements
 
 	private BasicDBList toCollection(Object property) {
 
-		BasicDBList builder = new BasicDBList();// .startArray();
+		BasicDBList builder = new BasicDBList();
 
 		@SuppressWarnings("rawtypes")
 		Collection collection = (Collection) property;
@@ -563,7 +546,7 @@ public class DefaultSpaceDocumentMapper implements
 	}
 
 	private BasicDBList toArray(Object property) {
-		BasicDBList builder = new BasicDBList();// .startArray();
+		BasicDBList builder = new BasicDBList();
 
 		int length = Array.getLength(property);
 
@@ -610,8 +593,8 @@ public class DefaultSpaceDocumentMapper implements
 	}
 
 	private Object fromSpetialType(DBObject value) {
-		String type = (String) value.get(TYPE);// .getValueAsString();
-		String val = (String) value.get(VALUE);// .getValueAsString();
+		String type = (String) value.get(TYPE);
+		String val = (String) value.get(VALUE);
 
 		if (BigInteger.class.getName().equals(type))
 			return new BigInteger(val);

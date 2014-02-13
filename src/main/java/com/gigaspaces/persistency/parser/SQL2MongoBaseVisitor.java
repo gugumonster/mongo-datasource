@@ -124,7 +124,6 @@ public class SQL2MongoBaseVisitor<T> extends AbstractParseTreeVisitor<T>
 		if ("is".equals(op)) {
 			buildIsExpression(val, atom);
 		} else if ("like".equals(op)) {
-			// buildLikeExpression(val, atom);
 			atom.regex(Pattern.compile(LIKE));
 		} else if ("rlike".equals(op)) {
 			atom.regex(Pattern.compile(RLIKE));

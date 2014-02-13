@@ -179,14 +179,6 @@ public class MongoDBController {
 		return path;
 	}
 
-//	private String getWin(String fileName) {
-//		if ("\\".equals(File.separator))
-//			return fileName + ".exe";
-//
-//		return fileName;
-//
-//	}
-
 	public void startEmbedded() throws AssertionError {
 		try {
 

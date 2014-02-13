@@ -80,12 +80,12 @@ public class MongoQueryFactory {
 	@SuppressWarnings("static-access")
 	private static void replaceIdProperty(BasicDBObjectBuilder qResult,
 			SpaceTypeDescriptor typeDescriptor) {
-		// TODO: check this code
+		
 		DBObject q = qResult.get();
 
 		if (q.containsField(typeDescriptor.getIdPropertyName())) {
 
-			Object value = q.get(typeDescriptor.getIdPropertyName());// .getValueAsObject();
+			Object value = q.get(typeDescriptor.getIdPropertyName());
 
 			q.removeField(typeDescriptor.getIdPropertyName());
 
@@ -117,9 +117,6 @@ public class MongoQueryFactory {
 		SpaceDocumentMapper<DBObject> mapper = new DefaultSpaceDocumentMapper(
 				spaceTypeDescriptor);
 
-		// DocumentBuilder query =
-		// BuilderFactory.start(Json.parse(parsedQuery));
-		// TODO: check thislogic
 		DBObject obj = (DBObject) JSON.parse(parsedQuery);
 
 		BasicDBObjectBuilder query = BasicDBObjectBuilder.start(obj.toMap());
@@ -131,7 +128,6 @@ public class MongoQueryFactory {
 		return query;
 	}
 
-	// TODO: check this logic
 	private static BasicDBObjectBuilder replaceParameters(Object[] parameters,
 			SpaceDocumentMapper<DBObject> mapper, BasicDBObjectBuilder builder,
 			Integer index) {
@@ -165,102 +161,15 @@ public class MongoQueryFactory {
 							(String) parameters[index++],
 							Pattern.CASE_INSENSITIVE));
 			} else {
-				// TODO : check this logic
 				DBObject element = (DBObject) ph;
-				//
-				// if (element.containsField($REGEX)) {
-				//
-				// Iterator<String> i = element.keySet().iterator();
-				//
-				// while (i.hasNext()) {
-				//
-				// String k = i.next();
-				//
-				// if (!$REGEX.equals(k))
-				// continue;
-				//
-				// String e1 = (String) element.get(k);
-				//
-				// if (LIKE.equalsIgnoreCase(e1/* .getValueAsString() */)) {
-				// newBuilder
-				// .add(field,
-				// convertLikeExpression((String) parameters[index++]));
-				// } else if (RLIKE.equalsIgnoreCase(e1/*
-				// * .getValueAsString(
-				// * )
-				// */))
-				// newBuilder.add(field, Pattern.compile(
-				// (String) parameters[index++],
-				// Pattern.CASE_INSENSITIVE));
-				// }
 
-				/*
-				 * for (Element e1 : element.getElements()) {
-				 * 
-				 * if (!$REGEX.equals(e1.getName())) continue;
-				 * 
-				 * if (LIKE.equalsIgnoreCase(e1.getValueAsString())) {
-				 * newBuilder .add(field, convertLikeExpression((String)
-				 * parameters[index++])); } else if (RLIKE
-				 * .equalsIgnoreCase(e1.getValueAsString()))
-				 * newBuilder.add(field, Pattern.compile( (String)
-				 * parameters[index++], Pattern.CASE_INSENSITIVE));
-				 * 
-				 * }
-				 */
-				// } else {
 				BasicDBObjectBuilder doc = replaceParameters(parameters,
 						mapper, BasicDBObjectBuilder.start(element.toMap()),
 						index);
 
 				newBuilder.add(field, doc.get());
-				// }
 			}
 		}
-		// DocumentBuilder newBuilder = BuilderFactory.start();
-		//
-		// for (Element e : builder.asDocument().getElements()) {
-		//
-		// String field = e.getName();
-		// Object ph = e.getValueAsObject();
-		//
-		// if (index >= parameters.length)
-		// return builder;
-		//
-		// if (ph instanceof String) {
-		//
-		// if (PARAM_PLACEHOLDER.equals(ph)) {
-		// newBuilder.add(field, mapper.toObject(parameters[index++]))
-		// .build();
-		// }
-		// } else {
-		// Document element = (Document) ph;
-		//
-		// if (element.contains($REGEX)) {
-		// for (Element e1 : element.getElements()) {
-		//
-		// if (!$REGEX.equals(e1.getName()))
-		// continue;
-		//
-		// if (LIKE.equalsIgnoreCase(e1.getValueAsString())) {
-		// newBuilder.add(
-		// field,
-		// convertLikeExpression((String) parameters[index++]));
-		// } else if (RLIKE
-		// .equalsIgnoreCase(e1.getValueAsString()))
-		// newBuilder.add(field, Pattern
-		// .compile((String) parameters[index++],Pattern.CASE_INSENSITIVE));
-		//
-		// }
-		// } else {
-		// DocumentBuilder doc = replaceParameters(parameters, mapper,
-		// BuilderFactory.start(element),index);
-		//
-		// newBuilder.add(field, doc);
-		// }
-		// }
-		// }
-
 		return newBuilder;
 	}
 

@@ -255,7 +255,6 @@ public class DocumentSpacePojoTest {
 		assertSpaceDocument(DYNAMIC_FIELD_4, spaceDoc, spaceDocument2);
 		assertSpaceDocument(DYNAMIC_FIELD_5, spaceDoc, spaceDocument2);
 		assertSpaceDocument(DYNAMIC_FIELD_6, spaceDoc, spaceDocument2);
-		// assertSpaceDocument(DYNAMIC_FIELD_7, spaceDoc, spaceDocument2);
 		assertSpaceDocument(DYNAMIC_FIELD_8, spaceDoc, spaceDocument2);
 
 	}

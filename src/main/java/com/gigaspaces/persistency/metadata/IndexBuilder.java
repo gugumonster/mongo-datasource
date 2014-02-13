@@ -74,22 +74,16 @@ public class IndexBuilder {
 
 	private void createIndex(String typeSimpleName, String routing,
 			SpaceIndexType type, BasicDBObjectBuilder option) {
-
-		// TODO: check code
 		DBCollection c = client.getCollection(typeSimpleName);
 
 		DBObject key;
 
 		if (type == SpaceIndexType.BASIC) {
 			key = BasicDBObjectBuilder.start(routing, "hashed").get();
-			// key = Index.hashed(routing);
 		} else {
 			key = BasicDBObjectBuilder.start(routing, 1).get();
-			// key = Index.asc(routing);
 		}
 		
-		c.ensureIndex(key, option.get());
-		
-		// c.createIndex(routing, option.get(), key);
+		c.ensureIndex(key, option.get());	
 	}
 }

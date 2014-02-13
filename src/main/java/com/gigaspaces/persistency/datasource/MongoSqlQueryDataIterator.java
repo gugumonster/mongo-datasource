@@ -89,11 +89,6 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 					.toDBObject(query.getTemplateAsDocument()).toMap();
 			
 			q = BasicDBObjectBuilder.start(m);
-
-			// q = BasicDBObjectBuilder.start(new
-			// DefaultSpaceDocumentMapper(query
-			// .getTypeDescriptor()).toDBObject(query
-			// .getTemplateAsDocument()));
 		}
 		cursor = collection.find(q.get());
 	}

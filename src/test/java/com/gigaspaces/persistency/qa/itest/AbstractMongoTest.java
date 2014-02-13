@@ -97,10 +97,7 @@ public abstract class AbstractMongoTest {
 
 		MongoClient config = new MongoClient(addr);
 
-		// config.addServer(addr.getSocketAddress());
-		// config.setDefaultDurability(Durability.ACK);
-
-		config.setWriteConcern(WriteConcern.ACKNOWLEDGED);
+		//config.setWriteConcern(WriteConcern.ACKNOWLEDGED);
 
 		MongoClientConnector client = new MongoClientConnectorConfigurer()
 				.client(config).db(dbName).create();
