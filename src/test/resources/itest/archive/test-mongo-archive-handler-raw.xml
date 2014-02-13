@@ -27,9 +27,9 @@
 		<property name="db" value="${mongodb.db}" />
 	</bean>
 
-	<bean id="config" class="com.allanbank.mongodb.MongoClientConfiguration">
-		<constructor-arg
-			value="mongodb://${mongodb.host}:${mongodb.port}/${mongodb.db}" type="java.lang.String" />
-		<property name="defaultDurability" value="${mongodb.durability}" />
+	<bean id="config" class="com.mongodb.MongoClient">
+		<constructor-arg value="localhost" type="java.lang.String" />
+		<constructor-arg value="27017" type="int" />
+		<property name="writeConcern" value="ACKNOWLEDGED" />
 	</bean>
 </beans>

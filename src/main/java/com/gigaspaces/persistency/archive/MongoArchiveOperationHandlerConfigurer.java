@@ -19,7 +19,6 @@ import org.openspaces.core.GigaSpace;
 
 import com.mongodb.MongoClient;
 
-//import com.allanbank.mongodb.MongoClientConfiguration;
 
 /**
  * @author Shadi Massalha

@@ -21,7 +21,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.mongodb.MongoClient;
 
-//import com.allanbank.mongodb.MongoClientConfiguration;
 
 /**
  * Default spring bean factory implementation that can get external
