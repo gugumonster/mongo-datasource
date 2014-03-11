@@ -4,9 +4,9 @@ import com.gigaspaces.annotation.pojo.SpaceClass;
 import com.gigaspaces.annotation.pojo.SpaceId;
 import com.gigaspaces.annotation.pojo.SpaceProperty;
 
-
 @SpaceClass
-public class SmallTypeHierarcyMongoDBSpaceDataClassA implements Comparable<SmallTypeHierarcyMongoDBSpaceDataClassA> {
+public class SmallTypeHierarcyMongoDBSpaceDataClassA implements
+		Comparable<SmallTypeHierarcyMongoDBSpaceDataClassA> {
 
 	@Override
 	public int hashCode() {
@@ -61,9 +61,9 @@ public class SmallTypeHierarcyMongoDBSpaceDataClassA implements Comparable<Small
 	}
 
 	public int compareTo(SmallTypeHierarcyMongoDBSpaceDataClassA o) {
-		if(id == o.id)
+		if (id.equals(o.id))
 			return 0;
-		return id.hashCode()- o.id.hashCode();
+		return id.hashCode() - o.id.hashCode();
 	}
 
 }

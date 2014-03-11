@@ -163,7 +163,7 @@ public class MongoClientConnector {
 			logger.trace("Batch size to be performed is " + rows.size());
 		}
 
-		List<Future<? extends Number>> pending = new ArrayList<Future<? extends Number>>();
+		//List<Future<? extends Number>> pending = new ArrayList<Future<? extends Number>>();
 
 		for (BatchUnit row : rows) {
 			SpaceDocument spaceDoc = row.getSpaceDocument();

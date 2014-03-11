@@ -52,15 +52,17 @@ public class CommandLineProcess implements Runnable {
 
 			BufferedReader stdInput = new BufferedReader(new InputStreamReader(
 					process.getInputStream()));
+			try {
+				String line;
 
-			String line;
+				while ((line = stdInput.readLine()) != null) {
+					System.out.println(line);
+				}
 
-			while ((line = stdInput.readLine()) != null) {
-				System.out.println(line);
+				process.waitFor();
+			} finally {
+				stdInput.close();
 			}
-
-			process.waitFor();
-
 		} catch (IOException e) {
 			throw new AssertionError(e);
 		} catch (InterruptedException e) {

@@ -35,7 +35,6 @@ import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
-import com.mongodb.QueryBuilder;
 import com.mongodb.util.JSON;
 
 /**
@@ -80,7 +79,7 @@ public class MongoQueryFactory {
 	@SuppressWarnings("static-access")
 	private static void replaceIdProperty(BasicDBObjectBuilder qResult,
 			SpaceTypeDescriptor typeDescriptor) {
-		
+
 		DBObject q = qResult.get();
 
 		if (q.containsField(typeDescriptor.getIdPropertyName())) {
@@ -147,7 +146,15 @@ public class MongoQueryFactory {
 
 			if (ph instanceof String) {
 				if (PARAM_PLACEHOLDER.equals(ph)) {
-					newBuilder.add(field, mapper.toObject(parameters[index++]));
+					Object p = mapper.toObject(parameters[index++]);
+
+					if (p instanceof DBObject
+							&& "CUSTOM_BINARY".equals(((DBObject) p)
+									.get("__type__"))) {
+						newBuilder.add(field+".hash", ((DBObject)p).get("hash"));
+					} else {
+						newBuilder.add(field, p);
+					}
 				}
 			} else if (ph instanceof Pattern) {
 				Pattern p = (Pattern) ph;
@@ -162,7 +169,17 @@ public class MongoQueryFactory {
 							Pattern.CASE_INSENSITIVE));
 			} else {
 				DBObject element = (DBObject) ph;
-
+				
+				Object p = mapper.toObject(parameters[index]);
+				
+				if(p instanceof DBObject){
+					String t = (String) ((DBObject)p).get("__type__");
+					String op = element.keySet().iterator().next();
+					
+					if("CUSTOM_BINARY".equals(t) && !op.equals("$ne"))
+						return newBuilder;
+				}
+				
 				BasicDBObjectBuilder doc = replaceParameters(parameters,
 						mapper, BasicDBObjectBuilder.start(element.toMap()),
 						index);

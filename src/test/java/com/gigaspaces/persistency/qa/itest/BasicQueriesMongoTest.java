@@ -66,6 +66,8 @@ public class BasicQueriesMongoTest extends AbstractMongoTest {
     private static final TestPojo2 DYNAMIC_COL_9_VAL      = new TestPojo2(DYNAMIC_COL_9_NAME_VAL,
                                                                                         DYNAMIC_COL_9_AGE_VAL);
     
+    private static final String 	DYNAMIC_COL_10	   =	"dynamicCol10";
+    private static final Class<?> 		DYNAMIC_COL_10_VAL = 	TestPojo2.class;
     @Before
     public void before()
     {
@@ -99,11 +101,17 @@ public class BasicQueriesMongoTest extends AbstractMongoTest {
             .setProperty(DYNAMIC_COL_7, DYNAMIC_COL_7_VAL));
        testDataIterator(new SpaceDocument(TEST_CF)
             .setProperty(DYNAMIC_COL_8, DYNAMIC_COL_8_VAL));
-        testDataIterator(new SpaceDocument(TEST_CF)
-            .setProperty(DYNAMIC_COL_9_NAME, DYNAMIC_COL_9_NAME_VAL));
-        testDataIterator(new SpaceDocument(TEST_CF)
-            .setProperty(DYNAMIC_COL_9_AGE, DYNAMIC_COL_9_AGE_VAL));
+//        testDataIterator(new SpaceDocument(TEST_CF)
+//            .setProperty(DYNAMIC_COL_9_NAME, DYNAMIC_COL_9_NAME_VAL));
+//        testDataIterator(new SpaceDocument(TEST_CF)
+//            .setProperty(DYNAMIC_COL_9_AGE, DYNAMIC_COL_9_AGE_VAL));
+
+       testDataIterator(new SpaceDocument(TEST_CF)
+    		   .setProperty(DYNAMIC_COL_9, DYNAMIC_COL_9_VAL));
+       testDataIterator(new SpaceDocument(TEST_CF)
+   		.setProperty(DYNAMIC_COL_10, DYNAMIC_COL_10_VAL));
         
+       
         testDataIterator(new SpaceDocument(TEST_CF)
             .setProperty(LONG_COL, LONG_COL_VAL)
             .setProperty(STRING_COL, STRING_COL_VAL));
@@ -210,6 +218,7 @@ public class BasicQueriesMongoTest extends AbstractMongoTest {
             .addFixedProperty(DYNAMIC_COL_7, DYNAMIC_COL_7_VAL.getClass())
             .addFixedProperty(DYNAMIC_COL_8, DYNAMIC_COL_8_VAL.getClass())
             .addFixedProperty(DYNAMIC_COL_9, DYNAMIC_COL_9_VAL.getClass())
+            .addFixedProperty(DYNAMIC_COL_10, DYNAMIC_COL_10_VAL.getClass())
             .addPathIndex(LONG_COL, SpaceIndexType.BASIC)
             .addPathIndex(STRING_COL, SpaceIndexType.BASIC)
             .addPathIndex(BIGINT_COL, SpaceIndexType.BASIC)
@@ -223,6 +232,7 @@ public class BasicQueriesMongoTest extends AbstractMongoTest {
             .addPathIndex(DYNAMIC_COL_8, SpaceIndexType.BASIC)
             .addPathIndex(DYNAMIC_COL_9_NAME, SpaceIndexType.BASIC)
             .addPathIndex(DYNAMIC_COL_9_AGE, SpaceIndexType.BASIC)
+            .addPathIndex(DYNAMIC_COL_10, SpaceIndexType.BASIC)
             .idProperty(KEY_NAME)
             .create();
     }
@@ -242,7 +252,8 @@ public class BasicQueriesMongoTest extends AbstractMongoTest {
             .setProperty(DYNAMIC_COL_6, DYNAMIC_COL_6_VAL)
             .setProperty(DYNAMIC_COL_7, DYNAMIC_COL_7_VAL)
             .setProperty(DYNAMIC_COL_8, DYNAMIC_COL_8_VAL)
-            .setProperty(DYNAMIC_COL_9, DYNAMIC_COL_9_VAL);
+            .setProperty(DYNAMIC_COL_9, DYNAMIC_COL_9_VAL)
+            .setProperty(DYNAMIC_COL_10, DYNAMIC_COL_10_VAL);
         
         return new MockOperationsBatchDataBuilder()
             .write(spaceDoc, KEY_NAME).build();
