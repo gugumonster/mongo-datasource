@@ -41,6 +41,7 @@ import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.internal.reflection.ISetterMethod;
 import com.gigaspaces.metadata.SpaceDocumentSupport;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
+import com.gigaspaces.persistency.Constants;
 import com.gigaspaces.persistency.error.SpaceMongoException;
 import com.gigaspaces.persistency.error.SpaceMongoObjectNotSerializable;
 import com.mongodb.BasicDBList;
@@ -56,11 +57,6 @@ import com.mongodb.DBObject;
 public class DefaultSpaceDocumentMapper implements
 		SpaceDocumentMapper<DBObject> {
 
-	private static final String CUSTOM_BINARY = "CUSTOM_BINARY";
-	private static final String HASH = "hash";
-	private static final String _ID = "_id";
-	private static final String TYPE = "__type__";
-	private static final String VALUE = "__value__";
 	private static final byte TYPE_CHAR = Byte.MIN_VALUE;
 	private static final byte TYPE_BYTE = Byte.MIN_VALUE + 1;
 	private static final byte TYPE_STRING = Byte.MIN_VALUE + 2;
@@ -149,7 +145,7 @@ public class DefaultSpaceDocumentMapper implements
 		if (bson == null)
 			return null;
 
-		String type = (String) bson.get(TYPE);
+		String type = (String) bson.get(Constants.TYPE);
 
 		if (isDocument(type))
 			return toSpaceDocument(bson);
@@ -159,7 +155,7 @@ public class DefaultSpaceDocumentMapper implements
 
 	private Object toPojo(DBObject bson) {
 
-		String className = (String) bson.get(TYPE);
+		String className = (String) bson.get(Constants.TYPE);
 
 		try {
 			Class<?> type = getClassFor(className);
@@ -173,7 +169,7 @@ public class DefaultSpaceDocumentMapper implements
 
 				String property = iterator.next();
 
-				if (TYPE.equals(property))
+				if (Constants.TYPE.equals(property))
 					continue;
 
 				Object value = bson.get(property);
@@ -188,7 +184,7 @@ public class DefaultSpaceDocumentMapper implements
 				if (value == null)
 					continue;
 
-				if (_ID.equals(property))
+				if (Constants.ID_PROPERTY.equals(property))
 					property = spaceTypeDescriptor.getIdPropertyName();
 
 				ISetterMethod<Object> setter = repository.getSetter(type,
@@ -222,14 +218,14 @@ public class DefaultSpaceDocumentMapper implements
 
 	private Object toSpaceDocument(DBObject bson) {
 
-		SpaceDocument document = new SpaceDocument((String) bson.get(TYPE));
+		SpaceDocument document = new SpaceDocument((String) bson.get(Constants.TYPE));
 		Iterator<String> iterator = bson.keySet().iterator();
 
 		while (iterator.hasNext()) {
 
 			String property = iterator.next();
 
-			if (TYPE.equals(property))
+			if (Constants.TYPE.equals(property))
 				continue;
 
 			Object value = bson.get(property);
@@ -237,7 +233,7 @@ public class DefaultSpaceDocumentMapper implements
 			if (value == null)
 				continue;
 
-			if (_ID.equals(property))
+			if (Constants.ID_PROPERTY.equals(property))
 				property = spaceTypeDescriptor.getIdPropertyName();
 
 			document.setProperty(property, fromDBObject(value));
@@ -277,10 +273,10 @@ public class DefaultSpaceDocumentMapper implements
 	private Object toExactObject(Object value) {
 		DBObject bson = (DBObject) value;
 
-		if (bson.containsField(TYPE) && bson.containsField(VALUE)) {
-			String t = (String) bson.get(TYPE);
+		if (bson.containsField(Constants.TYPE) && bson.containsField(Constants.VALUE)) {
+			String t = (String) bson.get(Constants.TYPE);
 
-			if (CUSTOM_BINARY.equals(t)) {
+			if (Constants.CUSTOM_BINARY.equals(t)) {
 				Object result = deserializeObject(bson);
 
 				return result;
@@ -290,7 +286,7 @@ public class DefaultSpaceDocumentMapper implements
 					Class type = Class.forName(t);
 
 					if (type.isEnum())
-						return Enum.valueOf(type, (String) bson.get(VALUE));
+						return Enum.valueOf(type, (String) bson.get(Constants.VALUE));
 					else
 						return fromSpetialType((DBObject) value);
 
@@ -306,7 +302,7 @@ public class DefaultSpaceDocumentMapper implements
 		Object result = null;
 		try {
 			ByteArrayInputStream bis = new ByteArrayInputStream(
-					(byte[]) bson.get(VALUE));
+					(byte[]) bson.get(Constants.VALUE));
 
 			ObjectInputStream in = new ObjectInputStream(bis);
 
@@ -463,7 +459,7 @@ public class DefaultSpaceDocumentMapper implements
 
 		Set<String> keys = document.getProperties().keySet();
 
-		bson.add(TYPE, document.getTypeName());
+		bson.add(Constants.TYPE, document.getTypeName());
 
 		for (String property : keys) {
 
@@ -473,7 +469,7 @@ public class DefaultSpaceDocumentMapper implements
 				continue;
 
 			if (spaceTypeDescriptor.getIdPropertyName().equals(property))
-				property = _ID;
+				property = Constants.ID_PROPERTY;
 
 			bson.add(property, toObject(value));
 		}
@@ -489,7 +485,7 @@ public class DefaultSpaceDocumentMapper implements
 
 		Class<?> type = pojo.getClass();
 
-		bson.add(TYPE, type.getName());
+		bson.add(Constants.TYPE, type.getName());
 
 		for (String property : getters.keySet()) {
 			Object value = null;
@@ -501,7 +497,7 @@ public class DefaultSpaceDocumentMapper implements
 					continue;
 
 				if (spaceTypeDescriptor.getIdPropertyName().equals(property))
-					property = _ID;
+					property = Constants.ID_PROPERTY;
 
 				bson.add(property, toObject(value));
 
@@ -537,11 +533,11 @@ public class DefaultSpaceDocumentMapper implements
 
 			BasicDBObjectBuilder blob = BasicDBObjectBuilder.start();
 
-			blob.add(TYPE, CUSTOM_BINARY);
+			blob.add(Constants.TYPE, Constants.CUSTOM_BINARY);
 
-			blob.add(VALUE, result);
+			blob.add(Constants.VALUE, result);
 
-			blob.add(HASH, Arrays.hashCode(result));
+			blob.add(Constants.HASH, Arrays.hashCode(result));
 
 			return blob.get();
 		case TYPE_ENUM:
@@ -587,8 +583,8 @@ public class DefaultSpaceDocumentMapper implements
 
 		BasicDBObjectBuilder document = BasicDBObjectBuilder.start();
 
-		return document.add(TYPE, property.getClass().getName())
-				.add(VALUE, property.toString()).get();
+		return document.add(Constants.TYPE, property.getClass().getName())
+				.add(Constants.VALUE, property.toString()).get();
 	}
 
 	private BasicDBList toMap(Object property) {
@@ -672,8 +668,8 @@ public class DefaultSpaceDocumentMapper implements
 	}
 
 	private Object fromSpetialType(DBObject value) {
-		String type = (String) value.get(TYPE);
-		String val = (String) value.get(VALUE);
+		String type = (String) value.get(Constants.TYPE);
+		String val = (String) value.get(Constants.VALUE);
 
 		if (BigInteger.class.getName().equals(type))
 			return new BigInteger(val);
@@ -692,7 +688,7 @@ public class DefaultSpaceDocumentMapper implements
 	private DBObject toSpectialType(Object property) {
 		BasicDBObjectBuilder document = BasicDBObjectBuilder.start();
 
-		return document.add(TYPE, property.getClass().getName())
-				.add(VALUE, property.toString()).get();
+		return document.add(Constants.TYPE, property.getClass().getName())
+				.add(Constants.VALUE, property.toString()).get();
 	}
 }
