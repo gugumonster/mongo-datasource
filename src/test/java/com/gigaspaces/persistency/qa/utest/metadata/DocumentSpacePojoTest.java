@@ -4,7 +4,10 @@ package com.gigaspaces.persistency.qa.utest.metadata;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -313,5 +316,66 @@ public class DocumentSpacePojoTest {
 
 		Assert.assertEquals(Priority.MAJOR, priority);
 	}
+
+	@Test
+    public void testClass() {
+
+        SpaceDocument doc = new SpaceDocument("classPropertyType");
+
+        doc.setProperty("classProperty", Priority.class);
+
+        doc = MongoDocumentObjectConverter.instance()
+                .toSpaceDocument(doc);
+        
+        Document bson = converter.toDBObject(doc);
+
+        Element e = bson.get("classProperty");
+
+        Object c =  converter.fromDBObject(e);
+
+        Assert.assertEquals(Priority.class, c);
+    }
+	
+	@Test
+    public void testLocale() {
+
+        SpaceDocument doc = new SpaceDocument("localePropertyType");
+
+        Locale locale = new Locale("fr", "CA");
+        doc.setProperty("localeProperty",locale);
+
+        doc = MongoDocumentObjectConverter.instance()
+                .toSpaceDocument(doc);
+        
+        Document bson = converter.toDBObject(doc);
+
+        Element e = bson.get("localeProperty");
+
+        Object c =  converter.fromDBObject(e);
+
+        Assert.assertEquals(locale, c);
+    }
+	
+	@Test
+    public void testURI() throws URISyntaxException {
+
+        SpaceDocument doc = new SpaceDocument("uriPropertyType");
+
+       
+        URI uri = new URI("ssr:/platform/defaultPlatform");
+        
+        doc.setProperty("uriProperty",uri);
+
+        doc = MongoDocumentObjectConverter.instance()
+                .toSpaceDocument(doc);
+        
+        Document bson = converter.toDBObject(doc);
+
+        Element e = bson.get("uriProperty");
+
+        Object c =  converter.fromDBObject(e);
+
+        Assert.assertEquals(uri, c);
+    }
 
 }

@@ -20,12 +20,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import org.apache.commons.lang.LocaleUtils;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
@@ -104,6 +108,7 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 	private byte type(Object value) {
 		Byte type = typeCodes.get((value instanceof Class<?>) ? value : value
 				.getClass());
+		
 		if (type == null) {
 			if (value.getClass().isEnum())
 				type = TYPE_ENUM;
@@ -261,6 +266,7 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 
 	@SuppressWarnings("unchecked")
 	private Object toExactObject(Object value) {
+	    
 		Document bson = (Document) value;
 
 		if (bson.contains(TYPE) && bson.contains(VALUE)) {
@@ -476,10 +482,19 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 		case TYPE_BIGINT:
 			return toSpectialType(property);
 		case TYPE_OBJECT:
-			SpaceDocument document = MongoDocumentObjectConverter.instance()
-					.toSpaceDocument(property);
+		    if(property instanceof SpaceDocument)
+		        return toDBObject((SpaceDocument)property);
+		    else if (property instanceof Class)
+	            return toSpectialType(property);
+	        else if (property instanceof Locale)
+	            return toSpectialType(property);
+	        else if (property instanceof URI)
+	            return toSpectialType(property);
 
-			return toDBObject(document);
+		    SpaceDocument document = MongoDocumentObjectConverter.instance()
+                    .toSpaceDocument(property);
+
+            return toDBObject(document);
 		case TYPE_ENUM:
 			return toEnum(property);
 		case TYPE_ARRAY:
@@ -579,6 +594,23 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 				+ value);
 	}
 
+	private Class toClass(Object value)  {
+        if (value == null)
+            return null;
+
+        if (value instanceof String)
+            try
+            {
+                return Class.forName((String) value);
+            }
+            catch (ClassNotFoundException e)
+            {
+               throw new IllegalArgumentException(e);
+            }
+
+        throw new IllegalArgumentException("invalid value for Character: "
+                + value);
+    }
 	private Object fromSpetialType(Document value) {
 		String type = value.get(TYPE).getValueAsString();
 		String val = value.get(VALUE).getValueAsString();
@@ -593,6 +625,12 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 			return Float.valueOf(val);
 		else if (Character.class.getName().equals(type))
 			return toCharacter(val);
+		else if (Class.class.getName().equals(type))
+            return toClass(val);
+        else if (Locale.class.getName().equals(type))
+            return LocaleUtils.toLocale(val);
+        else if (URI.class.getName().equals(type))
+            return URI.create(val);
 
 		throw new IllegalArgumentException("unkown value: " + value);
 	}
@@ -600,7 +638,15 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 	private Document toSpectialType(Object property) {
 		DocumentBuilder document = BuilderFactory.start();
 
+		String toString = toString(property);
 		return document.add(TYPE, property.getClass().getName())
-				.add(VALUE, property.toString()).build();
+				.add(VALUE, toString).build();
 	}
+
+    private String toString(Object property)
+    {
+        if(property instanceof Class)
+            return ((Class)property).getName();
+        return property.toString();
+    }
 }

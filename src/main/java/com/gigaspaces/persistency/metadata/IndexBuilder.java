@@ -53,7 +53,7 @@ public class IndexBuilder {
 			createIndex(spaceTypeDescriptor.getTypeName(), idx);
 		}
 
-		if (!id.equals(routing)) {
+		if (id != null && !id.equals(routing)) {
 			createIndex(spaceTypeDescriptor.getTypeName(), routing,
 					SpaceIndexType.BASIC, BuilderFactory.start());
 		}
