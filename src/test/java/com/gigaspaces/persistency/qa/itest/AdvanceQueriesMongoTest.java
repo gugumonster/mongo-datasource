@@ -105,7 +105,8 @@ public class AdvanceQueriesMongoTest extends AbstractMongoTest {
 		testDataIterator(
 				new SpaceDocument(TEST_CF).setProperty(LONG_COL, LONG_COL_VAL)
 						.setProperty(STRING_COL, "test.*ing"), "rlike", ">=");
-
+		
+		testDataIterator(new SpaceDocument(TEST_CF).setProperty(DYNAMIC_COL_9, DYNAMIC_COL_9_VAL),">");
 	}
 
 	// SpaceDocument is only used here as means of builder style map

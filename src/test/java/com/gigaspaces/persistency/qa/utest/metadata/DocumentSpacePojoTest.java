@@ -3,7 +3,9 @@ package com.gigaspaces.persistency.qa.utest.metadata;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -294,6 +296,23 @@ public class DocumentSpacePojoTest {
 				.toDocument(bson);
 
 		TestDataTypeWithDynamicPropsUtils.assertTestDataEquals(data1, data2);
+	}
+
+	@Test
+	public void testClassAndLocaleAndURI() {
+		SpaceDocument doc = new SpaceDocument("complex");
+
+		doc.setProperty("clazzProperty", String.class);
+		doc.setProperty("localeProperty", Locale.CANADA);
+		doc.setProperty("uriProperty", URI.create("http://docs.gigaspaces.com"));
+		
+		DBObject bson = converter.toDBObject(doc);
+		
+		SpaceDocument doc1= (SpaceDocument) converter.fromDBObject(bson);
+		
+		Assert.assertEquals(doc.getProperty("clazzProperty"), doc1.getProperty("clazzProperty"));
+		Assert.assertEquals(doc.getProperty("localeProperty"), doc1.getProperty("localeProperty"));
+		Assert.assertEquals(doc.getProperty("uriProperty"), doc1.getProperty("uriProperty"));
 	}
 
 	@Test

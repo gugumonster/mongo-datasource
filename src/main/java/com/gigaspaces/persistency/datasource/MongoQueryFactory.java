@@ -27,6 +27,7 @@ import org.antlr.v4.runtime.TokenStream;
 
 import com.gigaspaces.datasource.DataSourceQuery;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
+import com.gigaspaces.persistency.Constants;
 import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 import com.gigaspaces.persistency.parser.SQL2MongoBaseVisitor;
@@ -35,7 +36,6 @@ import com.gigaspaces.persistency.parser.SQL2MongoParser;
 import com.gigaspaces.persistency.parser.SQL2MongoParser.ParseContext;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
-import com.mongodb.QueryBuilder;
 import com.mongodb.util.JSON;
 
 /**
@@ -44,7 +44,6 @@ import com.mongodb.util.JSON;
  */
 public class MongoQueryFactory {
 
-	private static final String $REGEX = "$regex";
 	private static final String LIKE = "like()";
 	private static final String RLIKE = "rlike()";
 	private static final String PARAM_PLACEHOLDER = "'%{}'";
@@ -80,7 +79,7 @@ public class MongoQueryFactory {
 	@SuppressWarnings("static-access")
 	private static void replaceIdProperty(BasicDBObjectBuilder qResult,
 			SpaceTypeDescriptor typeDescriptor) {
-		
+
 		DBObject q = qResult.get();
 
 		if (q.containsField(typeDescriptor.getIdPropertyName())) {
@@ -89,7 +88,7 @@ public class MongoQueryFactory {
 
 			q.removeField(typeDescriptor.getIdPropertyName());
 
-			q.put("_id", value);
+			q.put(Constants.ID_PROPERTY, value);
 
 			qResult.start(q.toMap());
 		}
@@ -147,7 +146,16 @@ public class MongoQueryFactory {
 
 			if (ph instanceof String) {
 				if (PARAM_PLACEHOLDER.equals(ph)) {
-					newBuilder.add(field, mapper.toObject(parameters[index++]));
+					Object p = mapper.toObject(parameters[index++]);
+
+					if (p instanceof DBObject
+							&& Constants.CUSTOM_BINARY.equals(((DBObject) p)
+									.get(Constants.TYPE))) {
+						newBuilder.add(field + "." + Constants.HASH,
+								((DBObject) p).get(Constants.HASH));
+					} else {
+						newBuilder.add(field, p);
+					}
 				}
 			} else if (ph instanceof Pattern) {
 				Pattern p = (Pattern) ph;
@@ -162,6 +170,16 @@ public class MongoQueryFactory {
 							Pattern.CASE_INSENSITIVE));
 			} else {
 				DBObject element = (DBObject) ph;
+
+				Object p = mapper.toObject(parameters[index]);
+
+				if (p instanceof DBObject) {
+					String t = (String) ((DBObject) p).get(Constants.TYPE);
+					String op = element.keySet().iterator().next();
+
+					if (Constants.CUSTOM_BINARY.equals(t) && !op.equals("$ne"))
+						return newBuilder;
+				}
 
 				BasicDBObjectBuilder doc = replaceParameters(parameters,
 						mapper, BasicDBObjectBuilder.start(element.toMap()),
