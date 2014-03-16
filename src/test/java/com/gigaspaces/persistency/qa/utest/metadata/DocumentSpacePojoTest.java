@@ -187,8 +187,6 @@ public class DocumentSpacePojoTest {
 
 		DBObject bson = converter.toDBObject(pojo);
 
-		System.out.println(bson);
-
 		PojoTestType pojo1 = (PojoTestType) converter.toDocument(bson);
 
 		Assert.assertEquals(pojo.getKey(), pojo1.getKey());
@@ -241,8 +239,6 @@ public class DocumentSpacePojoTest {
 
 		DBObject bson = converter.toDBObject(spaceDoc);
 
-		System.out.println(bson);
-
 		SpaceDocument spaceDocument2 = (SpaceDocument) converter
 				.toDocument(bson);
 
@@ -290,8 +286,6 @@ public class DocumentSpacePojoTest {
 
 		DBObject bson = converter.toDBObject(doc1);
 
-		System.out.println(bson);
-
 		TestDataTypeWithDynamicPropsPojo data2 = (TestDataTypeWithDynamicPropsPojo) converter
 				.toDocument(bson);
 
@@ -307,7 +301,6 @@ public class DocumentSpacePojoTest {
 		doc.setProperty("uriProperty", URI.create("http://docs.gigaspaces.com"));
 		
 		DBObject bson = converter.toDBObject(doc);
-		
 		SpaceDocument doc1= (SpaceDocument) converter.fromDBObject(bson);
 		
 		Assert.assertEquals(doc.getProperty("clazzProperty"), doc1.getProperty("clazzProperty"));

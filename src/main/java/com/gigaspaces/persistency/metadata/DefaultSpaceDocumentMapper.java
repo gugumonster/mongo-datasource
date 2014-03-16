@@ -26,14 +26,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import org.apache.commons.lang.LocaleUtils;
 
 import org.bson.types.ObjectId;
 
@@ -288,7 +291,7 @@ public class DefaultSpaceDocumentMapper implements
 					if (type.isEnum())
 						return Enum.valueOf(type, (String) bson.get(Constants.VALUE));
 					else
-						return fromSpetialType((DBObject) value);
+						return fromSpecialType((DBObject) value);
 
 				} catch (ClassNotFoundException e) {
 				}
@@ -522,8 +525,18 @@ public class DefaultSpaceDocumentMapper implements
 		case TYPE_BYTE:
 		case TYPE_BIGDECIMAL:
 		case TYPE_BIGINT:
-			return toSpectialType(property);
+			return toSpecialType(property);
 		case TYPE_OBJECT:
+		    if(property instanceof SpaceDocument)
+                return toDBObject((SpaceDocument)property);
+            else
+                if (property instanceof Class)
+                return toSpecialType(property);
+            else if (property instanceof Locale)
+                return toSpecialType(property);
+            else if (property instanceof URI)
+                return toSpecialType(property);
+
 			if (!(property instanceof Serializable))
 				throw new SpaceMongoObjectNotSerializable("class "
 						+ property.getClass().getName()
@@ -667,7 +680,7 @@ public class DefaultSpaceDocumentMapper implements
 				+ value);
 	}
 
-	private Object fromSpetialType(DBObject value) {
+	private Object fromSpecialType(DBObject value) {
 		String type = (String) value.get(Constants.TYPE);
 		String val = (String) value.get(Constants.VALUE);
 
@@ -681,14 +694,49 @@ public class DefaultSpaceDocumentMapper implements
 			return Float.valueOf(val);
 		else if (Character.class.getName().equals(type))
 			return toCharacter(val);
+		else if (Class.class.getName().equals(type))
+            return toClass(val);
+        else if (Locale.class.getName().equals(type))
+            return LocaleUtils.toLocale(val);
+        else if (URI.class.getName().equals(type))
+            return URI.create(val);
 
 		throw new IllegalArgumentException("unkown value: " + value);
 	}
 
-	private DBObject toSpectialType(Object property) {
-		BasicDBObjectBuilder document = BasicDBObjectBuilder.start();
+    private Class toClass(Object value)
+    {
+        if (value == null)
+            return null;
 
-		return document.add(Constants.TYPE, property.getClass().getName())
-				.add(Constants.VALUE, property.toString()).get();
-	}
+        if (value instanceof String)
+            try
+            {
+                return Class.forName((String) value);
+            }
+            catch (ClassNotFoundException e)
+            {
+                throw new IllegalArgumentException(e);
+            }
+
+        throw new IllegalArgumentException("invalid value for Character: "
+                + value);
+    }
+    private DBObject toSpecialType(Object property)
+    {
+        BasicDBObjectBuilder document = BasicDBObjectBuilder.start();
+
+        String toString = toString(property);
+
+        return document.add(Constants.TYPE, property.getClass().getName())
+                .add(Constants.VALUE, toString)
+                .get();
+    }
+
+    private String toString(Object property)
+    {
+        if (property instanceof Class)
+            return ((Class) property).getName();
+        return property.toString();
+    }
 }
