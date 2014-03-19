@@ -4,7 +4,7 @@ Overview
 ================
 
 Implementation for XAP mongodb persistency SpaceDataSource and SpaceSynchronizationEndpoint
-It uses allanbank async mongodb driver. See license [async driver](http://www.allanbank.com/mongodb-async-driver/license.html)
+
 Prerequisites
 =============
 * [MongoDB](http://www.mongodb.org/)
@@ -36,22 +36,11 @@ Repositories
 			<url>http://maven-repository.openspaces.org</url>
 		</repository>
 
-		<repository>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<id>allanbank</id>
-			<name>Allanbank Releases</name>
-			<url>http://www.allanbank.com/repo/</url>
-			<layout>default</layout>
-		</repository>
 	</repositories>
 
 Dependencies
 ============
-    	<dependency>
+    		<dependency>
 			<groupId>com.gigaspaces</groupId>
 			<artifactId>gs-openspaces</artifactId>
 			<version>9.7.0-SNAPSHOT</version>
@@ -63,11 +52,7 @@ Dependencies
 			<artifactId>mongo-java-driver</artifactId>
 			<version>2.11.2</version>
 		</dependency>
-		<dependency>
-			<groupId>com.allanbank</groupId>
-			<artifactId>mongodb-async-driver</artifactId>
-			<version>1.2.3</version>
-		</dependency>
+	
 
 		<dependency>
 			<groupId>org.antlr</groupId>
