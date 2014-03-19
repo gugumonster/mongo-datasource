@@ -67,7 +67,6 @@ public class MongoQueryFactory {
 
 			cache.put(query, parsedQuery);
 		}
-
 		BasicDBObjectBuilder queryResult = bind(parsedQuery, sql
 				.getAsSQLQuery().getQueryParameters(), sql.getTypeDescriptor());
 
@@ -123,7 +122,6 @@ public class MongoQueryFactory {
 		if (parameters != null) {
 			query = replaceParameters(parameters, mapper, query, 0);
 		}
-
 		return query;
 	}
 
@@ -165,9 +163,11 @@ public class MongoQueryFactory {
 							.add(field,
 									convertLikeExpression((String) parameters[index++]));
 				} else if (RLIKE.equalsIgnoreCase(p.pattern()))
+				{
 					newBuilder.add(field, Pattern.compile(
 							(String) parameters[index++],
 							Pattern.CASE_INSENSITIVE));
+				}
 			} else {
 				DBObject element = (DBObject) ph;
 

@@ -90,7 +90,7 @@ public class MongoClientConnector {
 		this.indexBuilder = new IndexBuilder(this);
 	}
 
-	public void close() throws IOException {
+    public void close() throws IOException {
 
 		client.close();
 	}

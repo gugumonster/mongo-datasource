@@ -25,9 +25,8 @@ import com.gigaspaces.persistency.qa.helper.MongoDBController;
 	WriteAndRemoveMongoTest.class,
  	ReadByIdWithPropertyAddedLaterMongoTest.class,
  	DataIteratorWithPropertyAddedLaterMongoTest.class, 	
- 	InnerClassMongoTest.class 	 	 	 	 	
+ 	InnerClassMongoTest.class 	,	 	 	 	
  	//TestMongoArchiveOperationHandler.class,
- 	//	MongoFactoryBeansTest.class
 })
 public class MongoTestSuite {
 

@@ -110,17 +110,16 @@ public class DefaultSpaceDocumentMapper implements
 		this.spaceTypeDescriptor = spaceTypeDescriptor;
 	}
 
-	private byte type(Object value) {
-		Byte type = typeCodes.get((value instanceof Class<?>) ? null : value
-				.getClass());
+	private byte type(Class c) {
+		Byte type = typeCodes.get(c);
 		if (type == null) {
-			if (value.getClass().isEnum())
+			if (c.isEnum())
 				type = TYPE_ENUM;
-			else if (value.getClass().isArray())
+			else if (c.isArray())
 				type = TYPE_ARRAY;
-			else if (Collection.class.isInstance(value))
+			else if (Collection.class.isAssignableFrom(c))
 				type = TYPE_COLLECTION;
-			else if (Map.class.isInstance(value))
+			else if (Map.class.isAssignableFrom(c))
 				type = TYPE_MAP;
 			else
 				type = TYPE_OBJECT;
@@ -202,7 +201,7 @@ public class DefaultSpaceDocumentMapper implements
 				}
 
 				if (type(setter.getParameterTypes()[0]) == TYPE_SHORT)
-					val = Short.valueOf(val.toString());
+					val = ((Integer)val).shortValue();
 
 				setter.set(pojo, val);
 			}
@@ -397,8 +396,8 @@ public class DefaultSpaceDocumentMapper implements
 						v, SpaceDocumentSupport.CONVERT);
 
 			if (type(type.getComponentType()) == TYPE_SHORT)
-				v = Short.valueOf(v.toString());
-
+				v = ((Integer)v).shortValue();
+			
 			Array.set(array, i - 1, v);
 		}
 
@@ -517,8 +516,10 @@ public class DefaultSpaceDocumentMapper implements
 	}
 
 	public Object toObject(Object property) {
+	    if(property == null)
+	        return null;
 
-		switch (type(property)) {
+		switch (type(property.getClass())) {
 
 		case TYPE_CHAR:
 		case TYPE_FLOAT:
@@ -538,9 +539,7 @@ public class DefaultSpaceDocumentMapper implements
                 return toSpecialType(property);
 
 			if (!(property instanceof Serializable))
-				throw new SpaceMongoObjectNotSerializable("class "
-						+ property.getClass().getName()
-						+ " is not serializable");
+				return toDBObject(property);
 
 			byte[] result = serializeObject(property);
 
@@ -649,24 +648,30 @@ public class DefaultSpaceDocumentMapper implements
 	}
 
 	private void setArray(BasicDBList builder, Object obj) {
-
-		switch (type(obj)) {
-		case TYPE_INT:
-			builder.add(((Integer) obj).intValue());
-			break;
-		case TYPE_SHORT:
-			builder.add(((Short) obj).intValue());
-			break;
-		case TYPE_LONG:
-			builder.add(((Long) obj).longValue());
-			break;
-		case TYPE_DOUBLE:
-			builder.add(((Double) obj).doubleValue());
-			break;
-		default:
-			builder.add(obj);
-			break;
-		}
+	    if(obj == null)
+	    {
+	        builder.add(null);
+	        return;
+	    }
+	    
+	    switch (type(obj.getClass())) {
+	        case TYPE_INT:
+	            builder.add(((Integer) obj).intValue());
+	            break;
+	        case TYPE_SHORT:
+	            //short is converted to int in mongo
+	            builder.add(((Short) obj).intValue());
+	            break;
+	        case TYPE_LONG:
+	            builder.add(((Long) obj).longValue());
+	            break;
+	        case TYPE_DOUBLE:
+	            builder.add(((Double) obj).doubleValue());
+	            break;
+	        default:
+	            builder.add(obj);
+	            break;
+	    }
 	}
 
 	private Character toCharacter(Object value) {

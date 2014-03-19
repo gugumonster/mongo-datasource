@@ -90,6 +90,7 @@ public class MongoSqlQueryDataIterator implements DataIterator<Object> {
 			
 			q = BasicDBObjectBuilder.start(m);
 		}
+		
 		cursor = collection.find(q.get());
 	}
 

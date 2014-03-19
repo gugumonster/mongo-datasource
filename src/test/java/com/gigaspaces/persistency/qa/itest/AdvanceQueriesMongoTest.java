@@ -122,7 +122,6 @@ public class AdvanceQueriesMongoTest extends AbstractMongoTest {
 			queryBuilder.setLength(queryBuilder.length() - "AND ".length());
 
 		String query = queryBuilder.toString();
-
 		SpaceTypeDescriptor typeDescriptor = createMockSpaceTypeDescriptor();
 		DataSourceSQLQuery sqlQuery = new MockDataSourceSqlQuery(query,
 				properties.values().toArray(new Object[properties.size()]));
