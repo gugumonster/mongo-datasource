@@ -13,18 +13,18 @@ import com.gigaspaces.persistency.qa.helper.MongoDBController;
 
 @RunWith(Suite.class)
 @SuiteClasses(value = {
+    ReadByIdsMongoTest.class,
+    ReadByIdWithPropertyAddedLaterMongoTest.class,
+    DataIteratorWithPropertyAddedLaterMongoTest.class,
 	BasicMongoTest.class,
 	BasicQueriesMongoTest.class  ,
 	AdvanceQueriesMongoTest.class,
 	DifferentTypesQueryMongoTest.class,
-	InitialDataLoadMongoTest.class,
+	//InitialDataLoadMongoTest.class,
 	MetadataSpaceTypeDescriptorConversionTest.class,
-	MultiTypeMongoTest.class, 
+	MultiTypeMongoTest.class,
 	PojoWithPrimitiveTypesMongoTest.class,
-	ReadByIdsMongoTest.class,
 	WriteAndRemoveMongoTest.class,
- 	ReadByIdWithPropertyAddedLaterMongoTest.class,
- 	DataIteratorWithPropertyAddedLaterMongoTest.class, 	
  	InnerClassMongoTest.class
  	///TestMongoArchiveOperationHandler.class,
 })
@@ -39,7 +39,7 @@ public class MongoTestSuite {
 	public static void beforeSuite() {
 		GSLogConfigLoader.getLoader();
 		isSuiteMode = true;
-		mongoController.start(false);
+		mongoController.start(true);
 	}
 
 	@AfterClass
