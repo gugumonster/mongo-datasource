@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -36,8 +37,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import org.apache.commons.lang.LocaleUtils;
 
+import org.apache.commons.lang.LocaleUtils;
 import org.bson.types.ObjectId;
 
 import com.gigaspaces.document.SpaceDocument;
@@ -46,7 +47,6 @@ import com.gigaspaces.metadata.SpaceDocumentSupport;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.Constants;
 import com.gigaspaces.persistency.error.SpaceMongoException;
-import com.gigaspaces.persistency.error.SpaceMongoObjectNotSerializable;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
@@ -537,6 +537,8 @@ public class DefaultSpaceDocumentMapper implements
                 return toSpecialType(property);
             else if (property instanceof URI)
                 return toSpecialType(property);
+            else if (property instanceof Timestamp)
+                return toSpecialType(property);
 
 			if (!(property instanceof Serializable))
 				return toDBObject(property);
@@ -705,6 +707,8 @@ public class DefaultSpaceDocumentMapper implements
             return LocaleUtils.toLocale(val);
         else if (URI.class.getName().equals(type))
             return URI.create(val);
+        else if (Timestamp.class.getName().equals(type))
+            return Timestamp.valueOf(val);
 
 		throw new IllegalArgumentException("unkown value: " + value);
 	}
