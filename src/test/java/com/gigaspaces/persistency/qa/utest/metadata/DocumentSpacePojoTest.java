@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -11,6 +12,8 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
@@ -291,22 +294,79 @@ public class DocumentSpacePojoTest {
 
 		TestDataTypeWithDynamicPropsUtils.assertTestDataEquals(data1, data2);
 	}
+	@Test
+	public void testClass() {
+
+	    SpaceDocument doc = new SpaceDocument("classPropertyType");
+
+	    doc.setProperty("classProperty", Priority.class);
+
+	    doc = MongoDocumentObjectConverter.instance()
+	            .toSpaceDocument(doc);
+
+	    Document bson = converter.toDBObject(doc);
+
+	    Element e = bson.get("classProperty");
+
+	    Object c =  converter.fromDBObject(e);
+
+	    Assert.assertEquals(Priority.class, c);
+	}
 
 	@Test
-	public void testClassAndLocaleAndURI() {
-		SpaceDocument doc = new SpaceDocument("complex");
+	public void testLocale() {
 
-		doc.setProperty("clazzProperty", String.class);
-		doc.setProperty("localeProperty", Locale.CANADA);
-		doc.setProperty("uriProperty", URI.create("http://docs.gigaspaces.com"));
-		
-		DBObject bson = converter.toDBObject(doc);
-		SpaceDocument doc1= (SpaceDocument) converter.fromDBObject(bson);
-		
-		Assert.assertEquals(doc.getProperty("clazzProperty"), doc1.getProperty("clazzProperty"));
-		Assert.assertEquals(doc.getProperty("localeProperty"), doc1.getProperty("localeProperty"));
-		Assert.assertEquals(doc.getProperty("uriProperty"), doc1.getProperty("uriProperty"));
+	    SpaceDocument doc = new SpaceDocument("localePropertyType");
+
+	    Locale locale1 = new Locale("fr", "CA");
+	    doc.setProperty("localeProperty1",locale1);
+	    Locale locale2 = new Locale("rum");
+	    doc.setProperty("localeProperty2",locale2);
+	    Locale locale3 = new Locale("rum","BR","xxx");
+	    doc.setProperty("localeProperty3",locale3);
+	    Locale locale4 = new Locale("");
+	    doc.setProperty("localeProperty4",locale4);
+
+	    doc = MongoDocumentObjectConverter.instance()
+	            .toSpaceDocument(doc);
+
+	    Document bson = converter.toDBObject(doc);
+
+	    assertPropertyEquals(bson, locale1, "localeProperty1");
+	    assertPropertyEquals(bson, locale2, "localeProperty2");
+	    assertPropertyEquals(bson, locale3, "localeProperty3");
 	}
+
+	private void assertPropertyEquals(Document bson, Object expectedValue, String property)
+	{
+	    Element e = bson.get(property);
+
+	    Object c =  converter.fromDBObject(e);
+
+	    Assert.assertEquals(expectedValue, c);
+	}
+
+	@Test
+    public void testURI() throws URISyntaxException {
+
+        SpaceDocument doc = new SpaceDocument("uriPropertyType");
+
+       
+        URI uri = new URI("ssr:/platform/defaultPlatform");
+        
+        doc.setProperty("uriProperty",uri);
+
+        doc = MongoDocumentObjectConverter.instance()
+                .toSpaceDocument(doc);
+        
+        Document bson = converter.toDBObject(doc);
+
+        Element e = bson.get("uriProperty");
+
+        Object c =  converter.fromDBObject(e);
+
+        Assert.assertEquals(uri, c);
+    }
 
 	@Test
 	public void testEnum() {

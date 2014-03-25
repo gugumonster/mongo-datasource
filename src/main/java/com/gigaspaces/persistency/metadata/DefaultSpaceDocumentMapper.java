@@ -704,7 +704,7 @@ public class DefaultSpaceDocumentMapper implements
 		else if (Class.class.getName().equals(type))
             return toClass(val);
         else if (Locale.class.getName().equals(type))
-            return LocaleUtils.toLocale(val);
+            return toLocale(val);
         else if (URI.class.getName().equals(type))
             return URI.create(val);
         else if (Timestamp.class.getName().equals(type))
@@ -712,6 +712,32 @@ public class DefaultSpaceDocumentMapper implements
 
 		throw new IllegalArgumentException("unkown value: " + value);
 	}
+
+	/**
+     * Convert string representation to Locale object
+     * @param str
+     * @return
+     */
+    private Locale toLocale(String str)
+    {
+        if(str == null)
+            return null;
+        
+        String[] split = str.split("_");
+        if(split.length == 0)
+            return new Locale("");
+        
+        else if(split.length == 1)
+            return new Locale(split[0]);
+        
+        else if(split.length == 2)
+            return new Locale(split[0],split[1]);
+        
+        // ignore the rest - will be restored by the Locale constructor
+        else
+            return new Locale(split[0],split[1],split[2]);
+        
+    }
 
     private Class toClass(Object value)
     {
