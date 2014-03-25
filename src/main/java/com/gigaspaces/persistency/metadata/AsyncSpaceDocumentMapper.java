@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -490,6 +491,8 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 	            return toSpectialType(property);
 	        else if (property instanceof URI)
 	            return toSpectialType(property);
+	        else if (property instanceof Timestamp)
+	            return toSpectialType(property);
 
 		    SpaceDocument document = MongoDocumentObjectConverter.instance()
                     .toSpaceDocument(property);
@@ -628,14 +631,42 @@ public class AsyncSpaceDocumentMapper implements SpaceDocumentMapper<Document> {
 		else if (Class.class.getName().equals(type))
             return toClass(val);
         else if (Locale.class.getName().equals(type))
-            return LocaleUtils.toLocale(val);
+            return toLocale(val);
         else if (URI.class.getName().equals(type))
             return URI.create(val);
+        else if (Timestamp.class.getName().equals(type))
+            return Timestamp.valueOf(val);
 
 		throw new IllegalArgumentException("unkown value: " + value);
 	}
 
-	private Document toSpectialType(Object property) {
+	/**
+	 * Convert string representation to Locale object
+	 * @param str
+	 * @return
+	 */
+	private Locale toLocale(String str)
+    {
+	    if(str == null)
+	        return null;
+	    
+	    String[] split = str.split("_");
+	    if(split.length == 0)
+	        return new Locale("");
+	    
+	    else if(split.length == 1)
+	        return new Locale(split[0]);
+	    
+	    else if(split.length == 2)
+            return new Locale(split[0],split[1]);
+        
+	    // ignore the rest - will be restored by the Locale constructor
+	    else
+	        return new Locale(split[0],split[1],split[2]);
+	    
+    }
+
+    private Document toSpectialType(Object property) {
 		DocumentBuilder document = BuilderFactory.start();
 
 		String toString = toString(property);

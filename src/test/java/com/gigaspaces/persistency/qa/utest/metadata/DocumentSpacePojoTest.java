@@ -341,19 +341,32 @@ public class DocumentSpacePojoTest {
 
         SpaceDocument doc = new SpaceDocument("localePropertyType");
 
-        Locale locale = new Locale("fr", "CA");
-        doc.setProperty("localeProperty",locale);
+        Locale locale1 = new Locale("fr", "CA");
+        doc.setProperty("localeProperty1",locale1);
+        Locale locale2 = new Locale("rum");
+        doc.setProperty("localeProperty2",locale2);
+        Locale locale3 = new Locale("rum","BR","xxx");
+        doc.setProperty("localeProperty3",locale3);
+        Locale locale4 = new Locale("");
+        doc.setProperty("localeProperty4",locale4);
 
         doc = MongoDocumentObjectConverter.instance()
                 .toSpaceDocument(doc);
         
         Document bson = converter.toDBObject(doc);
 
-        Element e = bson.get("localeProperty");
+        assertPropertyEquals(bson, locale1, "localeProperty1");
+        assertPropertyEquals(bson, locale2, "localeProperty2");
+        assertPropertyEquals(bson, locale3, "localeProperty3");
+    }
+
+    private void assertPropertyEquals(Document bson, Object expectedValue, String property)
+    {
+        Element e = bson.get(property);
 
         Object c =  converter.fromDBObject(e);
 
-        Assert.assertEquals(locale, c);
+        Assert.assertEquals(expectedValue, c);
     }
 	
 	@Test

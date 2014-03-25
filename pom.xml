@@ -151,6 +151,7 @@
 					<threadCount>4</threadCount>
 					<includes>
 						<include>**/AllTests.java</include>
+						<include>**/*Suite.java</include>
 					</includes>
 					<excludes>
 						<exclude>**/*Abstract*</exclude>

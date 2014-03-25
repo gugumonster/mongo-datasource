@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 
@@ -29,7 +30,7 @@ import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.OperationsBatchData;
 
 public class BasicMongoTest extends AbstractMongoTest {
-	  private static final String     TEST_CF            = "TestColumnFamily";
+	  	private static final String     TEST_CF            = "TestColumnFamily";
 	    private static final String     KEY_NAME           = "keyColumn";
 	    private static final UUID       KEY_VAL            = UUID.randomUUID();
 	    private static final String     LONG_COL           = "longColumn";
@@ -55,7 +56,10 @@ public class BasicMongoTest extends AbstractMongoTest {
 	    private static final String     DYNAMIC_COL_7      = "dynamicCol7";
 	    private static final Character  DYNAMIC_COL_7_VAL  = Character.valueOf('a');
 	    private static final String     DYNAMIC_COL_8      = "dynamicCol8";
-	    private static final byte[]     DYNAMIC_COL_8_VAL  = { (byte) 123 };
+	    private static final byte[]    DYNAMIC_COL_8_VAL  = { (byte) 123 };
+	    
+	    private static final String     DYNAMIC_COL_9      = "dynamicCol9";
+	    private static final Timestamp     DYNAMIC_COL_9_VAL  = new Timestamp(1234567L);
 	    
 	    @Test
 	    public void test() throws IOException
@@ -157,6 +161,7 @@ public class BasicMongoTest extends AbstractMongoTest {
 	        assertEquals("dynamicCol6 wrong", DYNAMIC_COL_6_VAL,  result.getProperty(DYNAMIC_COL_6));
 	        assertEquals("dynamicCol7 wrong", DYNAMIC_COL_7_VAL,  result.getProperty(DYNAMIC_COL_7));
 	        assertEquals("dynamicCol8 wrong", DYNAMIC_COL_8_VAL[0], ((byte[])result.getProperty(DYNAMIC_COL_8))[0]);
+	        assertEquals("dynamicCol9 wrong", DYNAMIC_COL_9_VAL, (Timestamp)result.getProperty(DYNAMIC_COL_9));
 	    }
 
 	    private MockIntroduceTypeData createMockIntroduceTypeData()
@@ -209,7 +214,8 @@ public class BasicMongoTest extends AbstractMongoTest {
 	            .setProperty(DYNAMIC_COL_5,  DYNAMIC_COL_5_VAL)
 	            .setProperty(DYNAMIC_COL_6,  DYNAMIC_COL_6_VAL)
 	            .setProperty(DYNAMIC_COL_7,  DYNAMIC_COL_7_VAL)
-	            .setProperty(DYNAMIC_COL_8,  DYNAMIC_COL_8_VAL);
+	            .setProperty(DYNAMIC_COL_8,  DYNAMIC_COL_8_VAL)
+	            .setProperty(DYNAMIC_COL_9,  DYNAMIC_COL_9_VAL);
 	        
 	        return new MockOperationsBatchDataBuilder()
 	            .write(spaceDoc, KEY_NAME).build();
