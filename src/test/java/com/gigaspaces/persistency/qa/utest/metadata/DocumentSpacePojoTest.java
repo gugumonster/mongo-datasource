@@ -12,8 +12,6 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.allanbank.mongodb.bson.Document;
-import com.allanbank.mongodb.bson.Element;
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
@@ -304,9 +302,9 @@ public class DocumentSpacePojoTest {
 	    doc = MongoDocumentObjectConverter.instance()
 	            .toSpaceDocument(doc);
 
-	    Document bson = converter.toDBObject(doc);
+        DBObject bson = converter.toDBObject(doc);
 
-	    Element e = bson.get("classProperty");
+	    Object e = bson.get("classProperty");
 
 	    Object c =  converter.fromDBObject(e);
 
@@ -330,16 +328,16 @@ public class DocumentSpacePojoTest {
 	    doc = MongoDocumentObjectConverter.instance()
 	            .toSpaceDocument(doc);
 
-	    Document bson = converter.toDBObject(doc);
+        DBObject bson = converter.toDBObject(doc);
 
 	    assertPropertyEquals(bson, locale1, "localeProperty1");
 	    assertPropertyEquals(bson, locale2, "localeProperty2");
 	    assertPropertyEquals(bson, locale3, "localeProperty3");
 	}
 
-	private void assertPropertyEquals(Document bson, Object expectedValue, String property)
+	private void assertPropertyEquals(DBObject bson, Object expectedValue, String property)
 	{
-	    Element e = bson.get(property);
+	    Object e = bson.get(property);
 
 	    Object c =  converter.fromDBObject(e);
 
@@ -358,10 +356,10 @@ public class DocumentSpacePojoTest {
 
         doc = MongoDocumentObjectConverter.instance()
                 .toSpaceDocument(doc);
-        
-        Document bson = converter.toDBObject(doc);
 
-        Element e = bson.get("uriProperty");
+        DBObject bson = converter.toDBObject(doc);
+
+        Object e = bson.get("uriProperty");
 
         Object c =  converter.fromDBObject(e);
 
