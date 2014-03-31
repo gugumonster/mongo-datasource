@@ -15,30 +15,6 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamClass;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
-import org.openspaces.persistency.support.TypeDescriptorUtils;
-
 import com.gigaspaces.document.SpaceDocument;
 import com.gigaspaces.internal.io.IOUtils;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
@@ -52,14 +28,17 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.WriteResult;
+import com.mongodb.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
+import org.openspaces.persistency.support.TypeDescriptorUtils;
+
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * MongoDB driver client wrapper
@@ -162,7 +141,6 @@ public class MongoClientConnector {
 			logger.trace("MongoClientWrapper.performBatch(" + rows + ")");
 			logger.trace("Batch size to be performed is " + rows.size());
 		}
-
 		//List<Future<? extends Number>> pending = new ArrayList<Future<? extends Number>>();
 
 		for (BatchUnit row : rows) {
@@ -187,8 +165,7 @@ public class MongoClientConnector {
 								obj.get(Constants.ID_PROPERTY)).get();
 				
 				DBObject update = normalize(obj);
-
-				col.update(query, update);
+                col.update(query, update);
 				break;
 			// case REMOVE_BY_UID: // Not supported by this implementation
 			case REMOVE:
@@ -287,7 +264,7 @@ public class MongoClientConnector {
 		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start();
 
 		Iterator<String> iterator = obj.keySet().iterator();
-
+        builder.push("$set");
 		while (iterator.hasNext()) {
 
 			String key = iterator.next();
@@ -300,7 +277,7 @@ public class MongoClientConnector {
 			if (value == null)
 				continue;
 			
-			builder.push("$set").add(key, value);
+			builder.add(key, value);
 		}
 
 		return builder.get();
