@@ -15,12 +15,14 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
+import org.openspaces.core.cluster.ClusterInfo;
+import org.openspaces.core.cluster.ClusterInfoAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 public class MongoSpaceDataSourceBeanFactory implements
-		FactoryBean<MongoSpaceDataSource>, InitializingBean, DisposableBean {
+		FactoryBean<MongoSpaceDataSource>, InitializingBean, DisposableBean ,ClusterInfoAware{
 
 	private final MongoSpaceDataSourceConfigurer configurer = getConfigurer();
 
@@ -53,4 +55,9 @@ public class MongoSpaceDataSourceBeanFactory implements
 	public boolean isSingleton() {
 		return true;
 	}
+
+    @Override
+    public void setClusterInfo(ClusterInfo clusterInfo) {
+        configurer.clusterInfo(clusterInfo);
+    }
 }

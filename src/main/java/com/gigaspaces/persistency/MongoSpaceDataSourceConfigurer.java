@@ -15,16 +15,24 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
+import org.openspaces.core.cluster.ClusterInfo;
+
 public class MongoSpaceDataSourceConfigurer {
 
 	private MongoClientConnector mongoClientConnector;
+    private ClusterInfo clusterInfo;
 
 	public MongoSpaceDataSourceConfigurer mongoClientConnector(MongoClientConnector mongoClientConnector) {
 		this.mongoClientConnector = mongoClientConnector;
 		return this;
 	}
 
-	public MongoSpaceDataSource create() {
-		return new MongoSpaceDataSource(mongoClientConnector);
+    public MongoSpaceDataSourceConfigurer clusterInfo(ClusterInfo clusterInfo) {
+        this.clusterInfo = clusterInfo;
+        return this;
+    }
+
+    public MongoSpaceDataSource create() {
+		return new MongoSpaceDataSource(mongoClientConnector,clusterInfo);
 	}
 }

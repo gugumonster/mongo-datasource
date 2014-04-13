@@ -20,12 +20,13 @@ import com.gigaspaces.persistency.qa.helper.MongoDBController;
 	BasicQueriesMongoTest.class  ,
 	AdvanceQueriesMongoTest.class,
 	DifferentTypesQueryMongoTest.class,
-	//InitialDataLoadMongoTest.class,
+	InitialDataLoadMongoTest.class,
 	MetadataSpaceTypeDescriptorConversionTest.class,
 	MultiTypeMongoTest.class,
 	PojoWithPrimitiveTypesMongoTest.class,
 	WriteAndRemoveMongoTest.class,
- 	InnerClassMongoTest.class
+ 	InnerClassMongoTest.class,
+        PojoWithMapPropertyTest.class
  	///TestMongoArchiveOperationHandler.class,
 })
 public class MongoTestSuite {

@@ -31,6 +31,9 @@ import com.gigaspaces.sync.IntroduceTypeData;
 import com.mongodb.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openspaces.core.cluster.ClusterInfo;
+import org.openspaces.core.cluster.ClusterInfoAware;
+import org.openspaces.core.cluster.ClusterInfoContext;
 import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
 import org.openspaces.persistency.support.TypeDescriptorUtils;
 
@@ -45,7 +48,7 @@ import java.util.concurrent.Future;
  * 
  * @author Shadi Massalha
  */
-public class MongoClientConnector {
+public class MongoClientConnector{
 
 	private static final String DOLLAR_SIGN = "__d_s__";
 	private static final String TYPE_DESCRIPTOR_FIELD_NAME = "value";
@@ -62,7 +65,7 @@ public class MongoClientConnector {
 	private static final Map<String, SpaceTypeDescriptorContainer> types = new ConcurrentHashMap<String, SpaceTypeDescriptorContainer>();
 	private static final Map<String, SpaceDocumentMapper<DBObject>> mappingCache = new ConcurrentHashMap<String, SpaceDocumentMapper<DBObject>>();
 
-	public MongoClientConnector(MongoClient client, String db) {
+    public MongoClientConnector(MongoClient client, String db) {
 
 		this.client = client;
 		this.dbName = db;
@@ -112,7 +115,7 @@ public class MongoClientConnector {
 	}
 
 	public DB getConnection() {
-		return client.getDB(dbName);
+        return client.getDB(dbName);
 	}
 
 	public DBCollection getCollection(String collectionName) {
@@ -222,9 +225,7 @@ public class MongoClientConnector {
 	private void readMetadata(Object b) {
 		try {
 
-			ObjectInput in = new CustomClassLoaderObjectInputStream(
-					MongoClientConnector.class.getClassLoader(),
-					new ByteArrayInputStream((byte[]) b));
+			ObjectInput in = new ClassLoaderAwareInputStream(new ByteArrayInputStream((byte[]) b));
 			Serializable typeDescWrapper = IOUtils.readObject(in);
 			SpaceTypeDescriptor typeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils
 					.fromSerializableForm(typeDescWrapper);
@@ -302,25 +303,24 @@ public class MongoClientConnector {
 		return total;
 	}
 
-	/**
-	 * Object input stream that uses a custom class loader to resolve classes
-	 */
-	static class CustomClassLoaderObjectInputStream extends ObjectInputStream {
+    private static class ClassLoaderAwareInputStream extends ObjectInputStream{
 
-		private final ClassLoader classLoader;
+        private ClassLoaderAwareInputStream(InputStream in) throws IOException {
+            super(in);
+        }
 
-		CustomClassLoaderObjectInputStream(ClassLoader classLoader,
-				InputStream is) throws IOException {
-			super(is);
-			this.classLoader = classLoader;
-		}
+        @Override
+        public Class resolveClass(ObjectStreamClass desc) throws IOException,
+                ClassNotFoundException {
+            ClassLoader currentTccl = null;
+            try {
+                currentTccl = Thread.currentThread().getContextClassLoader();
+                return currentTccl.loadClass(desc.getName());
+            } catch (Exception e) {
+            }
+            return super.resolveClass(desc);
+        }
+    }
 
-		@Override
-		protected Class<?> resolveClass(ObjectStreamClass desc)
-				throws ClassNotFoundException {
-			return Class.forName(desc.getName(), false, classLoader);
-		}
-
-	}
 
 }

@@ -48,18 +48,18 @@ public class InitialDataLoadMongoTest extends AbstractMongoTest {
 		return Arrays
 				.asList(new Object[][] {
 						// test different keys with result set bigger than limit
-						new Object[] { new StringKeyGenerator(), 10, 200, 200,
+						new Object[] { new StringKeyGenerator(), 10, 20, 20,
 								9998 },
-						new Object[] { new LongKeyGenerator(), 10, 200, 200,
+						new Object[] { new LongKeyGenerator(), 10, 20, 20,
 								9999 },
-						new Object[] { new DoubleKeyGenerator(), 10, 200, 200,
+						new Object[] { new DoubleKeyGenerator(), 10, 20, 20,
 								10000 },
-						new Object[] { new UUIDKeyGenerator(), 10, 200, 200,
+						new Object[] { new UUIDKeyGenerator(), 10, 20, 20,
 								10001 },
-						new Object[] { new BytesKeyGenerator(), 10, 200, 200,
+						new Object[] { new BytesKeyGenerator(), 10, 20, 20,
 								10002 },
-						new Object[] { new DataClassKeyGenerator(), 10, 201,
-								199, 10000 },
+						new Object[] { new DataClassKeyGenerator(), 10, 21,
+								19, 10000 },
 						// test big objects
 						new Object[] { new UUIDKeyGenerator(),
 								10 * 1024 * 1024, 10, 1, 4 } });

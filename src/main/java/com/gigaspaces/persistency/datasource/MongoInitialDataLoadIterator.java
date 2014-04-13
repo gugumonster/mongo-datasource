@@ -15,15 +15,21 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.datasource;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.gigaspaces.annotation.pojo.SpaceProperty;
 import com.gigaspaces.datasource.DataIterator;
+import com.gigaspaces.metadata.SpacePropertyDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.MongoClientConnector;
+import com.gigaspaces.persistency.MongoSpaceDataSource;
 import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import org.openspaces.core.cluster.ClusterInfo;
 
 /**
  * @author Shadi Massalha
@@ -34,9 +40,11 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 	private final MongoClientConnector mongoClient;
 	private final Iterator<SpaceTypeDescriptor> types;
 	private SpaceDocumentMapper<DBObject> pojoMapper;
+    private final MongoSpaceDataSource mongoSpaceDataSource;
 
-	public MongoInitialDataLoadIterator(MongoClientConnector client) {
-		if (client == null)
+    public MongoInitialDataLoadIterator(MongoSpaceDataSource mongoSpaceDataSource, MongoClientConnector client) {
+        this.mongoSpaceDataSource = mongoSpaceDataSource;
+        if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null");
 
 		this.mongoClient = client;
@@ -71,7 +79,11 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 			return null;
 
         SpaceTypeDescriptor typeDescriptor = types.next();
-		this.pojoMapper = new DefaultSpaceDocumentMapper(typeDescriptor);
-		return mongoClient.getCollection(typeDescriptor.getTypeName()).find();
+
+        DBObject query = mongoSpaceDataSource.getInitialQuery(typeDescriptor);
+
+        this.pojoMapper = new DefaultSpaceDocumentMapper(typeDescriptor);
+
+        return mongoClient.getCollection(typeDescriptor.getTypeName()).find(query);
 	}
 }
