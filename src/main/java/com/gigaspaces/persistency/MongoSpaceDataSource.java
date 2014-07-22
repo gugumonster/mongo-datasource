@@ -43,7 +43,7 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	private final MongoClientConnector mongoClient;
 
-    private ClusterInfo clusterInfo;
+	protected ClusterInfo clusterInfo;
 
 	public MongoSpaceDataSource(MongoClientConnector mongoClient, ClusterInfo clusterInfo) {
 
