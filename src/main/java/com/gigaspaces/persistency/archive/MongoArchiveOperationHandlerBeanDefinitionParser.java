@@ -23,11 +23,12 @@ import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * Parses "<os-archive:mongo-archive-handler>
+ * Parses &lt;os-archive:mongo-archive-handler&gt;
  * 
  * @author Shadi Massalha
  * @see ArchiveNamespaceHandler
  */
+@SuppressWarnings("UnusedDeclaration")
 public class MongoArchiveOperationHandlerBeanDefinitionParser extends
 		AbstractSingleBeanDefinitionParser {
 

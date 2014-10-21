@@ -24,6 +24,7 @@ import com.mongodb.MongoClient;
  * @author Shadi Massalha
  * 
  */
+@SuppressWarnings("UnusedDeclaration")
 public class MongoArchiveOperationHandlerConfigurer {
 
 	MongoArchiveOperationHandler handler;
@@ -35,23 +36,30 @@ public class MongoArchiveOperationHandlerConfigurer {
 
 	/**
 	 * @see MongoArchiveOperationHandler#setDb(String)
+     * @param db a name of Mongo database
+     * @return this
 	 */
-	public MongoArchiveOperationHandlerConfigurer db(String db) {
+	@SuppressWarnings("SpellCheckingInspection")
+    public MongoArchiveOperationHandlerConfigurer db(String db) {
 		handler.setDb(db);
 		return this;
 	}
 
 	/**
-	 * @see MongoArchiveOperationHandler#setConfig(MongoClientConfiguration)
+	 * @see MongoArchiveOperationHandler#setConfig(MongoClient)
+     * @param client a MongoClient
+     * @return this
 	 */
-	public MongoArchiveOperationHandlerConfigurer config(
-			MongoClient config) {
-		handler.setConfig(config);
+	@SuppressWarnings("SpellCheckingInspection")
+    public MongoArchiveOperationHandlerConfigurer config(MongoClient client) {
+		handler.setConfig(client);
 		return this;
 	}
 
 	/**
 	 * @see MongoArchiveOperationHandler#setGigaSpace(GigaSpace)
+     * @param gigaSpace An instance of GigaSpace
+     * @return this
 	 */
 	public MongoArchiveOperationHandlerConfigurer gigaSpace(GigaSpace gigaSpace) {
 		handler.setGigaSpace(gigaSpace);

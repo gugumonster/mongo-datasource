@@ -46,9 +46,9 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	// injected(required)
 	private GigaSpace gigaSpace;
 
-	private MongoClientConnector client;
+	private MongoClientConnector connector;
 
-	private MongoClient config;
+	private MongoClient client;
 	
 	private String db;
 
@@ -89,7 +89,7 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 			logger.trace("Writing to mongo " + rows.size() + " objects");
 		}
 		// TODO: check if type descriptor is empty gigaspace ref
-		client.performBatch(rows);
+        connector.performBatch(rows);
 	}
 
 	/**
@@ -113,36 +113,42 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 
 	private void createMongoClient() {
 
-		client = new MongoClientConnectorConfigurer().client(config).db(db)
+        connector = new MongoClientConnectorConfigurer().client(client).db(db)
 				.create();
 	}
 
-	public GigaSpace getGigaSpace() {
+	@SuppressWarnings("UnusedDeclaration")
+    public GigaSpace getGigaSpace() {
 		return gigaSpace;
 	}
 
 	/**
 	 * @see MongoClientConnectorConfigurer#db(String)
+     * @param db Mongo database name.
 	 */
 	@Required
+    @SuppressWarnings("SpellCheckingInspection")
 	public void setDb(String db) {
 		this.db = db;
 
 	}
 
 	/**
-	 * @see MongoClientConnectorConfigurer#client(MongoClientConfiguration)
+	 * @see MongoClientConnectorConfigurer#client(MongoClient)
+     * @param client Mongo database client.
 	 */
-	@Required
-	public void setConfig(MongoClient config) {
-		this.config = config;
+	@SuppressWarnings("SpellCheckingInspection")
+    @Required
+	public void setConfig(MongoClient client) {
+		this.client = client;
 	}
 
 	@PreDestroy
+    @SuppressWarnings("UnusedDeclaration")
 	public void destroy() {
-		if (client != null) {
+		if (connector != null) {
 			try {
-				client.close();
+                connector.close();
 			} catch (IOException e) {
 				throw new SpaceMongoArchiveOperationHandlerException(
 						"can not close mongo client", e);
@@ -151,6 +157,6 @@ public class MongoArchiveOperationHandler implements ArchiveOperationHandler {
 	}
 
 	public MongoClient getConfig() {
-		return config;
+		return client;
 	}
 }
