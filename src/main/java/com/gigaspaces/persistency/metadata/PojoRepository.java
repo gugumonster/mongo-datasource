@@ -15,16 +15,15 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.metadata;
 
+import com.gigaspaces.internal.reflection.IConstructor;
+import com.gigaspaces.internal.reflection.IGetterMethod;
+import com.gigaspaces.internal.reflection.ISetterMethod;
+import org.openspaces.persistency.support.ProcedureCache;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.openspaces.persistency.support.ProcedureCache;
-
-import com.gigaspaces.internal.reflection.IConstructor;
-import com.gigaspaces.internal.reflection.IGetterMethod;
-import com.gigaspaces.internal.reflection.ISetterMethod;
 
 /**
  * helper class for fast reflection
