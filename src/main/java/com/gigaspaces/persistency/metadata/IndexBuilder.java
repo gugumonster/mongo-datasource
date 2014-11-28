@@ -15,8 +15,6 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.metadata;
 
-import java.util.Map;
-
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.metadata.index.SpaceIndex;
 import com.gigaspaces.metadata.index.SpaceIndexType;
@@ -25,9 +23,9 @@ import com.gigaspaces.sync.AddIndexData;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import java.util.Map;
 
 public class IndexBuilder {
-
 	private final MongoClientConnector client;
 
 	public IndexBuilder(MongoClientConnector client) {
@@ -74,6 +72,17 @@ public class IndexBuilder {
 
 	private void createIndex(String typeSimpleName, String routing,
 			SpaceIndexType type, BasicDBObjectBuilder option) {
+
+        // explicitly specifying the name of the index so that the default one cannot exceed the max length of 127
+        String indexName = typeSimpleName;
+        if (indexName.length() > 127) {
+            // only the last 127 characters are used for the index name
+            //SMELLS: use index name from SpaceIndex annotation when provided
+            indexName = indexName.substring(indexName.length() - 127);
+        }
+
+        option.add("name", indexName);
+
 		DBCollection c = client.getCollection(typeSimpleName);
 
 		DBObject key;
