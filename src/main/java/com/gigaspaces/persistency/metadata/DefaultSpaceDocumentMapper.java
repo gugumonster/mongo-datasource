@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang.LocaleUtils;
 import org.bson.types.ObjectId;
 
 import com.gigaspaces.document.SpaceDocument;

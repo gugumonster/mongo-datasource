@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gigaspaces</groupId>
 	<artifactId>mongo-datasource</artifactId>
-	<version>10.1.0-12581-M1</version>
+	<version>10.1.0-12581-M1-LX</version>
 	<packaging>jar</packaging>
 
 	<properties>
 		<junitVersion>4.8.2</junitVersion>
-		<gsVersion>10.1.0-12581-M1</gsVersion>
+        <gsVersion>10.1.0-12588-M7</gsVersion>
 	</properties>
 
 	<repositories>		
@@ -73,6 +73,12 @@
 			<artifactId>commons-compress</artifactId>
 			<version>1.5</version>
 		</dependency>
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>3.0</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
