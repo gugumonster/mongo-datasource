@@ -37,6 +37,7 @@ import com.mongodb.QueryBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,14 +58,20 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
     private final Set<String> managedEntriesPrefixes;
 
-	public MongoSpaceDataSource(MongoClientConnector mongoClient, ClusterInfo clusterInfo, Set<String> managedEntriesPrefixes) {
+    private boolean initialLoadingEnabled;
+
+
+    public MongoSpaceDataSource(MongoClientConnector mongoClient, ClusterInfo clusterInfo, boolean initialLoadingEnabled, Set<String> managedEntriesPrefixes) {
 
         if (mongoClient == null) {
             throw new IllegalArgumentException("Argument cannot be null - mongoClient");
         }
         this.mongoClient = mongoClient;
         this.clusterInfo = clusterInfo;
+        this.initialLoadingEnabled = initialLoadingEnabled;
         this.managedEntriesPrefixes = managedEntriesPrefixes;
+
+        logger.info("Initial loading enabled: " + initialLoadingEnabled);
 
         if (managedEntriesPrefixes != null) {
             for (String prefix : managedEntriesPrefixes) {
@@ -91,23 +98,28 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
     @Override
     public DataIterator<SpaceTypeDescriptor> initialMetadataLoad() {
-        logger.info("Performing initial meta data load from DB.");
-        if (logger.isDebugEnabled())
-            logger.debug("MongoSpaceDataSource.initialMetadataLoad()");
+        Collection<SpaceTypeDescriptor> sortedCollection = Collections.emptyList();
 
-        Collection<SpaceTypeDescriptor> sortedCollection = mongoClient.loadMetadata(managedEntriesPrefixes);
+        if (initialLoadingEnabled) {
+            logger.info("Performing initial meta data load from DB.");
+
+            if (logger.isDebugEnabled())
+                logger.debug("MongoSpaceDataSource.initialMetadataLoad()");
+
+            sortedCollection = mongoClient.loadMetadata(managedEntriesPrefixes);
+        }
 
         return new DataIteratorAdapter<SpaceTypeDescriptor>(sortedCollection.iterator());
     }
 
     @Override
     public DataIterator<Object> initialDataLoad() {
-        logger.info("Performing initial data load from DB.");
+        logger.info("Performing initial data load from DB: " + initialLoadingEnabled);
 
         if (logger.isDebugEnabled())
             logger.debug("MongoSpaceDataSource.initialDataLoad()");
 
-        return new MongoInitialDataLoadIterator(this,mongoClient);
+        return new MongoInitialDataLoadIterator(this,mongoClient, initialLoadingEnabled);
     }
 
     public DBObject getInitialQuery(SpaceTypeDescriptor typeDescriptor)

@@ -37,6 +37,10 @@ public class MongoSpaceDataSourceBeanFactory implements
         configurer.managedEntriesPrefixes(managedEntriesPrefixes);
     }
 
+    public void setInitialLoadingEnabled(Boolean initialLoadingEnabled) {
+        configurer.initialLoadingEnabled(initialLoadingEnabled);
+    }
+
 	public void destroy() throws Exception {
 		mongoSpaceDataSource.close();
 	}

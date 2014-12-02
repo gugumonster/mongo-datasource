@@ -23,6 +23,7 @@ public class MongoSpaceDataSourceConfigurer {
 	private MongoClientConnector mongoClientConnector;
     private ClusterInfo clusterInfo;
     private Set<String> managedEntriesPrefixes;
+    private boolean initialLoadingEnabled;
 
 	public MongoSpaceDataSourceConfigurer mongoClientConnector(MongoClientConnector mongoClientConnector) {
 		this.mongoClientConnector = mongoClientConnector;
@@ -34,12 +35,22 @@ public class MongoSpaceDataSourceConfigurer {
         return this;
     }
 
+    public MongoSpaceDataSourceConfigurer initialLoadingEnabled(final Boolean initialLoadingEnabled) {
+        if (initialLoadingEnabled == null) {
+            this.initialLoadingEnabled = true;
+        } else {
+            this.initialLoadingEnabled = initialLoadingEnabled;
+        }
+
+        return this;
+    }
+
     public MongoSpaceDataSourceConfigurer clusterInfo(ClusterInfo clusterInfo) {
         this.clusterInfo = clusterInfo;
         return this;
     }
 
     public MongoSpaceDataSource create() {
-		return new MongoSpaceDataSource(mongoClientConnector, clusterInfo, managedEntriesPrefixes);
+		return new MongoSpaceDataSource(mongoClientConnector, clusterInfo, initialLoadingEnabled, managedEntriesPrefixes);
 	}
 }

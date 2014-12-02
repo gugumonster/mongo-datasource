@@ -15,21 +15,15 @@
  *******************************************************************************/
 package com.gigaspaces.persistency.datasource;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import com.gigaspaces.annotation.pojo.SpaceProperty;
 import com.gigaspaces.datasource.DataIterator;
-import com.gigaspaces.metadata.SpacePropertyDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.MongoClientConnector;
 import com.gigaspaces.persistency.MongoSpaceDataSource;
 import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import org.openspaces.core.cluster.ClusterInfo;
+import java.util.Iterator;
 
 /**
  * @author Shadi Massalha
@@ -41,9 +35,11 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 	private final Iterator<SpaceTypeDescriptor> types;
 	private SpaceDocumentMapper<DBObject> pojoMapper;
     private final MongoSpaceDataSource mongoSpaceDataSource;
+    private final boolean initialLoadingEnabled;
 
-    public MongoInitialDataLoadIterator(MongoSpaceDataSource mongoSpaceDataSource, MongoClientConnector client) {
+    public MongoInitialDataLoadIterator(MongoSpaceDataSource mongoSpaceDataSource, MongoClientConnector client, boolean initialLoadingEnabled) {
         this.mongoSpaceDataSource = mongoSpaceDataSource;
+        this.initialLoadingEnabled = initialLoadingEnabled;
         if (client == null)
 			throw new IllegalArgumentException("mongo client can not be null");
 
@@ -75,7 +71,7 @@ public class MongoInitialDataLoadIterator implements DataIterator<Object> {
 
 	private DBCursor nextDataIterator() {
 
-		if (!types.hasNext())
+		if (!types.hasNext() || !initialLoadingEnabled)
 			return null;
 
         SpaceTypeDescriptor typeDescriptor = types.next();

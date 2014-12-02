@@ -1,27 +1,25 @@
 package com.gigaspaces.persistency.qa.itest;
 
+import com.gigaspaces.document.SpaceDocument;
+import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
+import com.gigaspaces.metadata.index.SpaceIndexType;
+import com.gigaspaces.persistency.MongoClientConnector;
+import com.gigaspaces.persistency.MongoClientConnectorConfigurer;
+import com.gigaspaces.persistency.MongoSpaceDataSource;
+import com.gigaspaces.persistency.MongoSpaceDataSourceConfigurer;
+import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpoint;
+import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpointConfigurer;
+import com.mongodb.MongoClient;
+import com.mongodb.ServerAddress;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
-
 import org.junit.After;
 import org.junit.Before;
 import org.openspaces.itest.persistency.common.mock.MockIntroduceTypeData;
-import com.gigaspaces.document.SpaceDocument;
-import com.gigaspaces.metadata.SpaceTypeDescriptorBuilder;
-import com.gigaspaces.metadata.index.SpaceIndexType;
-import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpoint;
-import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteConcern;
-import com.gigaspaces.persistency.MongoClientConnector;
-import com.gigaspaces.persistency.MongoClientConnectorConfigurer;
-import com.gigaspaces.persistency.MongoSpaceDataSource;
-import com.gigaspaces.persistency.MongoSpaceDataSourceConfigurer;
-import com.gigaspaces.persistency.MongoSpaceSynchronizationEndpointConfigurer;
 
 public abstract class AbstractMongoTest {
 
@@ -70,7 +68,9 @@ public abstract class AbstractMongoTest {
 			MongoClientConnector _dataSourceClient2) {
 
 		MongoSpaceDataSource dataSource = new MongoSpaceDataSourceConfigurer()
-				.mongoClientConnector(_dataSourceClient2).create();
+				.mongoClientConnector(_dataSourceClient2)
+                .initialLoadingEnabled(true)
+                .create();
 
 		return dataSource;
 	}
