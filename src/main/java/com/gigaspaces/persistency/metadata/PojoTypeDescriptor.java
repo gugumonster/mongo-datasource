@@ -42,7 +42,11 @@ public class PojoTypeDescriptor {
 		try {
 			constructor = (Constructor<Object>) type.getConstructor();
 		} catch (SecurityException e) {
-			throw new SpaceMongoException(
+            //CSI128-TPE: if public default constructor cannot be found, find private one
+            //constructor = (Constructor<Object>) type.getDeclaredConstructor();
+            //constructor.setAccessible(true);
+
+            throw new SpaceMongoException(
 					"Could not find default constructor for type: "
 							+ type.getName(), e);
 		} catch (NoSuchMethodException e) {

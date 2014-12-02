@@ -15,6 +15,7 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
+import java.util.Set;
 import org.openspaces.core.cluster.ClusterInfo;
 import org.openspaces.core.cluster.ClusterInfoAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -31,6 +32,10 @@ public class MongoSpaceDataSourceBeanFactory implements
 	public void setMongoClientConnector(MongoClientConnector mongoClientConnector) {
 		configurer.mongoClientConnector(mongoClientConnector);
 	}
+
+    public void setManagedEntriesPrefixes(Set<String> managedEntriesPrefixes) {
+        configurer.managedEntriesPrefixes(managedEntriesPrefixes);
+    }
 
 	public void destroy() throws Exception {
 		mongoSpaceDataSource.close();

@@ -28,20 +28,38 @@ import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
 import com.gigaspaces.sync.AddIndexData;
 import com.gigaspaces.sync.DataSyncOperation;
 import com.gigaspaces.sync.IntroduceTypeData;
-import com.mongodb.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openspaces.core.cluster.ClusterInfo;
-import org.openspaces.core.cluster.ClusterInfoAware;
-import org.openspaces.core.cluster.ClusterInfoContext;
-import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
-import org.openspaces.persistency.support.TypeDescriptorUtils;
-
-import java.io.*;
-import java.util.*;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.WriteResult;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.regex.Pattern;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openspaces.persistency.support.SpaceTypeDescriptorContainer;
+import org.openspaces.persistency.support.TypeDescriptorUtils;
 
 /**
  * MongoDB driver client wrapper
@@ -84,34 +102,41 @@ public class MongoClientConnector{
 
 	public void introduceType(SpaceTypeDescriptor typeDescriptor) {
 
-		DBCollection m = getConnection()
-				.getCollection(METADATA_COLLECTION_NAME);
+        //CSI128-TPE: only introduce type in DB when annotated with @SpaceClass
 
-		BasicDBObjectBuilder builder = BasicDBObjectBuilder.start().add(
-				Constants.ID_PROPERTY, typeDescriptor.getTypeName());
-		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream out = new ObjectOutputStream(bos);
-			IOUtils.writeObject(out,
-					SpaceTypeDescriptorVersionedSerializationUtils
-							.toSerializableForm(typeDescriptor));
+        //Class<?> clazz = typeDescriptor.getClass();
+        //SpaceClass spaceClassAnnotation = clazz.getAnnotation(SpaceClass.class);
+        //if (spaceClassAnnotation != null) {
 
-			builder.add(TYPE_DESCRIPTOR_FIELD_NAME, bos.toByteArray());
+            DBCollection m = getConnection()
+                    .getCollection(METADATA_COLLECTION_NAME);
 
-			WriteResult wr = m.save(builder.get());
+            BasicDBObjectBuilder builder = BasicDBObjectBuilder.start().add(
+                    Constants.ID_PROPERTY, typeDescriptor.getTypeName());
+            try {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ObjectOutputStream out = new ObjectOutputStream(bos);
+                IOUtils.writeObject(
+                        out,
+                        SpaceTypeDescriptorVersionedSerializationUtils
+                                .toSerializableForm(typeDescriptor));
 
-			if (logger.isTraceEnabled())
-				logger.trace(wr);
+                builder.add(TYPE_DESCRIPTOR_FIELD_NAME, bos.toByteArray());
 
-			indexBuilder.ensureIndexes(typeDescriptor);
+                WriteResult wr = m.save(builder.get());
 
-		} catch (IOException e) {
-			logger.error(e);
+                if (logger.isTraceEnabled())
+                    logger.trace(wr);
 
-			throw new SpaceMongoException(
-					"error occurs while serialize and save type descriptor: "
-							+ typeDescriptor, e);
-		}
+                indexBuilder.ensureIndexes(typeDescriptor);
+            } catch (IOException e) {
+                logger.error(e);
+
+                throw new SpaceMongoException(
+                        "error occurs while serialize and save type descriptor: "
+                                + typeDescriptor, e);
+            }
+        //}
 	}
 
 	public DB getConnection() {
@@ -121,7 +146,7 @@ public class MongoClientConnector{
 	public DBCollection getCollection(String collectionName) {
 
 		return getConnection().getCollection(
-				collectionName.replace("$", DOLLAR_SIGN));
+                collectionName.replace("$", DOLLAR_SIGN));
 	}
 
 	public void performBatch(DataSyncOperation[] operations) {
@@ -188,24 +213,46 @@ public class MongoClientConnector{
 		}*/
 	}
 
-	public Collection<SpaceTypeDescriptor> loadMetadata() {
+	public Collection<SpaceTypeDescriptor> loadMetadata(final Set<String> managedEntriesPrefixes) {
 
 		DBCollection metadata = getCollection(METADATA_COLLECTION_NAME);
 
-		DBCursor cursor = metadata.find(new BasicDBObject());
+        // CSI128-TPE: load only those meta data objects where their id is prefixed with one of the managed ones
+        DBObject query;
+        if (managedEntriesPrefixes == null || managedEntriesPrefixes.isEmpty()) {
+            logger.info("Loading metadata from DB - no managed entries specified --> searching for every entry");
+            query = new BasicDBObject();
+        } else {
+            logger.info("Loading metadata from DB - managed entries specified --> using query");
+            query = createManagedEntriesQuery(managedEntriesPrefixes);
+        }
 
-		while (cursor.hasNext()) {
+        DBCursor cursor = metadata.find(query);
+        logger.info("Number of entries found in DB: " + cursor.size());
+
+        while (cursor.hasNext()) {
 			DBObject type = cursor.next();
 
 			Object b = type.get(TYPE_DESCRIPTOR_FIELD_NAME);
 
-			readMetadata(b);
+            readMetadata(b);
 		}
 
 		return getSortedTypes();
 	}
 
-	public Collection<SpaceTypeDescriptor> getSortedTypes() {
+    private DBObject createManagedEntriesQuery(final Set<String> managedEntriesPrefixes) {
+        BasicDBList regexList = new BasicDBList();
+        for (String managedEntryPrefix : managedEntriesPrefixes) {
+            Pattern regex = Pattern.compile("^" + managedEntryPrefix + ".*");
+            DBObject clause = new BasicDBObject(Constants.ID_PROPERTY, regex);
+            regexList.add(clause);
+        }
+
+        return new BasicDBObject("$or", regexList);
+    }
+
+    public Collection<SpaceTypeDescriptor> getSortedTypes() {
 
 		return TypeDescriptorUtils.sort(types);
 	}
@@ -224,19 +271,25 @@ public class MongoClientConnector{
 
 	private void readMetadata(Object b) {
 		try {
-
 			ObjectInput in = new ClassLoaderAwareInputStream(new ByteArrayInputStream((byte[]) b));
-			Serializable typeDescWrapper = IOUtils.readObject(in);
-			SpaceTypeDescriptor typeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils
+            Serializable typeDescWrapper = IOUtils.readObject(in); // we here get the exception
+            SpaceTypeDescriptor typeDescriptor = SpaceTypeDescriptorVersionedSerializationUtils
 					.fromSerializableForm(typeDescWrapper);
-			indexBuilder.ensureIndexes(typeDescriptor);
 
-			cacheTypeDescriptor(typeDescriptor);
+            logger.info("Loading metadata for: " + typeDescriptor.getTypeName());
+
+            indexBuilder.ensureIndexes(typeDescriptor);
+
+            cacheTypeDescriptor(typeDescriptor);
 
 		} catch (ClassNotFoundException e) {
-			logger.error(e);
-			throw new SpaceMongoDataSourceException("Failed to deserialize: "
-					+ b, e);
+            logger.warn("Loading metadata from MongoDB - failed to deserialize as class could not be found: " + e.getMessage());
+            //CSI128-TPE: we continue with the reading of meta data anyway.
+            //SMELLS: This should not be done: Use Splitter
+
+			//logger.error(e);
+			//throw new SpaceMongoDataSourceException("Failed to deserialize: "
+			//		+ b, e);
 		} catch (IOException e) {
 			logger.error(e);
 			throw new SpaceMongoDataSourceException("Failed to deserialize: "

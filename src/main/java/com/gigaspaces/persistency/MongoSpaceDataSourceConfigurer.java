@@ -15,17 +15,24 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
+import java.util.Set;
 import org.openspaces.core.cluster.ClusterInfo;
 
 public class MongoSpaceDataSourceConfigurer {
 
 	private MongoClientConnector mongoClientConnector;
     private ClusterInfo clusterInfo;
+    private Set<String> managedEntriesPrefixes;
 
 	public MongoSpaceDataSourceConfigurer mongoClientConnector(MongoClientConnector mongoClientConnector) {
 		this.mongoClientConnector = mongoClientConnector;
 		return this;
 	}
+
+    public MongoSpaceDataSourceConfigurer managedEntriesPrefixes(final Set<String> managedEntriesPrefixes) {
+        this.managedEntriesPrefixes = managedEntriesPrefixes;
+        return this;
+    }
 
     public MongoSpaceDataSourceConfigurer clusterInfo(ClusterInfo clusterInfo) {
         this.clusterInfo = clusterInfo;
@@ -33,6 +40,6 @@ public class MongoSpaceDataSourceConfigurer {
     }
 
     public MongoSpaceDataSource create() {
-		return new MongoSpaceDataSource(mongoClientConnector,clusterInfo);
+		return new MongoSpaceDataSource(mongoClientConnector, clusterInfo, managedEntriesPrefixes);
 	}
 }

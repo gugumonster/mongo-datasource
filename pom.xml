@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gigaspaces</groupId>
 	<artifactId>mongo-datasource</artifactId>
-	<version>10.1.0-12581-M1-LX</version>
+	<version>10.1.0-12581-M1_LX-0.0.1</version>
 	<packaging>jar</packaging>
 
 	<properties>

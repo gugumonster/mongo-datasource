@@ -15,7 +15,12 @@
  *******************************************************************************/
 package com.gigaspaces.persistency;
 
-import com.gigaspaces.datasource.*;
+import com.gigaspaces.datasource.DataIterator;
+import com.gigaspaces.datasource.DataIteratorAdapter;
+import com.gigaspaces.datasource.DataSourceIdQuery;
+import com.gigaspaces.datasource.DataSourceIdsQuery;
+import com.gigaspaces.datasource.DataSourceQuery;
+import com.gigaspaces.datasource.SpaceDataSource;
 import com.gigaspaces.metadata.SpacePropertyDescriptor;
 import com.gigaspaces.metadata.SpaceTypeDescriptor;
 import com.gigaspaces.persistency.datasource.DefaultMongoDataIterator;
@@ -23,14 +28,19 @@ import com.gigaspaces.persistency.datasource.MongoInitialDataLoadIterator;
 import com.gigaspaces.persistency.datasource.MongoSqlQueryDataIterator;
 import com.gigaspaces.persistency.metadata.DefaultSpaceDocumentMapper;
 import com.gigaspaces.persistency.metadata.SpaceDocumentMapper;
-import com.mongodb.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openspaces.core.cluster.ClusterInfo;
-
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.QueryBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openspaces.core.cluster.ClusterInfo;
 
 /**
  * A MongoDB implementation of {@link com.gigaspaces.datasource.SpaceDataSource}
@@ -45,13 +55,22 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
 	protected ClusterInfo clusterInfo;
 
-	public MongoSpaceDataSource(MongoClientConnector mongoClient, ClusterInfo clusterInfo) {
+    private final Set<String> managedEntriesPrefixes;
+
+	public MongoSpaceDataSource(MongoClientConnector mongoClient, ClusterInfo clusterInfo, Set<String> managedEntriesPrefixes) {
 
         if (mongoClient == null) {
             throw new IllegalArgumentException("Argument cannot be null - mongoClient");
         }
         this.mongoClient = mongoClient;
         this.clusterInfo = clusterInfo;
+        this.managedEntriesPrefixes = managedEntriesPrefixes;
+
+        if (managedEntriesPrefixes != null) {
+            for (String prefix : managedEntriesPrefixes) {
+                logger.info("Configured managed entries prefixes: " + prefix);
+            }
+        }
     }
 
     public void close() throws IOException {
@@ -72,17 +91,18 @@ public class MongoSpaceDataSource extends SpaceDataSource {
 
     @Override
     public DataIterator<SpaceTypeDescriptor> initialMetadataLoad() {
-
+        logger.info("Performing initial meta data load from DB.");
         if (logger.isDebugEnabled())
             logger.debug("MongoSpaceDataSource.initialMetadataLoad()");
 
-        Collection<SpaceTypeDescriptor> sortedCollection = mongoClient.loadMetadata();
+        Collection<SpaceTypeDescriptor> sortedCollection = mongoClient.loadMetadata(managedEntriesPrefixes);
 
         return new DataIteratorAdapter<SpaceTypeDescriptor>(sortedCollection.iterator());
     }
 
     @Override
     public DataIterator<Object> initialDataLoad() {
+        logger.info("Performing initial data load from DB.");
 
         if (logger.isDebugEnabled())
             logger.debug("MongoSpaceDataSource.initialDataLoad()");

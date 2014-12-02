@@ -73,7 +73,7 @@ public class IndexBuilder {
 	private void createIndex(String typeSimpleName, String routing,
 			SpaceIndexType type, BasicDBObjectBuilder option) {
 
-        // explicitly setting the index-name so that the default one isn't used
+        // CSI128-TPE: explicitly setting the index-name so that the default one isn't used
         // this was done because the fully qualified index name must not be longer than 128 characters
         // the resulting fully qualified name will now result to <database-name>.<collection-name>.$<index-name>
         option.add("name", routing);
